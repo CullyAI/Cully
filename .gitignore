@@ -1,0 +1,22 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# macOS system files
+.DS_Store
+
+# Expo and EAS cache
+.expo/
+.expo-shared/
+.easlz-cache/
+
+# Python virtual environment
+backend/venv/
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore system trash
+.Trash/
