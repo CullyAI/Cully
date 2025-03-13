@@ -1,7 +1,14 @@
-from flask import Blueprint, jsonify
+from app import app, db  # Import the initialized Flask app and SQLAlchemy instance
 
-main_bp = Blueprint("main", __name__)
+# Test the connection using Flask-SQLAlchemy
+with app.app_context():
+    try:
+        db.engine.connect()
+        print("✅ Connection to Supabase Successful!")
+    except Exception as e:
+        print(f"❌ Failed to connect to database: {e}")
 
-@main_bp.route("/")
-def home():
-    return jsonify({"message": "Hello from Cully's Flask backend."})
+# Flask Routes
+@app.route("/")
+def index():
+    return "🚀 Flask API connected to Supabase!"
