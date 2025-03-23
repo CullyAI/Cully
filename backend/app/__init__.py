@@ -23,7 +23,13 @@ DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+# CORS(app, resources={
+#     r"/signup": {
+#         "origins": "http://localhost:8081",
+#         "allow_headers": ["Content-Type"],
+#         "supports_credentials": True
+#     }
+# })
 
 # Set database config **before initializing SQLAlchemy**
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
@@ -34,6 +40,13 @@ db = SQLAlchemy(app)  # Directly bind to app
 
 # Import models after initializing db
 from app.models import *
+from app.routes.main import *
 
 # Print confirmation
 print("✅ Flask app registered with SQLAlchemy successfully!")
+
+'''
+curl -i -X OPTIONS http://127.0.0.1:5000/signup \
+    -H "Origin: http://localhost:8081" \
+    -H "Access-Control-Request-Method: POST"
+'''
