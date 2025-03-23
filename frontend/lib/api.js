@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "http://127.0.0.1:5000";
 
 export const signup = async(user) => {
     console.log("API_URL:", API_URL)
@@ -7,8 +7,7 @@ export const signup = async(user) => {
         body: JSON.stringify(user),
         headers: {
             "Content-Type": "application/json"
-        },
-        credentials: "include"
+        }
     });
     
     return await res.json();

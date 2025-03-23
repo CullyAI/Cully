@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -23,13 +23,13 @@ DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?
 
 # Initialize Flask app
 app = Flask(__name__)
-# CORS(app, resources={
-#     r"/signup": {
-#         "origins": "http://localhost:8081",
-#         "allow_headers": ["Content-Type"],
-#         "supports_credentials": True
-#     }
-# })
+CORS(app)
+
+@app.before_request
+def log_request_info():
+    print(f"\n🔔 {request.method} {request.path}")
+    print("Headers:", dict(request.headers))
+    print("Body:", request.get_data())
 
 # Set database config **before initializing SQLAlchemy**
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL

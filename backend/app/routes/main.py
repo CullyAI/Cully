@@ -32,39 +32,26 @@ def process_image():
     return {"message": f"Received {filename}"}, 200
 
 @app.route("/signup", methods=["POST"])
-@cross_origin(
-    origins="http://localhost:8081",
-    allow_headers=["Content-Type"],
-    supports_credentials=True
-)
 def signup():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON data provided"}), 400
-        
-        username = data.get("username")
-        email = data.get("email")
-        password = data.get("password")
-        
-        if not all([username, email, password]):
-            return jsonify({"error": "Missing required fields"}), 400
-        
-        if User.query.filter_by(email=email).first():
-            return jsonify({"error": "Email already exists"}), 400
-        
-        user = User(
-            username=username,
-            email=email,
-            password_hash=generate_password_hash(password)
-        )
-        db.session.add(user)
-        db.session.commit()
-        
-        return jsonify({"message": "User created successfully!"}), 201
+    if request.method == "OPTIONS":
+        return '', 200
     
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    data = request.get_json()
+    username = data["username"]
+    email = data["email"]
+    password = generate_password_hash(data["password"])
+
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already exists"}), 400
+    
+    elif User.query.filter_by(username=username).first():
+        return jsonify({"error": "Username already exists"}), 400
+
+    user = User(username=username, email=email, password_hash=password)
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({"message": "User created successfully!"})
     
     
 @app.route("/login", methods=["POST"])
