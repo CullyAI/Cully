@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { signup } from "@/lib/api";
+import { useAuth } from "@/context/authcontext"
 import { router } from "expo-router"
 
 export default function SignupScreen() {
@@ -8,6 +9,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   const handleSignup = async () => {
     try {
@@ -20,6 +22,7 @@ export default function SignupScreen() {
         setUsername("");
         setEmail("");
         setPassword("");
+        setIsLoggedIn(true);
         router.navigate("/(tabs)/placeholder")
       }
     } catch (err) {

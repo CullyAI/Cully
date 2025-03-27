@@ -11,11 +11,8 @@ export default function LoginScreen() {
   const [message, setMessage] = useState("");
   const { isLoggedIn, setIsLoggedIn } = useAuth();
 
-  const handleSignup = async () => {
-    setMessage(String(isLoggedIn));
-
+  const handleLogin = async () => {
     try {
-      setMessage(String(isLoggedIn));
       const res = await login({ username, email, password });
 
       if (res.error) {
@@ -29,7 +26,7 @@ export default function LoginScreen() {
         router.navigate("/(tabs)/placeholder")
       }
     } catch (err) {
-      console.error("Signup error:", err);
+      console.error("Login error:", err);
       setMessage("❌ Something went wrong.");
     }
   };
@@ -54,7 +51,7 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
-      <Button title="Log In" onPress={handleSignup} />
+      <Button title="Log In" onPress={handleLogin} />
 
       {message ? <Text style={styles.message}>{message}</Text> : null}
     </View>
