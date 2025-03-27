@@ -18,7 +18,7 @@ export const login = async(user) => {
         method: "POST",
         body: JSON.stringify(user),
         headers: {
-            "Access-Control-Request-Method": "POST"
+            "Content-Type": "application/json"
         }
     });
     
