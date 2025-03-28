@@ -3,3 +3,7 @@ flask-sqlalchemy
 flask-cors
 python-dotenv
 psycopg2-binary
+hydra-core
+backoff
+structlog
+openai

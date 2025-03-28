@@ -66,3 +66,9 @@ def login():
         return jsonify({"message": "Login successful!"})
     else:
         return jsonify({"error": "Invalid credentials"}), 401
+    
+    
+@app.route("/generate", methods=["POST"])
+def recipe():
+    data = request.get_json()
+    input = data["input"]
