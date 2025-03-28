@@ -26,11 +26,22 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="placeholder"
+        name="login"
         options={{
-          title: 'Welcome',
+          title: 'Log In',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
+      />
+      <Tabs.Screen
+        name="signup"
+        options={{
+          title: 'Sign Up',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen 
+        name="index"
+        options={{ href: null }} 
       />
     </Tabs>
   );

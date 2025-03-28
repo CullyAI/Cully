@@ -24,6 +24,13 @@ DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
+# CORS(
+#     app, 
+#     origins=["http://localhost:8081"], 
+#     supports_credentials=True, 
+#     methods=["GET", "POST", "OPTIONS"], 
+#     allow_headers=["Content-Type"]
+# )
 
 @app.before_request
 def log_request_info():
