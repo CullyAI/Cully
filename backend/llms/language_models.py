@@ -6,12 +6,11 @@ import backoff
 import copy
 from logging import getLogger
 from typing import Dict, Any
-from transformers import AutoModelForCausalLM
 from openai.types.completion_choice import CompletionChoice
 from config_store import model_configs, cs
 from registry import Registry
 
-from dataclasses import SampleParams
+from params import SampleParams
 
 logger = getLogger(__name__)
 
@@ -129,60 +128,6 @@ def convert_param2hf(openai_param: Dict[str, Any]) -> Dict[str, Any]:
     return {mapping[k]: openai_param.get(k, None) for k in mapping.keys()}
 
 
-class HFLanguageModel(LanguageModel):
-    def __init__(self, model, sample_params):
-        super().__init__()
-        self.model_name = model
-        self.model = AutoModelForCausalLM.from_pretrained(model).cuda().eval()
-        self.sample_params = asdict(sample_params)
-
-    def generate(
-        self,
-        prompt: str,
-    ):
-        final_sample_params = copy.deepcopy(self.sample_params)
-        final_sample_params.update(
-            {
-                k: v
-                for k, v in locals().items()
-                if v is not None and k in self.sample_params
-            }
-        )
-        final_sample_params = convert_param2hf(final_sample_params)
-
-        try:
-            input_ids = self.tokenizer(prompt, return_tensors="pt").input_ids.cuda()
-            response = self.model.generate(
-                input_ids=input_ids,
-                **final_sample_params,
-            )
-            
-            responses = [
-                self.tokenizer.decode(response[i], skip_special_tokens=True).split(
-                    prompt
-                )[-1]
-                for i in range(response.shape[0])
-            ]
-            
-            responses = [
-                CompletionChoice(
-                    finish_reason="stop",
-                    index=i,
-                    logprobs=None,
-                    text=responses[i],
-                )
-                for i in range(response.shape[0])
-            ]
-            
-        except openai.OpenAIError as e:
-            logger.error(f"OpenAIError: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-            raise
-        return responses
-
-
 def build_language_model(
     # configs: RunConfig,
     model_name: str,
@@ -211,16 +156,6 @@ def build_language_model(
         return GPTLanguageModel(
             API_URL="https://api.openai.com/v1/",
             api_key=API_KEY,
-            model=raw_model_name,
-            sample_params=SampleParams(
-                max_tokens=100,
-                temperature=temperature,
-                top_p=1.0,
-            ),
-        )
-        
-    elif "@hf" in model_name:
-        return HFLanguageModel(
             model=raw_model_name,
             sample_params=SampleParams(
                 max_tokens=100,

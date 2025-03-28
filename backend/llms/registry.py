@@ -31,8 +31,3 @@ class Registry:
         list_names = ", ".join(self.list_registered())
         return f"Registered objects: ({list_names})"
     
-    ModelRegistry = Registry()
-    for model_name in model_configs:
-        model_config = cs.repo[model_name + ".yaml"].node
-        model = build_language_model(**model_config)
-        ModelRegistry.register(model_name, model)

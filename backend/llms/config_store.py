@@ -59,5 +59,13 @@ register_model_registry(
     model_name="gpt-4o-mini",
     raw_model_name="gpt-4o-mini",
     port=-1,
-    API_KEY="",
+    API_KEY="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",
+)
+
+register_model_registry(
+    name="gpt4o_registry",
+    model_name="gpt-4o",
+    raw_model_name="gpt-4o",
+    port=-1,
+    API_KEY="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",
 )
