@@ -6,11 +6,10 @@ import backoff
 import copy
 from logging import getLogger
 from typing import Dict, Any
-from openai.types.completion_choice import CompletionChoice
-from config_store import model_configs, cs
-from registry import Registry
 
-from params import SampleParams
+from llms.config_store import model_configs, cs
+from llms.registry import Registry
+from llms.params import SampleParams
 
 logger = getLogger(__name__)
 

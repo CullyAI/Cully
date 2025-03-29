@@ -3,18 +3,7 @@ from hydra.core.config_store import ConfigStore
 from typing import List, Dict, Optional
 
 
-@dataclass
-class RunConfig:
-    prompt_file: str
-    llm_name: str
-    user_stop_token: str = "<|eot_id|>"
-    PORT: int = 10000
-    action_name_mapping: Dict[str, str] = field(default_factory=dict)
-
-
 cs = ConfigStore.instance()
-cs.store(name="main_config", node=RunConfig)
-
 
 @dataclass
 class ModelRegistryParams:
