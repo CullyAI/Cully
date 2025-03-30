@@ -23,7 +23,7 @@ export default function LoginScreen() {
         setEmail("");
         setPassword("");
         setIsLoggedIn(true);
-        router.navigate("/(tabs)/placeholder")
+        router.navigate("/(tabs)/recipe")
       }
     } catch (err) {
       console.error("Login error:", err);

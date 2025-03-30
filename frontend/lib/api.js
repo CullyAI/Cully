@@ -25,6 +25,18 @@ export const login = async(user) => {
     return await res.json();
 }
 
+export const generate_recipe = async(input) => {
+    const res = await fetch(`${API_URL}/recipe`, {
+        method: "POST",
+        body: JSON.stringify(input),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+
+    return await res.json();
+}
+
 // curl -i -X POST http://127.0.0.1:5000/signup \
 //   -H "Origin: http://localhost:8081" \
 //   -H "Content-Type: application/json" \
