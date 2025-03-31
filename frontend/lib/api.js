@@ -25,10 +25,10 @@ export const login = async(user) => {
     return await res.json();
 }
 
-export const generate_recipe = async(input) => {
+export const generate_recipe = async(data) => {
     const res = await fetch(`${API_URL}/recipe`, {
         method: "POST",
-        body: JSON.stringify(input),
+        body: JSON.stringify(data),
         headers: {
             "Content-Type": "application/json"
         }
@@ -36,13 +36,3 @@ export const generate_recipe = async(input) => {
 
     return await res.json();
 }
-
-// curl -i -X POST http://127.0.0.1:5000/signup \
-//   -H "Origin: http://localhost:8081" \
-//   -H "Content-Type: application/json" \
-//   -d '{"username": "test", "email": "test@example.com", "password":"secret" }'
-
-// curl -i -X OPTIONS http://127.0.0.1:5000/signup \
-//      -H "Origin: http://localhost:8081" \
-//      -H "Access-Control-Request-Method: POST" \
-//      -H "Access-Control-Request-Headers: Content-Type"

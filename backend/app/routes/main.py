@@ -72,9 +72,10 @@ def login():
 @app.route("/recipe", methods=["POST"])
 def recipe():
     data = request.get_json()
-    user_prompt = data
+    
+    history = data["history"]
+    input = data["input"]
     instructions = "You are a friendly, helpful recipe generator that only generates recipes."
     
-    result = gpt4omini_generate(user_prompt, instructions)
-    print(result)
+    result = gpt4omini_generate(input, history, instructions)
     return jsonify(result)

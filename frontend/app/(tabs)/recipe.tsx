@@ -2,16 +2,28 @@ import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { generate_recipe } from "@/lib/api";
 
+type Message = {
+    role: "user" | "assistant" | "system";
+    content: string;
+  };
+
 export default function LoginScreen() {
     const [input, setInput] = useState("")
     const [response, setResponse] = useState("")
+    const [history, setHistory] = useState<Message[]>([]);
 
     const handleInput = async () => {
         try {
-            const res = await generate_recipe(input)
-            if (res.error) {
-                setResponse(`❌ ${res.error}`);
-            } else { setResponse(res) } 
+            const assistantMessage = await generate_recipe({ history, input })
+
+            setHistory(prev => [
+                ...prev,
+                { role: "user", content: input },
+                { role: "assistant", content: assistantMessage }
+            ]);
+
+            setResponse(assistantMessage)
+
         } catch (err) {
             console.error("Login error:", err);
             setResponse("❌ Something went wrong.");

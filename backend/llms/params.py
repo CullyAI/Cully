@@ -3,7 +3,7 @@ from typing import List
 
 @dataclass
 class SampleParams:
-    max_tokens: int = 100
+    max_tokens: int = 1024
     temperature: float = 0.5
     top_p: float = 1.0
     frequency_penalty: float = None
