@@ -3,39 +3,31 @@ from flask import request, jsonify
 from flask_cors import cross_origin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models import User
+import os
+import requests
 
-# Test the connection using Flask-SQLAlchemy
-with app.app_context():
-    try:
-        db.engine.connect()
-        print("✅ Connection to Supabase Successful!")
-    except Exception as e:
-        print(f"❌ Failed to connect to database: {e}")
+SUPABASE_BUCKET = "user-uploads"
+SUPABASE_PROJECT_URL = os.getenv("SUPABASE_URL")
+SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
-# Flask Routes
 @app.route("/")
 def index():
     return "🚀 Flask API connected to Supabase!"
 
-@app.route("/process-image", methods=["POST"])
-def process_image():
-    if 'image' not in request.files:
-        return {"error": "No image provided"}, 400
+@app.route("/signed-url", methods=["POST"])
+def get_signed_url():
+    data = request.get_json()
+    filename = data.get("filename")
 
-    image = request.files['image']
-    filename = image.filename
-    print(f"📸 Received image: {filename}")
+    if not filename:
+        return jsonify({"error": "Filename is required"}), 400
 
-    # Optional: Save or process image
-    # image.save(f"uploads/{filename}")
+    upload_url = f"{SUPABASE_PROJECT_URL}/storage/v1/object/{SUPABASE_BUCKET}/{filename}?upload=1"
 
-    return {"message": f"Received {filename}"}, 200
+    return jsonify({"url": upload_url}), 200
 
 @app.route("/signup", methods=["POST"])
 def signup():
-    if request.method == "OPTIONS":
-        return '', 200
-    
     data = request.get_json()
     username = data["username"]
     email = data["email"]
@@ -43,7 +35,7 @@ def signup():
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already exists"}), 400
-    
+
     elif User.query.filter_by(username=username).first():
         return jsonify({"error": "Username already exists"}), 400
 
@@ -52,8 +44,7 @@ def signup():
     db.session.commit()
 
     return jsonify({"message": "User created successfully!"})
-    
-    
+
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json()

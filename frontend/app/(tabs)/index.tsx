@@ -1,74 +1,121 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+// frontend/HomeScreen.tsx
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React, { useState, useRef } from 'react';
+import { Image, StyleSheet, Button, View, Alert, ActivityIndicator, Platform } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { createClient } from '@supabase/supabase-js';
+
+// ⚡ Setup Supabase client directly
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function HomeScreen() {
+  const [image, setImage] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const pickImage = async () => {
+    if (Platform.OS === 'web') {
+      fileInputRef.current?.click();
+      return;
+    }
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Camera permission is required.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.7 });
+    if (!result.canceled) {
+      const imageUri = result.assets[0].uri;
+      setImage(imageUri);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) {
+      setFile(f);
+      setImage(URL.createObjectURL(f));
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!image) {
+      Alert.alert('No image selected');
+      return;
+    }
+    setUploading(true);
+
+    try {
+      const fileName = `${Date.now()}.jpeg`;
+      let uploadData;
+
+      if (Platform.OS === 'web' && file) {
+        uploadData = await supabase.storage
+          .from('user-uploads')
+          .upload(fileName, file, { contentType: file.type });
+      } else {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        uploadData = await supabase.storage
+          .from('user-uploads')
+          .upload(fileName, blob, { contentType: 'image/jpeg' });
+      }
+
+      if (uploadData.error) {
+        throw uploadData.error;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from('user-uploads')
+        .getPublicUrl(fileName);
+
+      Alert.alert('✅ Upload Successful', `Public URL: ${publicUrlData.publicUrl}`);
+      console.log('Public URL:', publicUrlData.publicUrl);
+
+    } catch (err: any) {
+      console.error(err);
+      Alert.alert('❌ Upload Error', err.message || 'Unexpected error');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View style={styles.container}>
+      <Button title="📤 Choose or Capture Image" onPress={pickImage} />
+      {Platform.OS === 'web' && (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Hello, world!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      )}
+      {image && <Image source={{ uri: image }} style={styles.imagePreview} />}
+      {image && !uploading && <Button title="⬆️ Upload Image" onPress={uploadImage} />}
+      {uploading && <ActivityIndicator size="large" color="#000" />}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  container: {
+    flex: 1,
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'center',
+    gap: 20,
+    padding: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  imagePreview: {
+    width: 300,
+    height: 300,
+    marginVertical: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
   },
 });
