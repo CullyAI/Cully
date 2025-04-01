@@ -103,7 +103,7 @@ class GPTLanguageModel(APILanguageModel):
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=prompt,
-                **final_sample_params,
+                **final_sample_params
             )
             
         except openai.OpenAIError as e:
@@ -114,6 +114,43 @@ class GPTLanguageModel(APILanguageModel):
             raise
 
         return response.choices
+    
+    def stream_generate(
+        self,
+        prompt: str
+    ):
+        final_sample_params = copy.deepcopy(self.sample_params)
+        final_sample_params.update(
+            {
+                k: v
+                for k, v in locals().items()
+                if v is not None and k in self.sample_params
+            }
+        )
+        
+        try:
+            response = openai.ChatCompletion.create(
+                model=self.model_name,
+                messages=prompt,
+                stream=True,
+                **final_sample_params
+            )
+
+            for chunk in response:
+                if "choices" in chunk:
+                    delta = chunk["choices"][0]["delta"]
+                    content = delta.get("content")
+                    
+                    if content:
+                        yield content
+                        
+        except openai.OpenAIError as e:
+            logger.error(f"OpenAIError: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise
+        
 
 
 def convert_param2hf(openai_param: Dict[str, Any]) -> Dict[str, Any]:

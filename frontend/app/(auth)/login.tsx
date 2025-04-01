@@ -12,7 +12,7 @@ export default function LoginScreen() {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   const handleLogin = async () => {
-    try {
+    try { 
       const res = await login({ username, email, password });
 
       if (res.error) {
