@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { signup } from "@/lib/api";
+import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/context/authcontext"
 import { router } from "expo-router"
 
@@ -13,18 +14,30 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     try {
-      const res = await signup({ username, email, password });
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+  
+      if (authError) {
+        setMessage(`❌ Auth error: ${authError.message}`);
+        return;
+      }
+
+      const res = await signup({ username, email, password })
 
       if (res.error) {
-        setMessage(`❌ ${res.error}`);
-      } else {
-        setMessage("✅ Signup successful!");
-        setUsername("");
-        setEmail("");
-        setPassword("");
-        setIsLoggedIn(true);
-        router.navigate("/(tabs)/placeholder");
+        setMessage(`❌ Backend error: ${res.error}`);
+        return;
       }
+  
+      setMessage("✅ Signup successful!");
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setIsLoggedIn(true);
+      router.navigate("/(tabs)/placeholder");
+  
     } catch (err) {
       console.error("Signup error:", err);
       setMessage("❌ Something went wrong.");

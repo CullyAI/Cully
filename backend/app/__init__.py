@@ -25,6 +25,10 @@ DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+app.config.update(
+    SESSION_COOKIE_SAMESITE="None",  # Or "None" if you switch to HTTPS
+    SESSION_COOKIE_SECURE=False     # True if you're serving over HTTPS
+)
 CORS(app, supports_credentials=True)
 
 @app.before_request

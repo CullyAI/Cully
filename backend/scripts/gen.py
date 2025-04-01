@@ -38,18 +38,6 @@ def gpt4omini_generate(prompt: str, history: List[dict] = [], instructions: str 
             
         return fallback()
     
-prompt = "Tell me a story"
-stream = gpt4omini_generate(prompt)
-result = b""
-tokens = 0
-
-for chunk in stream:
-    tokens += 1
-    result += chunk
-    
-print(result)
-print(tokens)
-    
 # TODO: Implement prompting with image and audio input
 # def gpt4o_generate(prompt: str, image: str = "", audio: str = "", other: str = ""):
 #     prompt = [

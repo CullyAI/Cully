@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { login } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/authcontext"
 import { router } from "expo-router"
 
@@ -9,25 +10,26 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   const handleLogin = async () => {
     try { 
-      const res = await login({ username, email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+      });
 
-      if (res.error) {
-        setMessage(`❌ ${res.error}`);
+      if (error) {
+          setMessage(`❌ ${error}`);
       } else {
-        setMessage("✅ Login successful!");
-        setUsername("");
-        setEmail("");
-        setPassword("");
-        setIsLoggedIn(true);
-        router.navigate("/(tabs)/recipe")
+          setMessage("✅ Login successful!");
+          setUsername("");
+          setEmail("");
+          setPassword("");
+          router.navigate("/(tabs)/recipe")
       }
     } catch (err) {
-      console.error("Login error:", err);
-      setMessage("❌ Something went wrong.");
+        console.error("Login error:", err);
+        setMessage("❌ Something went wrong.");
     }
   };
 
