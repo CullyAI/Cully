@@ -13,6 +13,7 @@ PASSWORD = os.getenv("password")
 HOST = os.getenv("host")
 PORT = os.getenv("port")
 DBNAME = os.getenv("dbname")
+SECRET_KEY = os.getenv("secret_key")
 
 # Ensure all variables are set
 if not all([USER, PASSWORD, HOST, PORT, DBNAME]):
@@ -23,7 +24,8 @@ DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)
+app.secret_key = SECRET_KEY
+CORS(app, supports_credentials=True)
 
 @app.before_request
 def log_request_info():

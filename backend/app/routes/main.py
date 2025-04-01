@@ -1,5 +1,5 @@
-from app import app, db  # Import the initialized Flask app and SQLAlchemy instance
-from flask import request, jsonify, Response, stream_with_context
+from app import app, db
+from flask import request, jsonify, Response, stream_with_context, session
 from flask_cors import cross_origin
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -21,19 +21,6 @@ with app.app_context():
 def index():
     return "🚀 Flask API connected to Supabase!"
 
-@app.route("/process-image", methods=["POST"])
-def process_image():
-    if 'image' not in request.files:
-        return {"error": "No image provided"}, 400
-
-    image = request.files['image']
-    filename = image.filename
-    print(f"📸 Received image: {filename}")
-
-    # Optional: Save or process image
-    # image.save(f"uploads/{filename}")
-
-    return {"message": f"Received {filename}"}, 200
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -64,6 +51,7 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password_hash, password):
+        session["user_id"] = user.user_id
         return jsonify({"message": "Login successful!"})
     else:
         return jsonify({"error": "Invalid credentials"}), 401
@@ -72,14 +60,29 @@ def login():
 @app.route("/recipe", methods=["POST"])
 def recipe():
     data = request.get_json()
-    
+    user_id = session.get("user_id")
+    # if not user_id:
+    #     return jsonify({"error": "Not logged in"}), 401
+
+    # user = User.query.get(user_id)
+        
     history = data["history"]
     prompt = data["input"]
     instructions = "You are a friendly, helpful recipe generator that only generates recipes."
+    # user_info = (
+    #     f"The user is allergic to {user.allergies}. "
+    #     f"They prefer {user.dietary_preferences} meals and are trying to achieve "
+    #     f"{user.nutritional_goals}."
+    # )
     
     return Response(
         stream_with_context(
-            gpt4omini_generate(prompt, history, instructions)
+            gpt4omini_generate(
+                prompt=prompt, 
+                history=history, 
+                instructions=instructions, 
+                # other=user_info
+            )
         ),
         mimetype="text/plain"
     )

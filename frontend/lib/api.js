@@ -17,6 +17,7 @@ export const login = async(user) => {
     const res = await fetch(`${API_URL}/login`, {
         method: "POST",
         body: JSON.stringify(user),
+        credentials: "include",
         headers: {
             "Content-Type": "application/json"
         }
@@ -29,6 +30,7 @@ export const generate_recipe = async(data) => {
     const res = await fetch(`${API_URL}/recipe`, {
         method: "POST",
         body: JSON.stringify(data),
+        credentials: "include",
         headers: {
             "Content-Type": "application/json"
         }
