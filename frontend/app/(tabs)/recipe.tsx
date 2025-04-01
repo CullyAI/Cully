@@ -14,18 +14,29 @@ export default function LoginScreen() {
 
     const handleInput = async () => {
         try {
-            const assistantMessage = await generate_recipe({ history, input })
+            const res = await generate_recipe({ history, input })
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let fullMessage = "";
+
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                fullMessage += chunk;
+                setResponse(fullMessage);
+            }
 
             setHistory(prev => [
                 ...prev,
                 { role: "user", content: input },
-                { role: "assistant", content: assistantMessage }
+                { role: "assistant", content: fullMessage }
             ]);
 
-            setResponse(assistantMessage)
-
         } catch (err) {
-            console.error("Login error:", err);
+            console.error("Recipe generation error:", err);
             setResponse("❌ Something went wrong.");
         }
     };

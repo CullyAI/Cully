@@ -34,5 +34,5 @@ export const generate_recipe = async(data) => {
         }
     });
 
-    return await res.json();
+    return res;
 }

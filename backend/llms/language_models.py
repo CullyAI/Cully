@@ -129,20 +129,18 @@ class GPTLanguageModel(APILanguageModel):
         )
         
         try:
-            response = openai.ChatCompletion.create(
+            stream = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=prompt,
                 stream=True,
                 **final_sample_params
             )
 
-            for chunk in response:
-                if "choices" in chunk:
-                    delta = chunk["choices"][0]["delta"]
-                    content = delta.get("content")
-                    
-                    if content:
-                        yield content
+            for chunk in stream:
+                content = chunk.choices[0].delta.content
+                
+                if content:
+                    yield chunk.choices[0].delta.content.encode("utf-8")
                         
         except openai.OpenAIError as e:
             logger.error(f"OpenAIError: {e}")

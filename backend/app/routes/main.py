@@ -74,8 +74,12 @@ def recipe():
     data = request.get_json()
     
     history = data["history"]
-    input = data["input"]
+    prompt = data["input"]
     instructions = "You are a friendly, helpful recipe generator that only generates recipes."
     
-    result = gpt4omini_generate(input, history, instructions)
-    return jsonify(result)
+    return Response(
+        stream_with_context(
+            gpt4omini_generate(prompt, history, instructions)
+        ),
+        mimetype="text/plain"
+    )
