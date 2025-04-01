@@ -23,7 +23,7 @@ export default function SignupScreen() {
         setEmail("");
         setPassword("");
         setIsLoggedIn(true);
-        router.navigate("/(tabs)/placeholder")
+        router.navigate("/(tabs)/placeholder");
       }
     } catch (err) {
       console.error("Signup error:", err);

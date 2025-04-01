@@ -12,7 +12,7 @@ export default function LoginScreen() {
   const { isLoggedIn, setIsLoggedIn } = useAuth();
 
   const handleLogin = async () => {
-    try {
+    try { 
       const res = await login({ username, email, password });
 
       if (res.error) {
@@ -23,7 +23,7 @@ export default function LoginScreen() {
         setEmail("");
         setPassword("");
         setIsLoggedIn(true);
-        router.navigate("/(tabs)/placeholder")
+        router.navigate("/(tabs)/recipe")
       }
     } catch (err) {
       console.error("Login error:", err);

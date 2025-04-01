@@ -24,13 +24,6 @@ DATABASE_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DBNAME}?
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
-# CORS(
-#     app, 
-#     origins=["http://localhost:8081"], 
-#     supports_credentials=True, 
-#     methods=["GET", "POST", "OPTIONS"], 
-#     allow_headers=["Content-Type"]
-# )
 
 @app.before_request
 def log_request_info():
@@ -51,9 +44,3 @@ from app.routes.main import *
 
 # Print confirmation
 print("✅ Flask app registered with SQLAlchemy successfully!")
-
-'''
-curl -i -X OPTIONS http://127.0.0.1:5000/signup \
-    -H "Origin: http://localhost:8081" \
-    -H "Access-Control-Request-Method: POST"
-'''

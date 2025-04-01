@@ -1,8 +1,12 @@
 from app import app, db  # Import the initialized Flask app and SQLAlchemy instance
-from flask import request, jsonify
+from flask import request, jsonify, Response, stream_with_context
 from flask_cors import cross_origin
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from app.routes.setup_utils import *
+
 from app.models import User
+from scripts.gen import gpt4omini_generate
 
 # Test the connection using Flask-SQLAlchemy
 with app.app_context():
@@ -33,9 +37,6 @@ def process_image():
 
 @app.route("/signup", methods=["POST"])
 def signup():
-    if request.method == "OPTIONS":
-        return '', 200
-    
     data = request.get_json()
     username = data["username"]
     email = data["email"]
@@ -66,3 +67,15 @@ def login():
         return jsonify({"message": "Login successful!"})
     else:
         return jsonify({"error": "Invalid credentials"}), 401
+    
+    
+@app.route("/recipe", methods=["POST"])
+def recipe():
+    data = request.get_json()
+    
+    history = data["history"]
+    input = data["input"]
+    instructions = "You are a friendly, helpful recipe generator that only generates recipes."
+    
+    result = gpt4omini_generate(input, history, instructions)
+    return jsonify(result)
