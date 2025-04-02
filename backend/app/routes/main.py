@@ -75,7 +75,8 @@ def login():
 @app.route("/recipe", methods=["POST"])
 def recipe():
     print("🎯 /recipe hit")
-    return "OK"
+    data = request.get_json()
+    return jsonify({"message": "We are fucked!"})
 
     data = request.get_json()
     user = data["user"]
