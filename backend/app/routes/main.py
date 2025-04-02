@@ -80,7 +80,7 @@ def recipe():
     if not user:
         return jsonify({"error": "Not logged in"}), 401
 
-    user_row = User.query.filter_by(email=user["email"]).first()
+    user_row = User.query.get(user['id'])
         
     history = data["history"]
     prompt = data["input"]
