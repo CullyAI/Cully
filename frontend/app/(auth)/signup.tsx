@@ -24,24 +24,18 @@ export default function SignupScreen() {
         return;
       }
 
-      // Insert username into profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([{ id: data.user?.id, username }]);
+      const res = await signup({ user_id: data.user?.id, username, email, password });
 
-      if (profileError) {
-        setMessage(`❌ Profile error: ${profileError.message}`);
-        return;
+      if (res.error) {
+        setMessage(`❌ ${res.error}`);
+      } else {
+        setMessage("✅ Signup successful!");
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setIsLoggedIn(true);
+        router.navigate("/(auth)/login");
       }
-
-      const res = await signup({ username, email, password });
-
-      setMessage("✅ Signup successful!");
-      setUsername("");
-      setEmail("");
-      setPassword("");
-      setIsLoggedIn(true);
-      router.navigate("/(auth)/login");
 
     } catch (err) {
       console.error("Signup error:", err);

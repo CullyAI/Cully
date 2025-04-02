@@ -37,6 +37,7 @@ def index():
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
+    user_id = data["user_id"]
     username = data["username"]
     email = data["email"]
     password = generate_password_hash(data["password"])
@@ -47,7 +48,7 @@ def signup():
     elif User.query.filter_by(username=username).first():
         return jsonify({"error": "Username already exists"}), 400
 
-    user = User(username=username, email=email, password_hash=password)
+    user = User(user_id=user_id, username=username, email=email, password_hash=password)
     db.session.add(user)
     db.session.commit()
 
