@@ -1,4 +1,4 @@
-const API_URL = "https://cully.onrender.com/";
+const API_URL = "https://cully.onrender.com";
 
 export const signup = async(user) => {
     console.log("API_URL:", API_URL)

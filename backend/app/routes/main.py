@@ -76,7 +76,7 @@ def login():
 def recipe():
     data = request.get_json()
     user = data["user"]
-    
+    print(data)
     if not user:
         return jsonify({"error": "Not logged in"}), 401
 

@@ -113,7 +113,7 @@ class GPTLanguageModel(APILanguageModel):
             logger.error(f"Unexpected error: {e}")
             raise
 
-        return response.choices
+        return response.choices[0].message.content
     
     def stream_generate(
         self,
