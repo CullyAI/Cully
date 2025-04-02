@@ -1,4 +1,4 @@
-from setup_utils import *
+from scripts.setup_utils import *
 from typing import List
 from llms.language_models import ModelRegistry
 from logging import getLogger
@@ -29,7 +29,7 @@ def gpt4omini_generate(prompt: str, history: List[dict] = [], instructions: str 
     messages = build_prompt(prompt, history, instructions, other)
 
     try:
-        return gpt4omini.generate(messages)
+        return gpt4omini.stream_generate(messages)
     except Exception as e:
         logger.error(f"Streaming failed: {e}")
         
