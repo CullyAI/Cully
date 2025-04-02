@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase"
-import { useAuth } from "@/context/authcontext"
+import { useAuth } from "@/app/(auth)/authcontext"
 import { router } from "expo-router"
 
 export default function SignupScreen() {
@@ -38,7 +38,7 @@ export default function SignupScreen() {
       setEmail("");
       setPassword("");
       setIsLoggedIn(true);
-      router.navigate("/(tabs)/recipe");
+      router.navigate("/(auth)/login");
 
     } catch (err) {
       console.error("Signup error:", err);

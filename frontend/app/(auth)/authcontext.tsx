@@ -22,6 +22,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setLoading(false);
         });
 
+        console.log('AuthProvider: isLoggedIn', isLoggedIn);
+
         return () => listener.subscription.unsubscribe();
     }, []);
 
