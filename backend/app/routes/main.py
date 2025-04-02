@@ -75,8 +75,6 @@ def login():
 @app.route("/recipe", methods=["POST"])
 def recipe():
     print("🎯 /recipe hit")
-    data = request.get_json()
-    print("📦 Data received:", data)
     return "OK"
 
     data = request.get_json()
