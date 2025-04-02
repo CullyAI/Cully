@@ -11,6 +11,8 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "lib/api.js"
+    "lib/api.js",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
   ]
 }

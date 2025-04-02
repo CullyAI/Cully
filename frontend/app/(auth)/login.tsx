@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
-import { login } from "@/lib/api";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/context/authcontext"
+import { useAuth } from "@/context/authcontext";
 import { router } from "expo-router"
 
 export default function LoginScreen() {
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const { setIsLoggedIn } = useAuth();
 
   const handleLogin = async () => {
     try { 
@@ -19,13 +18,11 @@ export default function LoginScreen() {
       });
 
       if (error) {
-          setMessage(`❌ ${error}`);
+          setMessage(`❌ ${error.message}`);
       } else {
           setMessage("✅ Login successful!");
-          setUsername("");
-          setEmail("");
-          setPassword("");
-          router.navigate("/(tabs)/recipe")
+          setIsLoggedIn(true);
+          router.navigate("/(tabs)/recipe");
       }
     } catch (err) {
         console.error("Login error:", err);

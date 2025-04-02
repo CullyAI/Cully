@@ -1,6 +1,16 @@
+// lib/supabase.ts
 import { createClient } from '@supabase/supabase-js'
 
-export const supabase = createClient(
-    "https://feedlruynztprotufcks.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlZWRscnV5bnp0cHJvdHVmY2tzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3OTk5ODMsImV4cCI6MjA1NzM3NTk4M30.IpA-doiF2B1VH0V74lD0QKNqsOLZqFmdJB_9clvt13w"
-)
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export async function getCurrentUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+}
+
+export async function logout() {
+    await supabase.auth.signOut();
+}
