@@ -91,14 +91,15 @@ def recipe():
         f"{user_row.nutritional_goals}."
     )
     
-    return Response(
-        stream_with_context(
-            gpt4omini_generate(
-                prompt=prompt, 
-                history=history, 
-                instructions=instructions, 
-                other=user_info
-            )
-        ),
-        mimetype="text/plain"
-    )
+    return "testing"
+    # return Response(
+    #     stream_with_context(
+    #         gpt4omini_generate(
+    #             prompt=prompt, 
+    #             history=history, 
+    #             instructions=instructions, 
+    #             other=user_info
+    #         )
+    #     ),
+    #     mimetype="text/plain"
+    # )
