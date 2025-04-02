@@ -74,25 +74,28 @@ def login():
     
 @app.route("/recipe", methods=["POST"])
 def recipe():
-    return "immediate testing"
+    print("🎯 /recipe hit")
     data = request.get_json()
-    user = data["user"]
-    print(data)
-    if not user:
-        return jsonify({"error": "Not logged in"}), 401
+    print("📦 Data received:", data)
+    return "OK"
 
-    user_row = User.query.get(user['id'])
+    # data = request.get_json()
+    # user = data["user"]
+    # print(data)
+    # if not user:
+    #     return jsonify({"error": "Not logged in"}), 401
+
+    # user_row = User.query.get(user['id'])
         
-    history = data["history"]
-    prompt = data["input"]
-    instructions = "You are a friendly, helpful recipe generator that only generates recipes."
-    user_info = (
-        f"The user is allergic to {user_row.allergies}. "
-        f"They prefer {user_row.dietary_preferences} meals and are trying to achieve "
-        f"{user_row.nutritional_goals}."
-    )
+    # history = data["history"]
+    # prompt = data["input"]
+    # instructions = "You are a friendly, helpful recipe generator that only generates recipes."
+    # user_info = (
+    #     f"The user is allergic to {user_row.allergies}. "
+    #     f"They prefer {user_row.dietary_preferences} meals and are trying to achieve "
+    #     f"{user_row.nutritional_goals}."
+    # )
     
-    return "testing"
     # return Response(
     #     stream_with_context(
     #         gpt4omini_generate(
