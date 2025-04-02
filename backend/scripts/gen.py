@@ -1,4 +1,4 @@
-from setup_utils import *
+from scripts.setup_utils import *
 from typing import List
 from llms.language_models import ModelRegistry
 from logging import getLogger
