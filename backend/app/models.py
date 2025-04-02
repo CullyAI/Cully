@@ -7,13 +7,13 @@ from app import db
 class User(db.Model):
     __tablename__ = 'users'
     
-    user_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.String(36), primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     disease = db.Column(db.String(255), nullable=False)
     dietary_preferences = db.Column(db.String(255), nullable=True)
-    allergies = db.Column(ARRAY(db.String(255)), nullable=True)
+    allergies = db.Column(db.String(255), nullable=True)
     nutritional_goals = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -57,7 +57,7 @@ class MealPlan(db.Model):
     __tablename__ = 'meal_plans'
     
     meal_plan_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -77,7 +77,7 @@ class ShoppingList(db.Model):
     __tablename__ = 'shopping_lists'
     
     shopping_list_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

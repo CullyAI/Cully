@@ -37,6 +37,7 @@ def index():
 @app.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
+    user_id = data["user_id"]
     username = data["username"]
     email = data["email"]
     password = generate_password_hash(data["password"])
@@ -47,7 +48,7 @@ def signup():
     elif User.query.filter_by(username=username).first():
         return jsonify({"error": "Username already exists"}), 400
 
-    user = User(username=username, email=email, password_hash=password)
+    user = User(user_id=user_id, username=username, email=email, password_hash=password)
     db.session.add(user)
     db.session.commit()
 
@@ -74,19 +75,20 @@ def login():
 @app.route("/recipe", methods=["POST"])
 def recipe():
     data = request.get_json()
-    user_id = session.get("user_id")
-    if not user_id:
+    user = data["user"]
+    
+    if not user:
         return jsonify({"error": "Not logged in"}), 401
 
-    user = User.query.get(user_id)
+    user_row = User.query.get(user['id'])
         
     history = data["history"]
     prompt = data["input"]
     instructions = "You are a friendly, helpful recipe generator that only generates recipes."
     user_info = (
-        f"The user is allergic to {user.allergies}. "
-        f"They prefer {user.dietary_preferences} meals and are trying to achieve "
-        f"{user.nutritional_goals}."
+        f"The user is allergic to {user_row.allergies}. "
+        f"They prefer {user_row.dietary_preferences} meals and are trying to achieve "
+        f"{user_row.nutritional_goals}."
     )
     
     return Response(
