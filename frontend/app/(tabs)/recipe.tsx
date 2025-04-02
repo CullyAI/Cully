@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import Markdown from 'react-native-markdown-display';
 import { generate_recipe } from "@/lib/api";
+import { useAuth } from '@/app/(auth)/authcontext';
 
 type Message = {
   role: "user" | "assistant" | "system";
@@ -21,6 +22,7 @@ export default function ChatScreen() {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<Message[]>([]);
   const scrollRef = useRef<ScrollView>(null);
+  const { user } = useAuth();
 
   const handleInput = async () => {
     // Add the user's prompt to the history and clear input
@@ -29,7 +31,7 @@ export default function ChatScreen() {
     setInput("");
 
     try {
-        const res = await generate_recipe({ history: [...history, userMessage], input });
+        const res = await generate_recipe({ history: [...history, userMessage], input, user });
 
         if (!res.body) throw new Error("Response body is null");
 

@@ -13,7 +13,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     disease = db.Column(db.String(255), nullable=False)
     dietary_preferences = db.Column(db.String(255), nullable=True)
-    allergies = db.Column(ARRAY(db.String(255)), nullable=True)
+    allergies = db.Column(db.String(255), nullable=True)
     nutritional_goals = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

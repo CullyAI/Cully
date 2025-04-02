@@ -3,6 +3,7 @@ import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/app/(auth)/authcontext"
 import { router } from "expo-router"
+import { signup } from "@/lib/api"
 
 export default function SignupScreen() {
   const [username, setUsername] = useState("");
@@ -32,6 +33,8 @@ export default function SignupScreen() {
         setMessage(`❌ Profile error: ${profileError.message}`);
         return;
       }
+
+      const res = await signup({ username, email, password });
 
       setMessage("✅ Signup successful!");
       setUsername("");
