@@ -26,15 +26,11 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="placeholder"
+        name="recipe"
         options={{
-          title: 'Welcome',
+          title: 'Generate Recipes',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
-      />
-      <Tabs.Screen 
-              name="index"
-              options={{ href: null }} 
       />
     </Tabs>
   );

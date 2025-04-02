@@ -13,7 +13,7 @@ class Registry:
         if name in self._registry:
             raise KeyError(f"An object with name '{name}' is already registered.")
         self._registry[name] = obj
-        print(f"Registered '{name}'.")
+        print(f"🤖 Registered '{name}'.")
 
     def get(self, name):
         try1 = self._registry.get(name)

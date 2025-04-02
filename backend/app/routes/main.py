@@ -1,12 +1,24 @@
-from app import app, db  # Import the initialized Flask app and SQLAlchemy instance
-from flask import request, jsonify, Response, stream_with_context
+from app import app, db
+from flask import (
+    request, 
+    jsonify, 
+    Response, 
+    stream_with_context, 
+    session,
+    make_response
+)
 from flask_cors import cross_origin
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import (
+    generate_password_hash, 
+    check_password_hash
+)
 
 from app.routes.setup_utils import *
 
 from app.models import User
 from scripts.gen import gpt4omini_generate
+
+session = {}
 
 # Test the connection using Flask-SQLAlchemy
 with app.app_context():
@@ -21,19 +33,6 @@ with app.app_context():
 def index():
     return "🚀 Flask API connected to Supabase!"
 
-@app.route("/process-image", methods=["POST"])
-def process_image():
-    if 'image' not in request.files:
-        return {"error": "No image provided"}, 400
-
-    image = request.files['image']
-    filename = image.filename
-    print(f"📸 Received image: {filename}")
-
-    # Optional: Save or process image
-    # image.save(f"uploads/{filename}")
-
-    return {"message": f"Received {filename}"}, 200
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -64,7 +63,10 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password_hash, password):
-        return jsonify({"message": "Login successful!"})
+        session["user_id"] = user.user_id
+        response = make_response(jsonify({"message": "Login successful!"}))
+        print(dict(response.headers))  # Should include Set-Cookie
+        return response
     else:
         return jsonify({"error": "Invalid credentials"}), 401
     
@@ -72,10 +74,29 @@ def login():
 @app.route("/recipe", methods=["POST"])
 def recipe():
     data = request.get_json()
-    
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Not logged in"}), 401
+
+    user = User.query.get(user_id)
+        
     history = data["history"]
-    input = data["input"]
+    prompt = data["input"]
     instructions = "You are a friendly, helpful recipe generator that only generates recipes."
+    user_info = (
+        f"The user is allergic to {user.allergies}. "
+        f"They prefer {user.dietary_preferences} meals and are trying to achieve "
+        f"{user.nutritional_goals}."
+    )
     
-    result = gpt4omini_generate(input, history, instructions)
-    return jsonify(result)
+    return Response(
+        stream_with_context(
+            gpt4omini_generate(
+                prompt=prompt, 
+                history=history, 
+                instructions=instructions, 
+                other=user_info
+            )
+        ),
+        mimetype="text/plain"
+    )

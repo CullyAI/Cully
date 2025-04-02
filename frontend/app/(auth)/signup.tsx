@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
-import { signup } from "@/lib/api";
+import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/context/authcontext"
 import { router } from "expo-router"
 
@@ -9,22 +9,37 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const { setIsLoggedIn } = useAuth();
 
   const handleSignup = async () => {
     try {
-      const res = await signup({ username, email, password });
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
 
-      if (res.error) {
-        setMessage(`❌ ${res.error}`);
-      } else {
-        setMessage("✅ Signup successful!");
-        setUsername("");
-        setEmail("");
-        setPassword("");
-        setIsLoggedIn(true);
-        router.navigate("/(tabs)/placeholder");
+      if (authError) {
+        setMessage(`❌ Auth error: ${authError.message}`);
+        return;
       }
+
+      // Insert username into profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert([{ id: data.user?.id, username }]);
+
+      if (profileError) {
+        setMessage(`❌ Profile error: ${profileError.message}`);
+        return;
+      }
+
+      setMessage("✅ Signup successful!");
+      setUsername("");
+      setEmail("");
+      setPassword("");
+      setIsLoggedIn(true);
+      router.navigate("/(tabs)/recipe");
+
     } catch (err) {
       console.error("Signup error:", err);
       setMessage("❌ Something went wrong.");
