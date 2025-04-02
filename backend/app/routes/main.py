@@ -100,5 +100,6 @@ def recipe():
                 other=user_info
             )
         ),
-        mimetype="text/plain"
+        mimetype="text/plain",
+        headers={'Cache-Control': 'no-transform'}
     )
