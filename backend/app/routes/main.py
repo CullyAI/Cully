@@ -74,7 +74,7 @@ def login():
     
 @app.route("/recipe", methods=["POST"])
 def recipe():
-    return "testing"
+    return "immediate testing"
     data = request.get_json()
     user = data["user"]
     print(data)
