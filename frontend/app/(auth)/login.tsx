@@ -2,13 +2,28 @@ import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/(auth)/authcontext";
-import { router } from "expo-router"
+import { useRouter, useNavigationContainerRef } from "expo-router";
+import { useEffect } from "react";
+
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const { setIsLoggedIn } = useAuth();
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const router = useRouter();
+  const navRef = useNavigationContainerRef(); 
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // Wait a tick to let router hydrate before navigating
+      const timeout = setTimeout(() => {
+        router.replace("/(tabs)/recipe");
+      }, 50);
+  
+      return () => clearTimeout(timeout);
+    }
+  }, [isLoggedIn]);
 
   const handleLogin = async () => {
     try { 
@@ -22,7 +37,6 @@ export default function LoginScreen() {
       } else {
           setMessage("✅ Login successful!");
           setIsLoggedIn(true);
-          router.navigate("/(tabs)/recipe");
       }
     } catch (err) {
         console.error("Login error:", err);

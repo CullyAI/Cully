@@ -9,7 +9,6 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Redirect } from 'expo-router';
 
-import { useContext } from 'react';
 import { useAuth } from '@/app/(auth)/authcontext';
 
 export default function TabLayout() {

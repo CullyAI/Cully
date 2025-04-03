@@ -33,7 +33,9 @@ export default function ChatScreen() {
     setInput("");
 
     try {
+        console.log("INPUT HERE:", input);
         const res = await generate_recipe({ history: [...history, userMessage], input, user });
+        console.log("RESPONSE HERE:", res);
 
         if (!res.body) throw new Error("Response body is null");
 
