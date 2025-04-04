@@ -180,7 +180,7 @@ def build_language_model(
             api_key="empty",
             model=raw_model_name,
             sample_params=SampleParams(
-                max_tokens=100,
+                max_tokens=1024,
                 temperature=temperature,
                 top_p=1.0,
             ),
@@ -192,7 +192,7 @@ def build_language_model(
             api_key=API_KEY,
             model=raw_model_name,
             sample_params=SampleParams(
-                max_tokens=100,
+                max_tokens=1024,
                 temperature=temperature,
                 top_p=1.0,
             ),

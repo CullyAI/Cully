@@ -2,13 +2,29 @@ import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/(auth)/authcontext";
-import { router } from "expo-router"
+import { useRouter, useNavigationContainerRef } from "expo-router";
+import { useEffect } from "react";
+import { authStyles } from "@/styles/auth"
+
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const { setIsLoggedIn } = useAuth();
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const router = useRouter();
+  const navRef = useNavigationContainerRef(); 
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // Wait a tick to let router hydrate before navigating
+      const timeout = setTimeout(() => {
+        router.replace("/(tabs)/recipe");
+      }, 50);
+  
+      return () => clearTimeout(timeout);
+    }
+  }, [isLoggedIn]);
 
   const handleLogin = async () => {
     try { 
@@ -22,7 +38,6 @@ export default function LoginScreen() {
       } else {
           setMessage("✅ Login successful!");
           setIsLoggedIn(true);
-          router.navigate("/(tabs)/recipe");
       }
     } catch (err) {
         console.error("Login error:", err);
@@ -31,11 +46,11 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Log In</Text>
+    <View style={authStyles.container}>
+      <Text style={authStyles.title}>Log In</Text>
 
       <TextInput
-        style={styles.input}
+        style={authStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -43,7 +58,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
+        style={authStyles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
@@ -52,34 +67,9 @@ export default function LoginScreen() {
 
       <Button title="Log In" onPress={handleLogin} />
 
-      {message ? <Text style={styles.message}>{message}</Text> : null}
+      {message ? <Text style={authStyles.message}>{message}</Text> : null}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  message: {
-    marginTop: 20,
-    fontSize: 16,
-    textAlign: "center",
-  },
-});
+

@@ -18,8 +18,6 @@ from app.routes.setup_utils import *
 from app.models import User
 from scripts.gen import gpt4omini_generate
 
-session = {}
-
 # Test the connection using Flask-SQLAlchemy
 with app.app_context():
     try:
@@ -74,13 +72,9 @@ def login():
     
 @app.route("/recipe", methods=["POST"])
 def recipe():
-    print("🎯 /recipe hit")
-    data = request.get_json()
-    return jsonify({"message": "We are fucked!"})
-
     data = request.get_json()
     user = data["user"]
-    print(data)
+    
     if not user:
         return jsonify({"error": "Not logged in"}), 401
 

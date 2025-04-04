@@ -2,6 +2,7 @@ import os
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -44,9 +45,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize the database **once**
 db = SQLAlchemy(app)  # Directly bind to app
 
+# Initialize SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*")
+
 # Import models after initializing db
 from app.models import *
 from app.routes.main import *
+from app.sockets.generations import *
 
 # Print confirmation
 print("✅ Flask app registered with SQLAlchemy successfully!")
