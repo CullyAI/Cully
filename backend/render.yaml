@@ -5,7 +5,7 @@ services:
     region: oregon
     plan: free
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: gunicorn backend.app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn backend.app:app --worker-class eventlet --bind 0.0.0.0:$PORT
     envVars:
       - key: SUPABASE_URL
         value: https://feedlruynztprotufcks.supabase.co
