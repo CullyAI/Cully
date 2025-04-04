@@ -30,11 +30,9 @@ export default function ChatScreen() {
     if (!input.trim()) return;
   
     const userMessage: Message = { role: "user", content: input };
-    setHistory((prev) => [...prev, userMessage]);
+
     setInput("");
-  
-    // Show a placeholder assistant message that will be updated live
-    setHistory((prev) => [...prev, { role: "assistant", content: "" }]);
+    setHistory((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
   
     generate_recipe(
       {
@@ -43,7 +41,7 @@ export default function ChatScreen() {
         input: input
       },
       (chunk: string) => {
-        console.log(chunk);
+        console.log(chunk)
         // Append each chunk to the assistant's message
         setHistory((prev) => {
           const updated = [...prev];
@@ -58,8 +56,9 @@ export default function ChatScreen() {
         });
       },
       () => {
-        console.log("✅ Recipe stream complete");
-        // Optional: scroll or trigger some effect
+        setTimeout(() => {
+          scrollRef.current?.scrollToEnd({ animated: true });
+        }, 50);
       },
       (errMsg: string) => {
         console.error("❌ Recipe generation error:", errMsg);
