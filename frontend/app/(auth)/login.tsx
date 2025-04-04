@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/(auth)/authcontext";
 import { useRouter, useNavigationContainerRef } from "expo-router";
 import { useEffect } from "react";
+import { authStyles } from "@/styles/auth"
 
 
 export default function LoginScreen() {
@@ -45,11 +46,11 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Log In</Text>
+    <View style={authStyles.container}>
+      <Text style={authStyles.title}>Log In</Text>
 
       <TextInput
-        style={styles.input}
+        style={authStyles.input}
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -57,7 +58,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
       />
       <TextInput
-        style={styles.input}
+        style={authStyles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
@@ -66,34 +67,9 @@ export default function LoginScreen() {
 
       <Button title="Log In" onPress={handleLogin} />
 
-      {message ? <Text style={styles.message}>{message}</Text> : null}
+      {message ? <Text style={authStyles.message}>{message}</Text> : null}
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: "center",
-    backgroundColor: "#fff",
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-  message: {
-    marginTop: 20,
-    fontSize: 16,
-    textAlign: "center",
-  },
-});
+

@@ -1,19 +1,20 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   View,
   TextInput,
   Text,
-  StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Pressable
+  Pressable,
+  Animated
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Markdown from 'react-native-markdown-display';
 import { Send } from "lucide-react-native";
-import { generate_recipe, signup } from "@/lib/api";
+import { generate_recipe } from "@/lib/api";
 import { useAuth } from '@/app/(auth)/authcontext';
+import { chatStyles } from '@/styles/recipe'
 
 type Message = {
   role: "user" | "assistant" | "system";
@@ -23,8 +24,31 @@ type Message = {
 export default function ChatScreen() {
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<Message[]>([]);
+  const [isWaitingForFirstToken, setIsWaitingForFirstToken] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const dotAnimation = useRef(new Animated.Value(0)).current;
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (isWaitingForFirstToken) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(dotAnimation, {
+            toValue: 1,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(dotAnimation, {
+            toValue: 0,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      dotAnimation.setValue(0);
+    }
+  }, [isWaitingForFirstToken]);
 
   const handleInput = () => {
     if (!input.trim()) return;
@@ -32,7 +56,8 @@ export default function ChatScreen() {
     const userMessage: Message = { role: "user", content: input };
 
     setInput("");
-    setHistory((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+    setHistory((prev) => [...prev, userMessage]);
+    setIsWaitingForFirstToken(true);
   
     generate_recipe(
       {
@@ -41,16 +66,18 @@ export default function ChatScreen() {
         input: input
       },
       (chunk: string) => {
-        console.log(chunk)
+        setIsWaitingForFirstToken(false);
         // Append each chunk to the assistant's message
         setHistory((prev) => {
           const updated = [...prev];
-          const last = updated[updated.length - 1];
-          if (last.role === "assistant") {
+          const lastMessage = updated[updated.length - 1];
+          if (lastMessage.role === "assistant") {
             updated[updated.length - 1] = {
-              ...last,
-              content: last.content + chunk
+              ...lastMessage,
+              content: lastMessage.content + chunk
             };
+          } else {
+            updated.push({ role: "assistant", content: chunk });
           }
           return updated;
         });
@@ -62,49 +89,63 @@ export default function ChatScreen() {
       },
       (errMsg: string) => {
         console.error("❌ Recipe generation error:", errMsg);
+        setIsWaitingForFirstToken(false);
         setHistory((prev) => [
-          ...prev.slice(0, -1), // Remove placeholder assistant message
+          ...prev,
           { role: "assistant", content: "❌ Something went wrong." }
         ]);
       }
     );
   };
-  
+
+  const LoadingDots = () => {
+    const opacity = dotAnimation.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.3, 1],
+    });
+
+    return (
+      <View style={chatStyles.messageBubble}>
+        <Animated.Text style={[chatStyles.loadingDots, { opacity }]}>...</Animated.Text>
+      </View>
+    );
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={chatStyles.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.container}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
+        style={chatStyles.container}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
       >
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Recipe Assistant</Text>
+        <View style={chatStyles.header}>
+          <Text style={chatStyles.headerText}>Recipe Assistant</Text>
         </View>
 
         <ScrollView 
-          style={styles.messages} 
+          style={chatStyles.messages} 
           ref={scrollRef}
-          contentContainerStyle={styles.messagesContent}
+          contentContainerStyle={chatStyles.messagesContent}
         >
           {history.map((msg, i) => (
             <View
               key={i}
               style={[
-                styles.messageBubble,
-                msg.role === "user" ? styles.userBubble : styles.assistantBubble,
+                chatStyles.messageBubble,
+                msg.role === "user" ? chatStyles.userBubble : chatStyles.assistantBubble,
               ]}
             >
-              <Markdown style={markdownStyles}>
+              <Markdown>
                 {msg.content}
               </Markdown>
             </View>
           ))}
+          {isWaitingForFirstToken && <LoadingDots />}
         </ScrollView>
 
-        <View style={styles.inputContainer}>
+        <View style={chatStyles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={chatStyles.input}
             placeholder="Ask for a recipe..."
             value={input}
             onChangeText={setInput}
@@ -114,7 +155,7 @@ export default function ChatScreen() {
             onSubmitEditing={handleInput}
           />
           <Pressable 
-            style={[styles.sendButton, !input.trim() && styles.sendButtonDisabled]} 
+            style={[chatStyles.sendButton, !input.trim() && chatStyles.sendButtonDisabled]} 
             onPress={handleInput}
             disabled={!input.trim()}
           >
@@ -125,113 +166,3 @@ export default function ChatScreen() {
     </SafeAreaView>
   );
 }
-
-const markdownStyles = {
-  body: {
-    color: '#000',
-    fontSize: 16,
-  },
-  heading1: {
-    fontSize: 24,
-    marginBottom: 10,
-    fontWeight: 'bold',
-  },
-  heading2: {
-    fontSize: 20,
-    marginBottom: 8,
-    fontWeight: 'bold',
-  },
-  paragraph: {
-    marginBottom: 8,
-  },
-  listItem: {
-    marginBottom: 4,
-  },
-  bullet_list: {
-    marginBottom: 8,
-  },
-};
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F7FAFC',
-  },
-  container: {
-    flex: 1,
-  },
-  header: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1A202C',
-  },
-  messages: {
-    flex: 1,
-    backgroundColor: '#F7FAFC',
-  },
-  messagesContent: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  messageBubble: {
-    padding: 12,
-    marginVertical: 4,
-    maxWidth: '85%',
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  userBubble: {
-    backgroundColor: '#4299E1',
-    alignSelf: 'flex-end',
-    borderBottomRightRadius: 4,
-  },
-  assistantBubble: {
-    backgroundColor: '#fff',
-    alignSelf: 'flex-start',
-    borderBottomLeftRadius: 4,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 12,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    alignItems: 'flex-end',
-    marginBottom: Platform.OS === 'ios' ? 0 : 60, // Add bottom margin on Android
-  },
-  input: {
-    flex: 1,
-    marginRight: 8,
-    padding: 12,
-    backgroundColor: '#F7FAFC',
-    borderRadius: 20,
-    maxHeight: 100,
-    fontSize: 16,
-  },
-  sendButton: {
-    backgroundColor: '#4299E1',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sendButtonDisabled: {
-    backgroundColor: '#EDF2F7',
-  },
-});
