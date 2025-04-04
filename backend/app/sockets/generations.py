@@ -1,9 +1,7 @@
 from flask_socketio import emit
-from flask import request
-from app import socketio, app
+from app import socketio
 from app.models import User
 from scripts.gen import gpt4omini_generate
-import time
 
 # Sockets
 @socketio.on('generate_recipe')

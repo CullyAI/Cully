@@ -6,4 +6,21 @@ const socket = io(API_URL, {
   withCredentials: true       // allows cookie/session-based auth
 });
 
-export default socket;
+export const generate_recipe = (data, onChunk, onDone, onError) => {
+  socket.emit("generate_recipe", data);
+
+  socket.off("recipe_chunk");
+  socket.on("recipe_chunk", (msg) => {
+      onChunk(msg.chunk);
+  });
+
+  socket.off("recipe_complete");
+  socket.on("recipe_complete", () => {
+      onDone();
+  });
+
+  socket.off("error");
+  socket.on("error", (err) => {
+      onError(err.message);
+  });
+};

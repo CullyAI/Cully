@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Markdown from 'react-native-markdown-display';
 import { Send } from "lucide-react-native";
-import { generate_recipe } from "@/lib/api";
+import { generate_recipe } from "@/lib/socket";
 import { useAuth } from '@/app/(auth)/authcontext';
 import { chatStyles } from '@/styles/recipe'
 
@@ -67,14 +67,15 @@ export default function ChatScreen() {
       },
       (chunk: string) => {
         setIsWaitingForFirstToken(false);
+
         // Append each chunk to the assistant's message
         setHistory((prev) => {
           const updated = [...prev];
           const lastMessage = updated[updated.length - 1];
           if (lastMessage.role === "assistant") {
             updated[updated.length - 1] = {
-              ...lastMessage,
-              content: lastMessage.content + chunk
+              ...lastMessage, // Set it to everything that lastMessage was
+              content: lastMessage.content + chunk // Overwrite only the content part
             };
           } else {
             updated.push({ role: "assistant", content: chunk });
