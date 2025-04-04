@@ -1,4 +1,6 @@
-const API_URL = "http://127.0.0.1:5000";
+import socket from "./socket";
+
+const API_URL = "http://10.0.0.242:8888";
 
 export const signup = async(user) => {
     const res = await fetch(`${API_URL}/signup`, {
@@ -25,14 +27,21 @@ export const login = async(user) => {
     return await res.json();
 }
 
-export const generate_recipe = async(data) => {
-    const res = await fetch(`${API_URL}/recipe`, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-            "Content-Type": "application/json"
-        }
+export const generate_recipe = (data, onChunk, onDone, onError) => {
+    socket.emit("generate_recipe", data);
+
+    socket.off("recipe_chunk");
+    socket.on("recipe_chunk", (msg) => {
+        onChunk(msg.chunk);
     });
 
-    return res;
-}
+    socket.off("recipe_complete");
+    socket.on("recipe_complete", () => {
+        onDone();
+    });
+
+    socket.off("error");
+    socket.on("error", (err) => {
+        onError(err.message);
+    });
+};

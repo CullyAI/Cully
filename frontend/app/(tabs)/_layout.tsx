@@ -16,9 +16,6 @@ export default function TabLayout() {
 
   const { isLoggedIn, loading, user } = useAuth();
 
-  console.log("(tabs) user:", user);
-  console.log("(tabs) isLoggedIn:", isLoggedIn);
-
   if (loading) {
     return null;
   }

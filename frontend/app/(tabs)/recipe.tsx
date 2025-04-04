@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Markdown from 'react-native-markdown-display';
 import { Send } from "lucide-react-native";
-import { generate_recipe } from "@/lib/api";
+import { generate_recipe, signup } from "@/lib/api";
 import { useAuth } from '@/app/(auth)/authcontext';
 
 type Message = {
@@ -26,61 +26,58 @@ export default function ChatScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const { user } = useAuth();
 
-  const handleInput = async () => {
-    // Add the user's prompt to the history and clear input
+  const handleInput = () => {
+    if (!input.trim()) return;
+  
     const userMessage: Message = { role: "user", content: input };
     setHistory((prev) => [...prev, userMessage]);
     setInput("");
-
-    try {
-        console.log("INPUT HERE:", input);
-        const res = await generate_recipe({ history: [...history, userMessage], input, user });
-        console.log("RESPONSE HERE:", res);
-
-        if (!res.body) throw new Error("Response body is null");
-
-        setHistory((prev) => [...prev, { role: "assistant", content: "" }]);
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let fullMessage = "";
-
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value);
-          fullMessage += chunk;
-          
-          // Add latest chunk to new message
-          setHistory((prev) => {
-              const updated = [...prev];
-              updated[updated.length - 1] = { role: "assistant", content: fullMessage };
-              return updated;
-          });
-        }
-      } 
-      
-      catch (err) {
-        console.error("Recipe generation error:", err);
+  
+    // Show a placeholder assistant message that will be updated live
+    setHistory((prev) => [...prev, { role: "assistant", content: "" }]);
+  
+    generate_recipe(
+      {
+        user,
+        history: [...history, userMessage],
+        input: input
+      },
+      (chunk: string) => {
+        console.log(chunk);
+        // Append each chunk to the assistant's message
+        setHistory((prev) => {
+          const updated = [...prev];
+          const last = updated[updated.length - 1];
+          if (last.role === "assistant") {
+            updated[updated.length - 1] = {
+              ...last,
+              content: last.content + chunk
+            };
+          }
+          return updated;
+        });
+      },
+      () => {
+        console.log("✅ Recipe stream complete");
+        // Optional: scroll or trigger some effect
+      },
+      (errMsg: string) => {
+        console.error("❌ Recipe generation error:", errMsg);
         setHistory((prev) => [
-          ...prev,
+          ...prev.slice(0, -1), // Remove placeholder assistant message
           { role: "assistant", content: "❌ Something went wrong." }
         ]);
       }
-
-    // Scroll to bottom after new messages
-    setTimeout(() => {
-      scrollRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    );
   };
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
       >
         <View style={styles.header}>
           <Text style={styles.headerText}>Recipe Assistant</Text>
@@ -216,6 +213,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     alignItems: 'flex-end',
+    marginBottom: Platform.OS === 'ios' ? 0 : 60, // Add bottom margin on Android
   },
   input: {
     flex: 1,

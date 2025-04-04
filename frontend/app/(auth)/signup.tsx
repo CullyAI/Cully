@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase"
-import { useAuth } from "@/app/(auth)/authcontext"
 import { router } from "expo-router"
 import { signup } from "@/lib/api"
 
@@ -10,7 +9,6 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const { setIsLoggedIn } = useAuth();
 
   const handleSignup = async () => {
     try {
