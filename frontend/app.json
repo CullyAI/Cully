@@ -12,7 +12,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.chrisriney.cully",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSMicrophoneUsageDescription": "This app requires access to the microphone to record audio.",
+        "NSCameraUsageDescription": "This app requires access to the camera to capture images."
       }
     },
     "android": {
@@ -28,6 +30,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-av",
       [
         "expo-splash-screen",
         {

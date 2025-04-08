@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { View, TextInput, Button, Text, StyleSheet } from "react-native";
 import { supabase } from "@/lib/supabase";
-import { useAuth } from "@/app/(auth)/authcontext";
+import { useAuth } from "@/context/authcontext";
 import { useRouter, useNavigationContainerRef } from "expo-router";
 import { useEffect } from "react";
 import { authStyles } from "@/styles/auth"
@@ -13,7 +13,6 @@ export default function LoginScreen() {
   const [message, setMessage] = useState("");
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const router = useRouter();
-  const navRef = useNavigationContainerRef(); 
 
   useEffect(() => {
     if (isLoggedIn) {

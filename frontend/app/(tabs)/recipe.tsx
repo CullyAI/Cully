@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Markdown from 'react-native-markdown-display';
 import { Send } from "lucide-react-native";
 import { generate_recipe } from "@/lib/socket";
-import { useAuth } from '@/app/(auth)/authcontext';
+import { useAuth } from '@/context/authcontext';
 import { chatStyles } from '@/styles/recipe'
 
 type Message = {

@@ -6,6 +6,7 @@ const socket = io(API_URL, {
   withCredentials: true       // allows cookie/session-based auth
 });
 
+
 export const generate_recipe = (data, onChunk, onDone, onError) => {
   socket.emit("generate_recipe", data);
 
@@ -24,3 +25,23 @@ export const generate_recipe = (data, onChunk, onDone, onError) => {
       onError(err.message);
   });
 };
+
+
+export const send_audio_chunk = (data, onChunk, onDone, onError) => {
+  socket.emit("send_audio_chunk", data);
+
+  socket.off("audio_chunk");
+  socket.on("audio_chunk", (msg) => {
+      onChunk(msg.chunk);
+  });
+
+  socket.off("audio_complete");
+  socket.on("audio_complete", () => {
+      onDone();
+  });
+
+  socket.off("error");
+  socket.on("error", (err) => {
+      onError(err.message);
+  });
+}
