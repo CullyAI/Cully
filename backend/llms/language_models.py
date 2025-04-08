@@ -7,7 +7,7 @@ import copy
 from logging import getLogger
 from typing import Dict, Any
 
-from llms.config_store import model_configs, cs
+from llms.config_store import model_configs, cs, API_KEY
 from llms.registry import Registry
 from llms.params import SampleParams
 
@@ -43,7 +43,8 @@ class APILanguageModel(LanguageModel):
         self.API_URL = API_URL
         self.api_key = api_key
         self.model_name = model
-        self.sample_params = asdict(sample_params)
+        if sample_params is not None:
+            self.sample_params = asdict(sample_params)
         self.user_stop_token = user_stop_token
 
         self.client: openai.Client = openai.Client(
@@ -149,7 +150,55 @@ class GPTLanguageModel(APILanguageModel):
             logger.error(f"Unexpected error: {e}")
             raise
         
+        
+class GPTSpeechToTextModel(APILanguageModel):
+    @backoff.on_exception(backoff.expo, openai.OpenAIError, max_time=10, max_tries=3)
+    def transcribe(
+        self,
+        audio: str,
+    ):
+        try:
+            response = self.client.audio.transcriptions.create(
+                model=self.model_name,
+                file=audio,
+                response_format="text",
+            )
+            
+        except openai.OpenAIError as e:
+            logger.error(f"OpenAIError: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise
 
+        return response
+    
+    
+class GPTTextToSpeechModel(APILanguageModel):
+    @backoff.on_exception(backoff.expo, openai.OpenAIError, max_time=10, max_tries=3)
+    def generate(
+        self,
+        file_path: str,
+        text: str,
+        instructions: str = None,
+        voice: str = None,
+    ):
+        try:
+            with self.client.audio.speech.with_streaming_response.create(
+                model=self.model_name,
+                voice=voice,
+                input=text,
+                instructions=instructions
+            ) as response:
+                response.stream_to_file(file_path)
+            
+        except openai.OpenAIError as e:
+            logger.error(f"OpenAIError: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise
+        
 
 def convert_param2hf(openai_param: Dict[str, Any]) -> Dict[str, Any]:
     mapping = {
@@ -180,23 +229,40 @@ def build_language_model(
             api_key="empty",
             model=raw_model_name,
             sample_params=SampleParams(
-                max_tokens=1024,
+                max_tokens=100,
                 temperature=temperature,
                 top_p=1.0,
             ),
         )
         
     elif "gpt" in model_name:
-        return GPTLanguageModel(
-            API_URL="https://api.openai.com/v1/",
-            api_key=API_KEY,
-            model=raw_model_name,
-            sample_params=SampleParams(
-                max_tokens=1024,
-                temperature=temperature,
-                top_p=1.0,
-            ),
-        )
+        if "transcribe" in model_name:
+            return GPTSpeechToTextModel(
+                API_URL="https://api.openai.com/v1/",
+                api_key=API_KEY,
+                model=raw_model_name,
+                sample_params=None
+            )
+            
+        elif "tts" in model_name:
+            return GPTTextToSpeechModel(
+                API_URL="https://api.openai.com/v1/",
+                api_key=API_KEY,
+                model=raw_model_name,
+                sample_params=None
+            )
+            
+        else:
+            return GPTLanguageModel(
+                API_URL="https://api.openai.com/v1/",
+                api_key=API_KEY,
+                model=raw_model_name,
+                sample_params=SampleParams(
+                    max_tokens=100,
+                    temperature=temperature,
+                    top_p=1.0,
+                ),
+            )
         
         
 ModelRegistry = Registry()

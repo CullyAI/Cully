@@ -62,3 +62,19 @@ register_model_registry(
     port=-1,
     API_KEY=API_KEY
 )
+
+register_model_registry(
+    name="gpt4otranscribe_registry",
+    model_name="gpt-4o-transcribe@speech",
+    raw_model_name="gpt-4o-transcribe",
+    port=-1,
+    API_KEY=API_KEY
+)
+
+register_model_registry(
+    name="gpt4ominitts_registry",
+    model_name="gpt-4o-mini-tts@speech",
+    raw_model_name="gpt-4o-mini-tts",
+    port=-1,
+    API_KEY=API_KEY
+)
