@@ -6,14 +6,14 @@ export default function RealtimeScreen() {
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
     const [permissionResponse, requestPermission] = Audio.usePermissions();
 
-    // // Request permission on mount
+    // Request permission on mount
     // useEffect(() => {
     //     if (!permissionResponse) {
     //         requestPermission();
     //     }
     // }, []);
 
-    // // Start recording once permission is granted
+    // Start recording once permission is granted
     // useEffect(() => {
     //     if (permissionResponse?.granted && !recording) {
     //         startRecording();
@@ -41,7 +41,7 @@ export default function RealtimeScreen() {
 
     return (
         <View>
-        <Text>Recording:</Text>
+            <Text>Recording:</Text>
         </View>
     );
 }
