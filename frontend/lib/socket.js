@@ -27,21 +27,16 @@ export const generate_recipe = (data, onChunk, onDone, onError) => {
 };
 
 
-export const send_audio_chunk = (data, onChunk, onDone, onError) => {
-  socket.emit("send_audio_chunk", data);
+export const send_complete_audio = (data, onResponse) => {
+    socket.emit("send_complete_audio", data);
 
-  socket.off("audio_chunk");
-  socket.on("audio_chunk", (msg) => {
-      onChunk(msg.chunk);
-  });
+    socket.off("audio_response");
+    socket.on("audio_response", ({ audio }) => {
+        onResponse(audio);
+    });
 
-  socket.off("audio_complete");
-  socket.on("audio_complete", () => {
-      onDone();
-  });
-
-  socket.off("error");
-  socket.on("error", (err) => {
-      onError(err.message);
-  });
+    socket.off("error");
+    socket.on("error", (err) => {
+        onError(err.message);
+    });
 }

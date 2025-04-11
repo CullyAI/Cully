@@ -4,6 +4,7 @@ from llms.language_models import ModelRegistry
 import base64
 from logging import getLogger
 import os
+import tempfile
 
 logger = getLogger(__name__)
 
@@ -38,7 +39,6 @@ def build_prompt(
     content = []
     
     if image:
-        print("We have n image")
         if os.path.isfile(image):
             image = encode_image(image)
             
@@ -113,8 +113,18 @@ def gpt4o_generate(
         return fallback()
     
 
-def gpt4o_speech_to_text(audio: str):
-    audio_file = open(audio, "rb")
+def gpt4o_speech_to_text(audio: str, using_base64: bool = False):
+    if using_base64:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as temp_audio_file:
+            temp_audio_file.write(base64.b64decode(audio))
+            temp_audio_file.flush()
+            path = temp_audio_file.name
+    else:
+        path = audio
+        
+    print(f"[DEBUG] Saved temp file: {path}")
+    print(f"[DEBUG] File size: {os.path.getsize(path)} bytes")  
+    audio_file = open(path, "rb")
     transcription = gpt4otranscribe.transcribe(audio_file)
     
     return transcription
