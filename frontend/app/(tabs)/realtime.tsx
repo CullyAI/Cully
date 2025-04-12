@@ -4,22 +4,46 @@ import { useEffect, useState, useRef } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { send_complete_audio } from '@/lib/socket';
 import { useAuth } from '@/context/authcontext';
-import { Camera } from 'expo-camera';
+import {
+    CameraMode,
+    CameraType,
+    CameraView,
+    useCameraPermissions,
+} from "expo-camera";
+
 
 export default function RealtimeScreen() {
-    const cameraRef = useRef<Camera | null>(null);
-    const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+    const [hasCameraPermission, setHasCameraPermission] = useState(false);
+    const [camPermission, requestCamPermission] = useCameraPermissions();
+    const cameraRef = useRef<CameraView>(null);
+    const [facing, setFacing] = useState<CameraType>("back");
 
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
-    const [permissionResponse, requestPermission] = Audio.usePermissions();
+    const [micPermission, requestMicPermission] = Audio.usePermissions();
     const { user } = useAuth()
 
-    // Request permission on mount
+    // Request camera permission on mount
     useEffect(() => {
-        if (!permissionResponse) {
-            requestPermission();
+        if (!camPermission) {
+            requestCamPermission();
         }
     }, []);
+
+    // Request microphone permission on mount
+    useEffect(() => {
+        if (!micPermission) {
+            requestMicPermission();
+        }
+    }, []);
+
+    const takePicture = async () => {
+        const photo = await cameraRef.current?.takePictureAsync();
+        return photo?.base64;
+    };
+
+    const toggleFacing = () => {
+        setFacing((prev) => (prev === "back" ? "front" : "back"));
+      };
 
     const startRecording = async () => {
         try {
@@ -49,6 +73,8 @@ export default function RealtimeScreen() {
             console.log('Recording stopped and stored at', uri);
             setRecording(null);
 
+            const photo_base64 = await takePicture();
+
             if (uri) {
                 // Convert to base64
                 const base64Audio = await FileSystem.readAsStringAsync(uri, {
@@ -58,7 +84,8 @@ export default function RealtimeScreen() {
                 send_complete_audio(
                     { 
                         user,
-                        audio: base64Audio 
+                        audio: base64Audio,
+                        image: photo_base64,
                     },
                     (audio: string) => {
                         handleAudioResponse({ audio });
@@ -78,7 +105,6 @@ export default function RealtimeScreen() {
             await FileSystem.writeAsStringAsync(path, audio, {
                 encoding: FileSystem.EncodingType.Base64,
             });
-
             
             await Audio.setAudioModeAsync({
                 allowsRecordingIOS: false,
@@ -107,6 +133,13 @@ export default function RealtimeScreen() {
 
     return (
         <View style={styles.container}>
+            {hasCameraPermission && (
+                <CameraView
+                    ref={cameraRef}
+                    style={{ width: 300, height: 200, marginTop: 20 }}
+                />
+            )}
+
             {recordButton()}
             <Text style={styles.text}>Recording: {recording ? 'Yes' : 'No'}</Text>
         </View>
