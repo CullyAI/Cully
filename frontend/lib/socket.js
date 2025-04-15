@@ -27,10 +27,10 @@ export const generate_recipe = (data, onChunk, onDone, onError) => {
 };
 
 
-export const send_complete_audio = (data, onResponse) => {
+export const send_complete_audio = (data, onResponse, onError) => {
     socket.emit("send_complete_audio", data);
 
-    socket.off("audio_response");
+    socket.off("audio_response")
     socket.on("audio_response", ({ audio }) => {
         onResponse(audio);
     });

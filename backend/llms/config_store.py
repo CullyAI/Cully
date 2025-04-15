@@ -48,6 +48,14 @@ register_model_registry(
 '''
 
 register_model_registry(
+    name="gpt3.5turbo_registry",
+    model_name="gpt-3.5-turbo",
+    raw_model_name="gpt-3.5-turbo-0125",
+    port=-1,
+    API_KEY=API_KEY
+)
+
+register_model_registry(
     name="gpt4omini_registry",
     model_name="gpt-4o-mini",
     raw_model_name="gpt-4o-mini",
@@ -65,16 +73,25 @@ register_model_registry(
 
 register_model_registry(
     name="gpt4otranscribe_registry",
-    model_name="gpt-4o-transcribe@speech",
+    model_name="gpt-4o-transcribe",
     raw_model_name="gpt-4o-transcribe",
     port=-1,
     API_KEY=API_KEY
 )
 
 register_model_registry(
-    name="gpt4ominitts_registry",
-    model_name="gpt-4o-mini-tts@speech",
-    raw_model_name="gpt-4o-mini-tts",
+    name="gpttts_registry",
+    model_name="gpt-tts",
+    raw_model_name="tts-1",
     port=-1,
     API_KEY=API_KEY
 )
+
+register_model_registry(
+    name="gpt4ominiaudio_registry",
+    model_name="gpt-4o-mini-audio",
+    raw_model_name="gpt-4o-mini-audio-preview",
+    port=-1,
+    API_KEY=API_KEY
+)
+

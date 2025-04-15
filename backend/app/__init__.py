@@ -1,8 +1,12 @@
+import eventlet
+eventlet.monkey_patch()
+
 import os
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_socketio import SocketIO
+
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -46,7 +50,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)  # Directly bind to app
 
 # Initialize SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(
+    app, 
+    cors_allowed_origins="*", 
+    max_http_buffer_size=50 * 1024 * 1024,
+    async_mode="eventlet"
+)
 
 # Import models after initializing db
 from app.models import *

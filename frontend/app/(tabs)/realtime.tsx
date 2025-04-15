@@ -1,49 +1,120 @@
 import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, Pressable } from 'react-native';
 import { send_complete_audio } from '@/lib/socket';
 import { useAuth } from '@/context/authcontext';
+import { FontAwesome6 } from "@expo/vector-icons";
 import {
-    CameraMode,
     CameraType,
     CameraView,
     useCameraPermissions,
 } from "expo-camera";
+import { MICRO_AUDIO } from '@/constants/audio_settings';
 
 
 export default function RealtimeScreen() {
-    const [hasCameraPermission, setHasCameraPermission] = useState(false);
+    const [hasCamPermission, setHasCamPermission] = useState(false);
     const [camPermission, requestCamPermission] = useCameraPermissions();
     const cameraRef = useRef<CameraView>(null);
     const [facing, setFacing] = useState<CameraType>("back");
 
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
+    const [hasMicPermission, setHasMicPermission] = useState(false);
     const [micPermission, requestMicPermission] = Audio.usePermissions();
     const { user } = useAuth()
 
+    const [audioQueue, setAudioQueue] = useState<string[]>([]);
+    const [isPlaying, setIsPlaying] = useState(false);
+
+
+    const addToQueue = (audio: string) => {
+        setAudioQueue(prev => [...prev, audio]);
+    };
+      
+
     // Request camera permission on mount
     useEffect(() => {
-        if (!camPermission) {
-            requestCamPermission();
-        }
-    }, []);
+        const checkPermissions = async () => {
+            if (camPermission?.granted) {
+                setHasCamPermission(true);
+            } else {
+                const permissionResponse = await requestCamPermission();
+                setHasCamPermission(permissionResponse.granted);
+            }
+        };
+
+        checkPermissions();
+    }, [camPermission]);
+
 
     // Request microphone permission on mount
     useEffect(() => {
-        if (!micPermission) {
-            requestMicPermission();
-        }
+        const checkPermissions = async () => {
+            console.log(micPermission)
+            if (micPermission?.granted) {
+                setHasMicPermission(true);
+            } else {
+                const permissionResponse = await requestMicPermission();
+                setHasMicPermission(permissionResponse.granted);
+            }
+        };
+
+        checkPermissions();
     }, []);
 
+    useEffect(() => {
+        console.log("Play effect triggered");
+        console.log("Audio queue:", audioQueue.length);
+        if (isPlaying || !audioQueue.length) return;
+        
+        let [audio, ...rest] = audioQueue;
+        setAudioQueue(rest);
+        setIsPlaying(true);
+        playAudio({ audio: audio });
+
+    }, [isPlaying, audioQueue])
+
+    // Plead for camera permission
+    if (!hasCamPermission || !hasMicPermission) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.text}>
+                    Camera permission is required to use this feature.
+                </Text>
+
+                {!hasCamPermission && <Button
+                    title="Grant Camera Permission"
+                    onPress={async () => {
+                        const permissionResponse = await requestCamPermission();
+                        setHasCamPermission(permissionResponse.granted);
+                    }}
+                />}
+
+                {!hasMicPermission && <Button
+                    title="Grant Microphone Permission"
+                    onPress={async () => {
+                        const permissionResponse = await requestCamPermission();
+                        setHasCamPermission(permissionResponse.granted);
+                    }}
+                />}
+            </View>
+        );
+    }
+
     const takePicture = async () => {
-        const photo = await cameraRef.current?.takePictureAsync();
+        const photo = await cameraRef.current?.takePictureAsync({ 
+            base64: true,
+            quality: 0.3,
+            skipProcessing: true,
+        });
         return photo?.base64;
     };
 
     const toggleFacing = () => {
         setFacing((prev) => (prev === "back" ? "front" : "back"));
-      };
+    };
+
 
     const startRecording = async () => {
         try {
@@ -54,52 +125,63 @@ export default function RealtimeScreen() {
             });
 
             console.log('Starting recording...');
-            const { recording } = await Audio.Recording.createAsync(
-                Audio.RecordingOptionsPresets.HIGH_QUALITY
-            );
+            const { recording } = await Audio.Recording.createAsync(MICRO_AUDIO);
 
             setRecording(recording);
             console.log('Recording started');
-            } catch (err) {
-                console.error('Failed to start recording', err);
-            }
+        } catch (err) {
+            console.error('Failed to start recording', err);
+        }
     };
 
     const stopRecording = async () => {
         console.log('Stopping recording...');
         if (recording) {
             await recording.stopAndUnloadAsync();
-            const uri = recording.getURI();
-            console.log('Recording stopped and stored at', uri);
+            const audio_uri = recording.getURI();
+            console.log('Recording stopped and stored at', audio_uri);
             setRecording(null);
 
-            const photo_base64 = await takePicture();
+            const fileInfo = await FileSystem.getInfoAsync(recording.getURI()!);
+            if (fileInfo.exists) {
+                console.log("Final audio size (KB):", fileInfo.size / 1024);
+            } else {
+                console.log("Audio file does not exist");
+            }
 
-            if (uri) {
+            const base64Image = await takePicture();
+
+            if (audio_uri) {
                 // Convert to base64
-                const base64Audio = await FileSystem.readAsStringAsync(uri, {
+                const base64Audio = await FileSystem.readAsStringAsync(audio_uri, {
                   encoding: FileSystem.EncodingType.Base64,
                 });
+
+                await FileSystem.deleteAsync(audio_uri);
 
                 send_complete_audio(
                     { 
                         user,
                         audio: base64Audio,
-                        image: photo_base64,
+                        image: base64Image,
                     },
                     (audio: string) => {
-                        handleAudioResponse({ audio });
-                    }
+                        console.log("Received audio");
+                        addToQueue(audio);
+                    },
+                    (errMsg: string) => {
+                        console.error("❌ Realtime generation error:", errMsg);
+                    },
                 );
             }
         }
     };
 
-    const handleAudioResponse = async ({ audio }: { audio: string }) => {
+    const playAudio = async ({ audio }: { audio: string }) => {
         try {
             // Decode base64 to binary
             const soundObject = new Audio.Sound();
-            const path = `${FileSystem.documentDirectory}response.mp3`;
+            const path = `${FileSystem.documentDirectory}response_${Date.now()}.mp3`;
         
             // Write audio to local file
             await FileSystem.writeAsStringAsync(path, audio, {
@@ -116,8 +198,15 @@ export default function RealtimeScreen() {
     
             // Load and play audio
             await soundObject.loadAsync({ uri: path });
-            await soundObject.setVolumeAsync(1.0);
+
+            soundObject.setOnPlaybackStatusUpdate((status) => {
+                if (status.isLoaded && status.didJustFinish) {
+                    setIsPlaying(false);
+                }
+            });
+
             await soundObject.playAsync();
+
         } catch (error) {
             console.error("Failed to play audio:", error);
         }
@@ -133,13 +222,18 @@ export default function RealtimeScreen() {
 
     return (
         <View style={styles.container}>
-            {hasCameraPermission && (
+            <View style={styles.cameraContainer}>
                 <CameraView
                     ref={cameraRef}
-                    style={{ width: 300, height: 200, marginTop: 20 }}
-                />
-            )}
-
+                    style={styles.camera}
+                    facing={facing}
+                    animateShutter={false}
+                >
+                    <Pressable onPress={toggleFacing} style={styles.toggleButton}>
+                        <FontAwesome6 name="rotate-left" size={32} color="white" />
+                    </Pressable>
+                </CameraView>
+            </View>
             {recordButton()}
             <Text style={styles.text}>Recording: {recording ? 'Yes' : 'No'}</Text>
         </View>
@@ -152,6 +246,24 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#F5F5F5',
+    },
+    cameraContainer: {
+        width: 350, // Set the width of the camera box
+        height: 550, // Set the height of the camera box
+        borderRadius: 10, // Optional: Add rounded corners
+        overflow: 'hidden', // Ensure the camera content respects the border radius
+        backgroundColor: '#000', // Optional: Add a background color for better contrast
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    camera: {
+        flex: 1,
+        width: "100%",
+    },
+    toggleButton: {
+        position: 'absolute',
+        bottom: 30,
+        alignSelf: 'center',
     },
     buttonContainer: {
         marginVertical: 20,

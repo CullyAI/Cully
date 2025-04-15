@@ -1,15 +1,18 @@
 import openai
-from abc import ABC, abstractmethod
-from dataclasses import asdict
-
 import backoff
 import copy
+import base64
+
+from abc import ABC, abstractmethod
+from dataclasses import asdict
+from io import BytesIO
 from logging import getLogger
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from llms.config_store import model_configs, cs, API_KEY
 from llms.registry import Registry
 from llms.params import SampleParams
+from scripts.utils import wav_header
 
 logger = getLogger(__name__)
 
@@ -55,7 +58,7 @@ class APILanguageModel(LanguageModel):
     @backoff.on_exception(backoff.expo, openai.OpenAIError, max_time=10, max_tries=3)
     def generate(
         self,
-        prompt: str,
+        prompt: List[dict],
     ):
         # This function calls the API for one input prompt
         final_sample_params = copy.deepcopy(self.sample_params)
@@ -88,7 +91,7 @@ class GPTLanguageModel(APILanguageModel):
     @backoff.on_exception(backoff.expo, openai.OpenAIError, max_time=10, max_tries=3)
     def generate(
         self,
-        prompt: str,
+        prompt: List[dict],
     ):
         # This function calls the API for one input prompt
         final_sample_params = copy.deepcopy(self.sample_params)
@@ -118,7 +121,7 @@ class GPTLanguageModel(APILanguageModel):
     
     def stream_generate(
         self,
-        prompt: str
+        prompt: List[dict]
     ):
         final_sample_params = copy.deepcopy(self.sample_params)
         final_sample_params.update(
@@ -139,10 +142,62 @@ class GPTLanguageModel(APILanguageModel):
 
             for chunk in stream:
                 content = chunk.choices[0].delta.content
-                
+
                 if content:
                     yield chunk.choices[0].delta.content.encode("utf-8")
                         
+        except openai.OpenAIError as e:
+            logger.error(f"OpenAIError: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise
+        
+        
+class GPTSpeechToSpeechModel(APILanguageModel):
+    @backoff.on_exception(backoff.expo, openai.OpenAIError, max_time=10, max_tries=3)
+    def generate(
+        self,
+        prompt: List[dict],
+        voice: str = "nova",
+        file_path: str = None,
+    ):
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                modalities=["text", "audio"],
+                audio={"voice": voice, "format": "wav"},
+                messages=prompt,
+            )
+            
+        except openai.OpenAIError as e:
+            logger.error(f"OpenAIError: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            raise
+
+        return response.choices[0].message.audio.data
+    
+    def stream_generate(
+        self,
+        prompt: List[dict],
+    ):
+        try:
+            stream = self.client.chat.completions.create(
+                model=self.model_name,
+                modalities=["text"],
+                messages=prompt,
+                stream=True,
+            )
+            
+            for chunk in stream:
+                delta = chunk.choices[0].delta
+
+                if delta.content:                              # normal text stream
+                    yield {"type": "text", "data": delta.content}
+
+            
         except openai.OpenAIError as e:
             logger.error(f"OpenAIError: {e}")
             raise
@@ -178,19 +233,37 @@ class GPTTextToSpeechModel(APILanguageModel):
     @backoff.on_exception(backoff.expo, openai.OpenAIError, max_time=10, max_tries=3)
     def generate(
         self,
-        file_path: str,
         text: str,
         instructions: str = None,
         voice: str = None,
+        file_path: str = None,
     ):
         try:
-            with self.client.audio.speech.with_streaming_response.create(
-                model=self.model_name,
-                voice=voice,
-                input=text,
-                instructions=instructions
-            ) as response:
-                response.stream_to_file(file_path)
+            if file_path:
+                with self.client.audio.speech.with_streaming_response.create(
+                    model=self.model_name,
+                    voice=voice,
+                    input=text,
+                    instructions=instructions
+                ) as response:
+                    response.stream_to_file(file_path)
+                    
+                return True
+                
+            else:
+                buffer = BytesIO()
+
+                with self.client.audio.speech.with_streaming_response.create(
+                    model=self.model_name,
+                    voice=voice,
+                    input=text,
+                    instructions=instructions
+                ) as response:
+                    for chunk in response.iter_bytes():
+                        buffer.write(chunk)
+
+                buffer.seek(0)
+                return buffer.read()
             
         except openai.OpenAIError as e:
             logger.error(f"OpenAIError: {e}")
@@ -246,6 +319,14 @@ def build_language_model(
             
         elif "tts" in model_name:
             return GPTTextToSpeechModel(
+                API_URL="https://api.openai.com/v1/",
+                api_key=API_KEY,
+                model=raw_model_name,
+                sample_params=None
+            )
+        
+        elif "audio" in model_name:
+            return GPTSpeechToSpeechModel(
                 API_URL="https://api.openai.com/v1/",
                 api_key=API_KEY,
                 model=raw_model_name,
