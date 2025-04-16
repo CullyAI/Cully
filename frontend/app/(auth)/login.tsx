@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import { View, TextInput, Button, Text } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/authcontext";
-import { useRouter, useNavigationContainerRef } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { authStyles } from "@/styles/auth"
 

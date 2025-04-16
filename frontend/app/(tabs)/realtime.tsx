@@ -31,7 +31,6 @@ export default function RealtimeScreen() {
     const addToQueue = (audio: string) => {
         setAudioQueue(prev => [...prev, audio]);
     };
-      
 
     // Request camera permission on mount
     useEffect(() => {

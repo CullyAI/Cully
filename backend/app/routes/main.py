@@ -12,7 +12,6 @@ from werkzeug.security import (
 )
 
 from app.routes.setup_utils import *
-
 from app.models import User
 
 # Test the connection using Flask-SQLAlchemy
@@ -61,7 +60,67 @@ def login():
     if user and check_password_hash(user.password_hash, password):
         session["user_id"] = user.user_id
         response = make_response(jsonify({"message": "Login successful!"}))
-        print(dict(response.headers))  # Should include Set-Cookie
+        print(dict(response.headers))
         return response
     else:
         return jsonify({"error": "Invalid credentials"}), 401
+    
+    
+@app.route("/get_profile", methods=["POST"])
+def get_profile():
+    data = request.get_json()
+    user_id = data["id"]
+    
+    user = User.query.filter_by(user_id=user_id).first()
+    
+    if user:
+        disease = user.diseases
+        allergies = user.allergies
+        nutritional_goals = user.nutritional_goals
+        dietary_preferencess = user.dietary_preferences
+        
+        response = make_response(jsonify({
+            "disease": disease,
+            "allergies": allergies,
+            "nutritional_goals": nutritional_goals,
+            "dietary_preferences": dietary_preferencess,
+        }))
+        
+        return response, 200
+    else:
+        return jsonify({"error": "Not logged in"}), 401
+    
+
+@app.route("/set_profile", methods=["POST"])
+def set_profile():
+    data = request.get_json()
+    
+    user_info = data.get("user", {})
+    user_id = user_info.get("id")
+
+    if not user_id:
+        return jsonify({"error": "Invalid user object"}), 400
+
+    user = User.query.filter_by(user_id=user_id).first()
+
+    if not user:
+        return jsonify({"error": "Not logged in"}), 401
+
+    update_fields = {
+        "diseases": data.get("diseases"),
+        "allergies": data.get("allergies"),
+        "nutritional_goals": data.get("nutritional_goals"),
+        "dietary_preferences": data.get("dietary_preferences")
+    }
+
+    for attr, value in update_fields.items():
+        if value is not None:
+            setattr(user, attr, value)
+
+    db.session.commit()
+    
+    return jsonify({"success": True}), 200
+
+        
+    
+    

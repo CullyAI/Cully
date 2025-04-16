@@ -9,10 +9,9 @@ from io import BytesIO
 from logging import getLogger
 from typing import Dict, Any, List
 
-from llms.config_store import model_configs, cs, API_KEY
+from llms.config_store import model_configs, cs
 from llms.registry import Registry
 from llms.params import SampleParams
-from scripts.utils import wav_header
 
 logger = getLogger(__name__)
 
@@ -160,7 +159,6 @@ class GPTSpeechToSpeechModel(APILanguageModel):
         self,
         prompt: List[dict],
         voice: str = "nova",
-        file_path: str = None,
     ):
         try:
             response = self.client.chat.completions.create(
@@ -194,8 +192,8 @@ class GPTSpeechToSpeechModel(APILanguageModel):
             for chunk in stream:
                 delta = chunk.choices[0].delta
 
-                if delta.content:                              # normal text stream
-                    yield {"type": "text", "data": delta.content}
+                if delta.content:
+                    yield delta.content
 
             
         except openai.OpenAIError as e:
