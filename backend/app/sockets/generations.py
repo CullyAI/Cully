@@ -8,13 +8,16 @@ from llms.instructions import *
 
 import base64
 import queue
-import time
+import json
 import random
 
 
 user_transcripts = defaultdict(str)
 user_tts_queue = defaultdict(queue.Queue)
 pauses = ["!", ".", "?", ":", "\n", "\n\n"]
+
+with open("preprocess/preprocess_base64.json", 'r', encoding='utf-8') as f:
+    preprocesses = json.load(f)
 
 
 def background_job(holder: dict, func, *args, **kwargs):
@@ -77,7 +80,6 @@ def handle_complete_audio(data):
     input_image = data["image"]
     
     result_box = {}
-
     task = socketio.start_background_task(
         background_job,          # the wrapper
         result_box,              # holder that will receive "value"
@@ -85,15 +87,10 @@ def handle_complete_audio(data):
         input_audio,             # *args → positional
         using_base64=True        # **kwargs → keyword
     )
-    
-    audio_bytes = gpt_tts(
-                voice="nova",
-                text=random.choice(processing_phrases),
-            )
 
-    audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+    preprocess = random.choice(preprocesses)
     
-    emit("audio_response", {"audio": audio_base64})
+    emit("audio_response", {"audio": preprocess})
     socketio.sleep(0)
             
     task.join()
