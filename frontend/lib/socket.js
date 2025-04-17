@@ -27,8 +27,8 @@ export const generate_recipe = (data, onChunk, onDone, onError) => {
 };
 
 
-export const send_complete_audio = (data, onResponse, onError) => {
-    socket.emit("send_complete_audio", data);
+export const send_multimodal = (data, onResponse, onError) => {
+    socket.emit("send_multimodal", data);
 
     socket.off("audio_response")
     socket.on("audio_response", ({ audio }) => {
@@ -39,4 +39,24 @@ export const send_complete_audio = (data, onResponse, onError) => {
     socket.on("error", (err) => {
         onError(err.message);
     });
+}
+
+
+export const send_audio = (data, onResponse, onError) => {
+    socket.emit("send_audio", data);
+
+    socket.off("audio_response")
+    socket.on("audio_response", ({ audio }) => {
+        onResponse(audio);
+    });
+
+    socket.off("error");
+    socket.on("error", (err) => {
+        onError(err.message);
+    });
+}
+
+
+export const cancel_generation = (user) => {
+    socket.emit("cancel_generation", user)
 }

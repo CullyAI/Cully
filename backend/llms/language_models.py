@@ -195,7 +195,7 @@ class GPTSpeechToSpeechModel(APILanguageModel):
                 delta = chunk.choices[0].delta
 
                 if delta.content:                              # normal text stream
-                    yield {"type": "text", "data": delta.content}
+                    yield delta.content
 
             
         except openai.OpenAIError as e:
