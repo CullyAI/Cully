@@ -1,8 +1,9 @@
 import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { useEffect, useState, useRef } from 'react';
-import { View, Text, Button, StyleSheet, Pressable } from 'react-native';
-import { send_complete_audio } from '@/lib/socket';
+import { realtimeStyles, CullyLogo } from '@/styles/realtime';
+import { View, Button, Text, Pressable, Image } from "react-native";
+import { send_multimodal, send_audio, cancel_generation } from '@/lib/socket';
 import { useAuth } from '@/context/authcontext';
 import { FontAwesome6 } from "@expo/vector-icons";
 import {
@@ -19,7 +20,11 @@ export default function RealtimeScreen() {
     const cameraRef = useRef<CameraView>(null);
     const [facing, setFacing] = useState<CameraType>("back");
 
+    const soundRef = useRef<Audio.Sound | null>(null);
     const [recording, setRecording] = useState<Audio.Recording | null>(null);
+    const [isRecording, setIsRecording] = useState(false);
+    const [isThinking, setIsThinking] = useState(false);
+    const [cameraOn, setCameraOn] = useState(false);
     const [hasMicPermission, setHasMicPermission] = useState(false);
     const [micPermission, requestMicPermission] = Audio.usePermissions();
     const { user } = useAuth()
@@ -31,8 +36,10 @@ export default function RealtimeScreen() {
     const addToQueue = (audio: string) => {
         setAudioQueue(prev => [...prev, audio]);
     };
-      
 
+    const logError = (errMsg: string) => {
+        console.error("❌ Realtime generation error:", errMsg);
+    }
     // Request camera permission on mount
     useEffect(() => {
         const checkPermissions = async () => {
@@ -64,8 +71,6 @@ export default function RealtimeScreen() {
     }, []);
 
     useEffect(() => {
-        console.log("Play effect triggered");
-        console.log("Audio queue:", audioQueue.length);
         if (isPlaying || !audioQueue.length) return;
         
         let [audio, ...rest] = audioQueue;
@@ -78,8 +83,8 @@ export default function RealtimeScreen() {
     // Plead for camera permission
     if (!hasCamPermission || !hasMicPermission) {
         return (
-            <View style={styles.container}>
-                <Text style={styles.text}>
+            <View style={realtimeStyles.container}>
+                <Text style={realtimeStyles.text}>
                     Camera permission is required to use this feature.
                 </Text>
 
@@ -118,6 +123,19 @@ export default function RealtimeScreen() {
 
     const startRecording = async () => {
         try {
+            if (soundRef.current) {
+                await soundRef.current.stopAsync();
+                await soundRef.current.unloadAsync();
+                soundRef.current = null;
+
+                cancel_generation({ user });
+            }
+
+            setIsPlaying(false)
+            setIsRecording(true)
+            setIsThinking(false)
+            setAudioQueue([]);
+
             console.log('Setting audio mode...');
             await Audio.setAudioModeAsync({
                 allowsRecordingIOS: true,
@@ -135,7 +153,6 @@ export default function RealtimeScreen() {
     };
 
     const stopRecording = async () => {
-        console.log('Stopping recording...');
         if (recording) {
             await recording.stopAndUnloadAsync();
             const audio_uri = recording.getURI();
@@ -149,7 +166,14 @@ export default function RealtimeScreen() {
                 console.log("Audio file does not exist");
             }
 
-            const base64Image = await takePicture();
+            let base64Image = null
+
+            if (cameraOn) {
+                base64Image = await takePicture();
+            }
+
+            setIsRecording(false)
+            setIsThinking(true)
 
             if (audio_uri) {
                 // Convert to base64
@@ -159,28 +183,30 @@ export default function RealtimeScreen() {
 
                 await FileSystem.deleteAsync(audio_uri);
 
-                send_complete_audio(
-                    { 
-                        user,
-                        audio: base64Audio,
-                        image: base64Image,
-                    },
-                    (audio: string) => {
-                        console.log("Received audio");
-                        addToQueue(audio);
-                    },
-                    (errMsg: string) => {
-                        console.error("❌ Realtime generation error:", errMsg);
-                    },
-                );
+                if (cameraOn) {
+                    send_multimodal(
+                        {user, audio: base64Audio, image: base64Image},
+                        addToQueue,
+                        logError
+                    );
+                } else {
+                    send_audio(
+                        {user, audio: base64Audio},
+                        addToQueue,
+                        logError
+                    );
+                }
             }
         }
     };
 
     const playAudio = async ({ audio }: { audio: string }) => {
+        setIsThinking(false);
+
         try {
             // Decode base64 to binary
             const soundObject = new Audio.Sound();
+            soundRef.current = soundObject;
             const path = `${FileSystem.documentDirectory}response_${Date.now()}.mp3`;
         
             // Write audio to local file
@@ -212,68 +238,74 @@ export default function RealtimeScreen() {
         }
     };
 
-    const recordButton = () => {
-        if (recording) {
-            return <Button title="Stop Recording" onPress={stopRecording}/>;
-        } else {
-            return <Button title="Start Recording" onPress={startRecording}/>;
-        }
-    }
+    const record = () => (
+        <Pressable
+            onPressIn={startRecording}
+            onPressOut={stopRecording}
+            style={({ pressed }) => [
+                realtimeStyles.recordButton,
+                { backgroundColor: pressed ? '#ff4444' : '#ff6666' },
+            ]}
+        >
+            <Text style={realtimeStyles.recordButtonText}>Hold to Record</Text>
+        </Pressable>
+    );
+
+    const toggleCameraButton = () => (
+        <Pressable
+            onPressIn={() => setCameraOn(prev => !prev)}
+            style={({ pressed }) => [
+                realtimeStyles.recordButton,
+                { backgroundColor: pressed ? '#ff4444' : '#ff6666' },
+            ]}
+        >
+            <Text style={realtimeStyles.recordButtonText}>
+                {cameraOn ? 'Tap to disable camera' : 'Tap to enable camera'}
+            </Text>
+        </Pressable>
+    );
+    
 
     return (
-        <View style={styles.container}>
-            <View style={styles.cameraContainer}>
-                <CameraView
-                    ref={cameraRef}
-                    style={styles.camera}
-                    facing={facing}
-                    animateShutter={false}
-                >
-                    <Pressable onPress={toggleFacing} style={styles.toggleButton}>
-                        <FontAwesome6 name="rotate-left" size={32} color="white" />
-                    </Pressable>
-                </CameraView>
+        <View style={realtimeStyles.container}>
+            {cameraOn ? (
+                <View style={[
+                    realtimeStyles.cameraContainer,
+                    isPlaying && realtimeStyles.playingBorder,
+                    !isPlaying && realtimeStyles.notPlayingBorder,
+                    isThinking && realtimeStyles.thinkingBorder,
+                ]}>
+                    <CameraView
+                        ref={cameraRef}
+                        style={realtimeStyles.camera}
+                        facing={facing}
+                        animateShutter={false}
+                    >
+                        <Pressable onPress={toggleFacing} style={realtimeStyles.toggleButton}>
+                            <FontAwesome6 name="rotate-left" size={32} color="white" />
+                        </Pressable>
+                    </CameraView>
+                </View>
+            ) : (
+                <View style={[
+                    realtimeStyles.logoContainer, 
+                    isPlaying && realtimeStyles.playingBorder,
+                    !isPlaying && realtimeStyles.notPlayingBorder,
+                    isThinking && realtimeStyles.thinkingBorder,
+                ]
+                }>
+                    <Image
+                        source={CullyLogo}
+                        style={realtimeStyles.logoImage}
+                        resizeMode="cover"
+                    />
+                </View>
+            )}
+
+            <View style={realtimeStyles.buttonGroup}>
+                {record()}
+                {toggleCameraButton()}
             </View>
-            {recordButton()}
-            <Text style={styles.text}>Recording: {recording ? 'Yes' : 'No'}</Text>
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F5F5F5',
-    },
-    cameraContainer: {
-        width: 350, // Set the width of the camera box
-        height: 550, // Set the height of the camera box
-        borderRadius: 10, // Optional: Add rounded corners
-        overflow: 'hidden', // Ensure the camera content respects the border radius
-        backgroundColor: '#000', // Optional: Add a background color for better contrast
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    camera: {
-        flex: 1,
-        width: "100%",
-    },
-    toggleButton: {
-        position: 'absolute',
-        bottom: 30,
-        alignSelf: 'center',
-    },
-    buttonContainer: {
-        marginVertical: 20,
-        width: '80%',
-        borderRadius: 10,
-        overflow: 'hidden', // Ensures the button respects the border radius
-    },
-    text: {
-        fontSize: 18,
-        color: '#333',
-        marginTop: 10,
-    },
-});
