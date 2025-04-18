@@ -1,4 +1,4 @@
-const API_URL = "http://10.0.0.242:8888";
+const API_URL = "http://192.168.4.59:8888/";
 
 export const signup = async(user) => {
     const res = await fetch(`${API_URL}/signup`, {

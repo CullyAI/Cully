@@ -2,6 +2,13 @@ import { StyleSheet } from "react-native";
 
 export const CullyLogo = require("../assets/images/cully_logo.png");
 
+const element = document.getElementById("myElement");
+
+if (element) {
+  element.style.background = "linear-gradient(to right, red, blue)";
+}
+
+
 export const realtimeStyles = StyleSheet.create({
     container: {
         flex: 1,
