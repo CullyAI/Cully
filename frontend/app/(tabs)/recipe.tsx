@@ -115,9 +115,9 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={chatStyles.safeArea}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={chatStyles.container}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0: 0}
       >
         <View style={chatStyles.header}>
           <Text style={chatStyles.headerText}>Recipe Assistant</Text>

@@ -6,6 +6,7 @@ export const chatStyles = StyleSheet.create({
       backgroundColor: '#F7FAFC',
     },
     container: {
+      marginBottom: 50,
       flex: 1,
     },
     header: {

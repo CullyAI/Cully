@@ -18,7 +18,7 @@ export default function LoginScreen() {
     if (isLoggedIn) {
       // Wait a tick to let router hydrate before navigating
       const timeout = setTimeout(() => {
-        router.replace("/(tabs)/recipe");
+        router.replace("/(tabs)/profile");
       }, 50);
   
       return () => clearTimeout(timeout);

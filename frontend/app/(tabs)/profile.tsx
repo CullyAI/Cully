@@ -7,7 +7,6 @@ import {
     Text, 
     FlatList, 
     Pressable, 
-    StyleSheet, 
     Keyboard, 
     TouchableWithoutFeedback, 
     ScrollView 

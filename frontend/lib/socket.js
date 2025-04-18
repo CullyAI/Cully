@@ -8,23 +8,27 @@ const socket = io(API_URL, {
 
 
 export const generate_recipe = (data, onChunk, onDone, onError) => {
-  socket.emit("generate_recipe", data);
+    socket.emit("generate_recipe", data);
 
-  socket.off("recipe_chunk");
-  socket.on("recipe_chunk", (msg) => {
-      onChunk(msg.chunk);
-  });
+    socket.off("recipe_chunk");
+    socket.on("recipe_chunk", (msg) => {
+        onChunk(msg.chunk);
+    });
 
-  socket.off("recipe_complete");
-  socket.on("recipe_complete", () => {
-      onDone();
-  });
+    socket.off("recipe_complete");
+    socket.on("recipe_complete", () => {
+        onDone();
+    });
 
-  socket.off("error");
-  socket.on("error", (err) => {
-      onError(err.message);
-  });
+    socket.off("error");
+    socket.on("error", (err) => {
+        onError(err.message);
+    });
 };
+
+export const generate_macros = (data, onChunk, onDone, onError) => {
+    socket.emit("generate_macros", data)
+}
 
 
 export const send_multimodal = (data, onResponse, onError) => {

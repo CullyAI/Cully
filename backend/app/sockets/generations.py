@@ -63,6 +63,18 @@ def user_info_prompt(user_row):
     
     return user_info
 
+def macro_info_prompt(age, sex, height, weight, activity_level, target_weight):
+    prompt = (
+        f"Age: {age}\n"
+        f"Sex: {sex}\n"
+        f"Height: {height} in.\n"
+        f"Current Weight: {weight} lbs\n"
+        f"Workout Frequency: {activity_level} times/week\n"
+        f"Target Weight: {target_weight} lbs\n"
+    )
+    
+    return prompt
+
 
 @socketio.on("generate_recipe")
 def handle_generate_recipe(data):
@@ -94,6 +106,55 @@ def handle_generate_recipe(data):
         socketio.sleep(0.0)
 
     emit("recipe_complete", {"done": True})
+    
+    
+@socketio.on("generate_macros")
+def handle_generate_macros(data):
+    log.info("GeneratingMacros")
+    user = data["user"]
+    if not user:
+        emit("error", {"message": "Not logged in"})
+        return
+    
+    age = data.get("age", "Not Provided")
+    sex = data.get("sex", "Not Provided")
+    height = data.get("height", "Not Provided")
+    weight = data.get("weight", "Not Provided")
+    activity_level = data.get("activityLevel", "Not Provided")
+    target_weight = data.get("targetWeight", "Not Provided")
+    
+    prompt = macro_info_prompt(
+        age=age, 
+        sex=sex, 
+        height=height, 
+        weight=weight, 
+        activity_level=activity_level, 
+        target_weight=target_weight
+    )
+
+    log.info("Input", detail=prompt)
+    
+    stream = llm_generate(
+        model=gpt4omini, 
+        text=prompt,
+        instructions=macros_instructions, 
+    )
+    
+    response = ""
+    for chunk in stream:
+        if isinstance(chunk, bytes):
+            chunk = chunk.decode("utf-8") 
+        else:
+            chunk = str(chunk)
+
+        response += chunk
+        print(chunk)
+        emit("macros_chunk", {"chunk": chunk})
+        socketio.sleep(0.0)
+        
+    log.info("Response", detail=response)
+
+    emit("macros_complete", {"done": True})
     
 
 @socketio.on("send_multimodal")
