@@ -4,11 +4,11 @@ from collections import defaultdict, deque
 from app import socketio
 from app.models import User
 from scripts.calls import *
-from llms.instructions import *
+from llms.utils import *
 from configs.log import logging
-from configs.diseases import diseases
 
 import base64
+import uuid
 import json
 import random
 import time
@@ -17,63 +17,10 @@ import structlog
 log = structlog.get_logger()
 
 user_history = defaultdict(lambda: deque(maxlen=10))
-cancel_flags = defaultdict(lambda: False)
+user_gen_id = defaultdict(lambda: False)
 
 with open("preprocess/preprocess_base64.json", 'r', encoding='utf-8') as f:
     preprocesses = json.load(f)
-
-
-def background_job(holder: dict, func, *args, **kwargs):
-    """Run *func* in a background thread/green-thread and stash the result."""
-    holder["value"] = func(*args, **kwargs)
-    
-
-def user_info_prompt(user_row):
-    user_diseases = [d.strip() for d in user_row.diseases.split(",") if d.strip()]
-    restrictions = [diseases[d] for d in user_diseases if d in diseases]
-
-    if restrictions:
-        disease_restrictions = ", ".join(restrictions[:-1]) + f", and {restrictions[-1]}"
-        
-    disease_string = (
-        f"The user has {user_row.diseases}, and thus requires {disease_restrictions}.\n" \
-        if user_row.diseases else ""
-    )
-    allergies_string = (
-        f"Here are the user's allergies: {user_row.allergies}.\n"
-        if user_row.allergies else ""
-    )
-    preferences_string = (
-        f"Here are the user's dietary preferences: {user_row.dietary_preferences}\n"
-        if user_row.dietary_preferences else ""
-    )
-    goals_string = (
-        f"Here are the user's nutritional goals: {user_row.nutritional_goals}."
-        if user_row.nutritional_goals else ""
-    )
-        
-    user_info = (
-        disease_string +
-        allergies_string +
-        preferences_string +
-        goals_string
-    )
-    
-    print(user_info)
-    
-    return user_info
-
-def macro_info_prompt(age, sex, height, weight, activity_level, target_weight):
-    prompt = (
-        f"Age: {age}\n"
-        f"Sex: {sex}\n"
-        f"Height: {height} in.\n"
-        f"Current Weight: {weight} lbs\n"
-        f"Workout Frequency: {activity_level} times/week\n"
-        f"Target Weight: {target_weight} lbs\n"
-    )
-    
-    return prompt
 
 
 @socketio.on("generate_recipe")
@@ -105,6 +52,7 @@ def handle_generate_recipe(data):
         emit("recipe_chunk", {"chunk": chunk})
         socketio.sleep(0.0)
 
+
     emit("recipe_complete", {"done": True})
     
     
@@ -116,12 +64,14 @@ def handle_generate_macros(data):
         emit("error", {"message": "Not logged in"})
         return
     
-    age = data.get("age", "Not Provided")
-    sex = data.get("sex", "Not Provided")
-    height = data.get("height", "Not Provided")
-    weight = data.get("weight", "Not Provided")
-    activity_level = data.get("activityLevel", "Not Provided")
-    target_weight = data.get("targetWeight", "Not Provided")
+    age = data.get("age") or "Not Provided"
+    sex = data.get("sex") or "Not Provided"
+    height = data.get("height") or "Not Provided"
+    weight = data.get("weight") or "Not Provided"
+    activity_level = data.get("activityLevel") or "Not Provided"
+    target_weight = data.get("targetWeight") or "Not Provided"
+    other_info = data.get("otherInfo") or "Not Provided"
+    
     
     prompt = macro_info_prompt(
         age=age, 
@@ -129,7 +79,8 @@ def handle_generate_macros(data):
         height=height, 
         weight=weight, 
         activity_level=activity_level, 
-        target_weight=target_weight
+        target_weight=target_weight,
+        other_info=other_info,
     )
 
     log.info("Input", detail=prompt)
@@ -142,19 +93,11 @@ def handle_generate_macros(data):
     
     response = ""
     for chunk in stream:
-        if isinstance(chunk, bytes):
-            chunk = chunk.decode("utf-8") 
-        else:
-            chunk = str(chunk)
-
-        response += chunk
-        print(chunk)
-        emit("macros_chunk", {"chunk": chunk})
-        socketio.sleep(0.0)
+        response += chunk.decode("utf-8")
         
     log.info("Response", detail=response)
 
-    emit("macros_complete", {"done": True})
+    emit("macros_complete", response)
     
 
 @socketio.on("send_multimodal")
@@ -169,14 +112,12 @@ def handle_multimodal(data):
         return
     
     user_id = user["id"]
-    cancel_flags[user_id] = False
+    generation_id = uuid.uuid4()
+    user_gen_id[user_id] = generation_id
 
     user_row = User.query.get(user["id"])
     input_audio = data["audio"]
     input_image = data["image"]
-    
-    log.info("Audio", detail=input_audio[:20])
-    log.info("Image", detail=input_image[:20])
     
     result_box = {}
     task = socketio.start_background_task(
@@ -217,7 +158,7 @@ def handle_multimodal(data):
     start_generation_time = time.time()
     
     for chunk in stream:
-        if cancel_flags[user_id]:
+        if user_gen_id[user_id] != generation_id:
             break
         
         token = chunk.decode("utf-8")
@@ -225,7 +166,7 @@ def handle_multimodal(data):
         response += token
         
         if token[-1] in pauses:
-            if cancel_flags[user_id]:
+            if user_gen_id[user_id] != generation_id:
                 break
             
             log.info("ChunkComplete", elapsed=round(time.time() - chunk_time, 3))
@@ -242,7 +183,7 @@ def handle_multimodal(data):
 
             audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
             
-            if cancel_flags[user_id]:
+            if user_gen_id[user_id] != generation_id:
                 break
         
             emit("audio_response", {"audio": audio_base64})
@@ -250,7 +191,7 @@ def handle_multimodal(data):
             
             cur_chunk = ""
             
-    if cur_chunk.strip() and not cancel_flags[user_id]:
+    if cur_chunk.strip() and not user_gen_id[user_id] != generation_id:
         start_tts_time = time.time()
         
         audio_bytes = gpt_tts(
@@ -261,7 +202,7 @@ def handle_multimodal(data):
         log.info("TTSComplete", elapsed=round(time.time() - start_tts_time, 3))
         
         audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
-        if not cancel_flags[user_id]:
+        if not user_gen_id[user_id] != generation_id:
             emit("audio_response", {"audio": audio_base64})
         
     user_history[user_id].append({"role": "user", "content": transcription})
@@ -271,7 +212,7 @@ def handle_multimodal(data):
     log.info("Input", detail=transcription)
     log.info("Response", detail=response)
     
-
+    
 @socketio.on("send_audio")
 def handle_audio(data):
     log.info("HandlingAudio")
@@ -283,7 +224,9 @@ def handle_audio(data):
         return
     
     user_id = user["id"]
-    cancel_flags[user_id] = False
+    generation_id = uuid.uuid4()
+    user_gen_id[user_id] = generation_id
+    log.info("Generating", user=user_id, gen=generation_id)
 
     user_row = User.query.get(user["id"])
     input_audio = data["audio"]
@@ -317,11 +260,11 @@ def handle_audio(data):
         cur_chunk += token
         response += token
         
-        if cancel_flags[user_id]:
+        if user_gen_id[user_id] != generation_id:
             break
         
         if token[-1] in pauses:
-            if cancel_flags[user_id]:
+            if user_gen_id[user_id] != generation_id:
                 break
             
             log.info("ChunkComplete", elapsed=round(time.time() - chunk_time, 3))
@@ -337,7 +280,7 @@ def handle_audio(data):
 
             audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
             
-            if cancel_flags[user_id]:
+            if user_gen_id[user_id] != generation_id:
                 break
             
             emit("audio_response", {"audio": audio_base64})
@@ -345,19 +288,18 @@ def handle_audio(data):
             
             cur_chunk = ""
             
-    if cur_chunk.strip() and not cancel_flags[user_id]:
+    if cur_chunk.strip() and user_gen_id[user_id] == generation_id:
         start_tts_time = time.time()
-        if not cancel_flags:
-            audio_bytes = gpt_tts(
-                text=cur_chunk,
-                voice="nova"
-            )
-            
-            log.info("TTSComplete", elapsed=round(time.time() - start_tts_time, 3))
-            
-            audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
-            if not cancel_flags[user_id]:
-                emit("audio_response", {"audio": audio_base64})
+        audio_bytes = gpt_tts(
+            text=cur_chunk,
+            voice="nova"
+        )
+        
+        log.info("TTSComplete", elapsed=round(time.time() - start_tts_time, 3))
+        
+        audio_base64 = base64.b64encode(audio_bytes).decode("utf-8")
+        if not user_gen_id[user_id] != generation_id:
+            emit("audio_response", {"audio": audio_base64})
         
     task.join()
     transcription = result_box["value"]
@@ -368,12 +310,3 @@ def handle_audio(data):
     log.info("GenerationComplete", elapsed=round(time.time() - start_generation_time, 3))
     log.info("Input", detail=transcription)
     log.info("Response", detail=response)
-    
-
-@socketio.on("cancel_generation")
-def handle_cancel(data):
-    user = data["user"]
-    user_id = user.get("id")
-    cancel_flags[user_id] = True
-    
-    log.info("GenerationCancelled", detail=f"user_id: {user_id}")

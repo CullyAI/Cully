@@ -111,8 +111,11 @@ def set_profile():
         "diseases": data.get("diseases"),
         "allergies": data.get("allergies"),
         "nutritional_goals": data.get("nutritional_goals"),
-        "dietary_preferences": data.get("dietary_preferences")
+        "dietary_preferences": data.get("dietary_preferences"),
+        "macros": data.get("macros"),
     }
+    
+    print(update_fields)
 
     for attr, value in update_fields.items():
         if value is not None:
