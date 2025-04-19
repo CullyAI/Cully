@@ -36,4 +36,35 @@ export const authStyles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
+  button: {
+    backgroundColor: "#1E477D",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 50,
+    alignItems: "center",
+    marginTop: 36,
+    width: "40%",
+    alignSelf: "center", // Center horizontally within the parent
+    justifyContent: "space-evenly",
+    flexDirection: "row", // Ensures the icon and text are side by side
+    padding: 16, // Adds padding around the entire button
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+
+  buttonText: {
+    color: "#FFFBF4",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 10,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between", // Adds space between icon and text
+  },
 });

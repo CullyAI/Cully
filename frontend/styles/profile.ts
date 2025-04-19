@@ -64,8 +64,8 @@ export const profileStyles = StyleSheet.create({
     backgroundColor: "#FFFBF4",
     //backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
+    borderColor: "#F2E9DA",
+    borderRadius: 20,
     marginTop: 4,
   },
   dropdownItem: {
@@ -92,9 +92,41 @@ export const profileStyles = StyleSheet.create({
   chipText: {
     marginRight: 4,
     fontSize: 14,
-    color: "#7D5C1E",
+    color: "#1E2C3D",
   },
   chipButton: {
     padding: 8,
+  },
+  button: {
+    backgroundColor: "#1E477D",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 50,
+    alignItems: "center",
+    marginTop: 16,
+    width: "50%",
+    //minWidth: "",
+    alignSelf: "center", // Center horizontally within the parent
+    justifyContent: "space-evenly",
+    flexDirection: "row", // Ensures the icon and text are side by side
+    padding: 16, // Adds padding around the entire button
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+
+  buttonText: {
+    color: "#FFFBF4",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 10,
+  },
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between", // Adds space between icon and text
   },
 });

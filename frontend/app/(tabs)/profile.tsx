@@ -1,17 +1,20 @@
 import { get_profile, set_profile } from "@/lib/api.js";
 import { useState, useEffect } from "react";
-import { 
-    View, 
-    TextInput, 
-    Button, 
-    Text, 
-    FlatList, 
-    Pressable, 
-    Keyboard, 
-    TouchableWithoutFeedback, 
-    ScrollView 
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  FlatList,
+  Pressable,
+  Keyboard,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  Animated,
+  ScrollView,
 } from "react-native";
 import { profileStyles } from "@/styles/profile";
+import { IconSymbol } from "@/components/ui/IconSymbol"; 
 import { useAuth } from '@/context/authcontext';
 import { diseaseData } from '@/assets/info/diseases';
 import { X, ChevronDown, ChevronUp } from 'lucide-react-native';
@@ -26,6 +29,28 @@ export default function ProfilePage() {
     const [showDropdown, setShowDropdown] = useState(false);
 
     const { user } = useAuth();
+
+    const [scale] = useState(new Animated.Value(1)); // Initial scale value is 1 (normal size)
+
+    const handlePressIn = () => {
+      // Animate the button down when pressed
+      Animated.spring(scale, {
+        toValue: 0.95, // Scale down to 95% of original size
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      // Animate the button back up when released
+      Animated.spring(scale, {
+        toValue: 1, // Scale back to normal size
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePress = () => {
+      updateProfile();
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -111,7 +136,7 @@ export default function ProfilePage() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               onFocus={() => setShowDropdown(true)}
-              placeholderTextColor={"#D2B378"}
+              placeholderTextColor={"#E8E0D3"}
             />
             {showDropdown ? (
               <ChevronUp size={20} color="#666" />
@@ -170,7 +195,20 @@ export default function ProfilePage() {
             placeholderTextColor={"#E8E0D3"}
           />
 
-          <Button title="Save Profile" onPress={updateProfile} />
+          <TouchableOpacity
+            style={profileStyles.button}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            onPress={handlePress}
+            activeOpacity={0.7}
+          >
+            <Animated.View
+              style={[profileStyles.buttonContent, { transform: [{ scale }] }]}
+            >
+              <Text style={profileStyles.buttonText}>Save Profile</Text>
+              <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+            </Animated.View>
+          </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
     );
