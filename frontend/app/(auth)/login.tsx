@@ -1,8 +1,17 @@
 import { useState } from "react";
-import { View, TextInput, Button, Text, StyleSheet } from "react-native";
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/authcontext";
 import { useRouter, useNavigationContainerRef } from "expo-router";
+import { IconSymbol } from "@/components/ui/IconSymbol"; 
 import { useEffect } from "react";
 import { authStyles } from "@/styles/auth"
 
@@ -13,6 +22,28 @@ export default function LoginScreen() {
   const [message, setMessage] = useState("");
   const { isLoggedIn, setIsLoggedIn } = useAuth();
   const router = useRouter();
+
+  const [scale] = useState(new Animated.Value(1)); // Initial scale value is 1 (normal size)
+
+  const handlePressIn = () => {
+    // Animate the button down when pressed
+    Animated.spring(scale, {
+      toValue: 0.95, // Scale down to 95% of original size
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    // Animate the button back up when released
+    Animated.spring(scale, {
+      toValue: 1, // Scale back to normal size
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePress = () => {
+    handleLogin();
+  };
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -66,7 +97,20 @@ export default function LoginScreen() {
         placeholderTextColor={"#E8E0D3"}
       />
 
-      <Button title="Log In" onPress={handleLogin} />
+      <TouchableOpacity
+        style={authStyles.button}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        onPress={handlePress}
+        activeOpacity={0.7}
+      >
+        <Animated.View
+          style={[authStyles.buttonContent, { transform: [{ scale }] }]}
+        >
+          <Text style={authStyles.buttonText}>Enter</Text>
+          <IconSymbol size={20} name="arrow.right.circle" color="#FFFBF4" />
+        </Animated.View>
+      </TouchableOpacity>
 
       {message ? <Text style={authStyles.message}>{message}</Text> : null}
     </View>
