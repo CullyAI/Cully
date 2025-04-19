@@ -1,6 +1,6 @@
-import { io } from "socket.io-client";
+import Constants from 'expo-constants';
 
-const API_URL = "http://10.0.0.242:8888";  // your Flask server
+const API_URL = Constants.expoConfig.extra.EXPO_API_URL;
 const socket = io(API_URL, {
   transports: ['websocket'],  // force WebSocket only (skip long-polling)
   withCredentials: true       // allows cookie/session-based auth
@@ -72,5 +72,5 @@ export const send_audio = (data, onResponse, onError) => {
 
 
 export const send_interruption = (user) => {
-    socket.emit("send_interruption", user)
+    socket.emit("send_interruption", user);
 }

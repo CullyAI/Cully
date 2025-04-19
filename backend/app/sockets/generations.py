@@ -168,7 +168,7 @@ def handle_multimodal(data):
         
         token_count += 1
         
-        if token[-1] in pauses and token_count >= 10:
+        if token[-1] in pauses and token_count >= 5:
             if user_gen_id[user_id] != generation_id:
                 break
             
@@ -270,7 +270,7 @@ def handle_audio(data):
         if user_gen_id[user_id] != generation_id:
             break
         
-        if token[-1] in pauses  and token_count >= 10:
+        if token[-1] in pauses  and token_count >= 5:
             if user_gen_id[user_id] != generation_id:
                 break
             
