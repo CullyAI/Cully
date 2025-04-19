@@ -20,10 +20,7 @@ call venv\Scripts\activate
 where choco >nul 2>nul
 if %errorlevel% neq 0 (
     echo 🍫 Chocolatey not found. Installing Chocolatey...
-    powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-    "Set-ExecutionPolicy Bypass -Scope Process -Force; ^
-    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; ^
-    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
 )
 
 :: Install PostgreSQL and dependencies using Chocolatey
