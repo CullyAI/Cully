@@ -6,7 +6,8 @@ export const profileStyles = StyleSheet.create({
     padding: 24,
     paddingBottom: 100,
     justifyContent: "center",
-    backgroundColor: "#FFFBF4",
+    backgroundColor: "#FFF5E3",
+    //backgroundColor: "#FFFBF4",
     //backgroundColor: "#fff",
   },
   title: {
@@ -14,19 +15,34 @@ export const profileStyles = StyleSheet.create({
     marginBottom: 24,
     fontWeight: "bold",
     textAlign: "center",
+
+    color: "#1E2C3D",
   },
   header: {
     fontSize: 16,
+    marginTop: 20,
     marginBottom: 16,
     fontWeight: "bold",
     textAlign: "left",
+
+    color: "#1E2C3D",
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    borderColor: "#FFFBF4",
+    backgroundColor: "#FFFBF4",
+    //borderColor: "#ccc", borderColor: "#D2B378",
+    borderRadius: 50,
     padding: 12,
     marginBottom: 16,
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+
+    color: "#1E2C3D",
   },
   message: {
     marginTop: 20,
@@ -67,8 +83,8 @@ export const profileStyles = StyleSheet.create({
   chip: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF5E3",
-    //backgroundColor: '#f0f0f0',
+    backgroundColor: "#FFFBF4",
+    //backgroundColor: '#f0f0f0',FFF5E3
     borderRadius: 16,
     paddingVertical: 4,
     paddingHorizontal: 12,
@@ -76,8 +92,9 @@ export const profileStyles = StyleSheet.create({
   chipText: {
     marginRight: 4,
     fontSize: 14,
+    color: "#7D5C1E",
   },
   chipButton: {
-    padding: 2,
+    padding: 8,
   },
 });

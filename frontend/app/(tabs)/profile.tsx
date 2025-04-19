@@ -82,92 +82,97 @@ export default function ProfilePage() {
     };
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={profileStyles.container}>
-            <Text style={profileStyles.title}>Edit Profile</Text>
-            
-            <Text style={profileStyles.header}>Diseases/Conditions</Text>
-            <View style={profileStyles.selectedContainer}>
-                {selectedDiseases.map((disease) => (
-                    <View key={disease} style={profileStyles.chip}>
-                        <Text style={profileStyles.chipText}>{disease}</Text>
-                        <Pressable onPress={() => removeDisease(disease)} style={profileStyles.chipButton}>
-                            <X size={16} color="#666" />
-                        </Pressable>
-                    </View>
-                ))}
-            </View>
+          <Text style={profileStyles.title}>Edit Profile</Text>
 
-            <Pressable
-                onPress={() => setShowDropdown(!showDropdown)}
-                style={[profileStyles.input, profileStyles.dropdown]}
-            >
-                <TextInput
-                    style={profileStyles.searchInput}
-                    placeholder="Search diseases..."
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                    onFocus={() => setShowDropdown(true)}
-                />
-                {showDropdown ? (
-                    <ChevronUp size={20} color="#666" />
-                ) : (
-                    <ChevronDown size={20} color="#666" />
-                )}
-            </Pressable>
+          <Text style={profileStyles.header}>Diseases/Conditions</Text>
+          <View style={profileStyles.selectedContainer}>
+            {selectedDiseases.map((disease) => (
+              <View key={disease} style={profileStyles.chip}>
+                <Text style={profileStyles.chipText}>{disease}</Text>
+                <Pressable
+                  onPress={() => removeDisease(disease)}
+                  style={profileStyles.chipButton}
+                >
+                  <X size={16} color="#666" />
+                </Pressable>
+              </View>
+            ))}
+          </View>
 
-            {showDropdown && (
-                <View style={profileStyles.dropdownList}>
-                    <FlatList
-                        data={filteredDiseases}
-                        keyExtractor={(item) => item}
-                        keyboardShouldPersistTaps="handled"
-                        renderItem={({ item }) => (
-                            <Pressable
-                                onPress={() => {
-                                    addDisease(item);
-                                }}
-                                style={profileStyles.dropdownItem}
-                            >
-                                <Text>{item}</Text>
-                            </Pressable>
-                        )}
-                    />
-                </View>
+          <Pressable
+            onPress={() => setShowDropdown(!showDropdown)}
+            style={[profileStyles.input, profileStyles.dropdown]}
+          >
+            <TextInput
+              style={profileStyles.searchInput}
+              placeholder="Search diseases..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onFocus={() => setShowDropdown(true)}
+              placeholderTextColor={"#D2B378"}
+            />
+            {showDropdown ? (
+              <ChevronUp size={20} color="#666" />
+            ) : (
+              <ChevronDown size={20} color="#666" />
             )}
+          </Pressable>
 
-            <Text style={profileStyles.header}>Allergies</Text>
-            <TextInput
-                style={profileStyles.input}
-                placeholder="Enter any allergies you have..."
-                value={allergies}
-                onChangeText={setAllergies}
-                autoCapitalize="none"
-            />
-            
-            <Text style={profileStyles.header}>Nutritional Goals</Text>
-            <TextInput
-                style={profileStyles.input}
-                placeholder="Enter any nutritional goals you have..."
-                value={nutritionalGoals}
-                onChangeText={setNutritionalGoals}
-                autoCapitalize="none"
-            />
-            
-            <Text style={profileStyles.header}>Dietary Preferences</Text>
-            <TextInput
-                style={profileStyles.input}
-                placeholder="Enter any dietary preferences you have..."
-                value={dietaryPreferences}
-                onChangeText={setDietaryPreferences}
-                autoCapitalize="none"
-            />
-            
-            <Button title="Save Profile" onPress={updateProfile} />
+          {showDropdown && (
+            <View style={profileStyles.dropdownList}>
+              <FlatList
+                data={filteredDiseases}
+                keyExtractor={(item) => item}
+                keyboardShouldPersistTaps="handled"
+                renderItem={({ item }) => (
+                  <Pressable
+                    onPress={() => {
+                      addDisease(item);
+                    }}
+                    style={profileStyles.dropdownItem}
+                  >
+                    <Text>{item}</Text>
+                  </Pressable>
+                )}
+              />
+            </View>
+          )}
+
+          <Text style={profileStyles.header}>Allergies</Text>
+          <TextInput
+            style={profileStyles.input}
+            placeholder="Enter any allergies you have..."
+            value={allergies}
+            onChangeText={setAllergies}
+            autoCapitalize="none"
+            placeholderTextColor={"#E8E0D3"}
+          />
+
+          <Text style={profileStyles.header}>Nutritional Goals</Text>
+          <TextInput
+            style={profileStyles.input}
+            placeholder="Enter any nutritional goals you have..."
+            value={nutritionalGoals}
+            onChangeText={setNutritionalGoals}
+            autoCapitalize="none"
+            placeholderTextColor={"#E8E0D3"}
+          />
+
+          <Text style={profileStyles.header}>Dietary Preferences</Text>
+          <TextInput
+            style={profileStyles.input}
+            placeholder="Enter any dietary preferences you have..."
+            value={dietaryPreferences}
+            onChangeText={setDietaryPreferences}
+            autoCapitalize="none"
+            placeholderTextColor={"#E8E0D3"}
+          />
+
+          <Button title="Save Profile" onPress={updateProfile} />
         </View>
-
-        </TouchableWithoutFeedback>
+      </TouchableWithoutFeedback>
     );
 }
     
