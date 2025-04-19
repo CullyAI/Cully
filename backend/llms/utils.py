@@ -33,6 +33,10 @@ audio_only_instructions = (
     "let them know that you can see, but they should enable their camera. "
 )
 
+tts_instructions = (
+    "Be warm and friendly."
+)
+
 pauses = ["!", ".", "?", ":", "\n", "\n\n"]
 
 

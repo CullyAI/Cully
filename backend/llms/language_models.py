@@ -194,7 +194,7 @@ class GPTSpeechToSpeechModel(APILanguageModel):
             for chunk in stream:
                 delta = chunk.choices[0].delta
 
-                if delta.content:                              # normal text stream
+                if delta.content:
                     yield delta.content
 
             
