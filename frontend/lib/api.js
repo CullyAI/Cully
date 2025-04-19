@@ -1,6 +1,4 @@
-import Constants from 'expo-constants';
-
-const API_URL = Constants.expoConfig.extra.EXPO_API_URL;
+const API_URL = "http://10.0.0.242:8888";
 
 export const signup = async(user) => {
     const res = await fetch(`${API_URL}/signup`, {
