@@ -71,6 +71,6 @@ export const send_audio = (data, onResponse, onError) => {
 }
 
 
-export const cancel_generation = (user) => {
-    socket.emit("cancel_generation", user)
+export const send_interruption = (user) => {
+    socket.emit("send_interruption", user)
 }

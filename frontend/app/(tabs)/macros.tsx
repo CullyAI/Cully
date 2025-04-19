@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
     View, 
     TextInput, 
@@ -10,7 +10,7 @@ import {
     Keyboard
 } from "react-native";
 import { generate_macros } from "@/lib/socket";
-import { set_profile } from "@/lib/api";
+import { set_profile, get_profile } from "@/lib/api";
 import { useAuth } from "@/context/authcontext";
 
 
@@ -31,6 +31,25 @@ export default function MacroScreen() {
     const [carbs, setCarbs] = useState("");
     const [fat, setFat] = useState("");
     const [mealsPerDay, setMealsPerDay] = useState("");
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const res = await get_profile(user);
+    
+                // 🆕 Set macros
+                setCalories(res["macros"]["calories"] || "");
+                setProtein(res["macros"]["protein"] || "");
+                setCarbs(res["macros"]["carbs"] || "");
+                setFat(res["macros"]["fat"] || "");
+                setMealsPerDay(res["macros"]["meals_per_day"] || "");
+            } catch (err) {
+                console.error("Failed to get profile", err);
+            }
+        };
+    
+        fetchProfile();
+    }, []);
 
 
     const cleanAndParseJSON = (raw: string) => {

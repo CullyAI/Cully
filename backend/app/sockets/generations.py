@@ -141,6 +141,7 @@ def handle_multimodal(data):
                     
     user_info = user_info_prompt(user_row=user_row)
     history = list(user_history[user_id])
+    token_count = 0
     cur_chunk = ""
     response = ""
     
@@ -165,7 +166,9 @@ def handle_multimodal(data):
         cur_chunk += token
         response += token
         
-        if token[-1] in pauses:
+        token_count += 1
+        
+        if token[-1] in pauses and token_count >= 10:
             if user_gen_id[user_id] != generation_id:
                 break
             
@@ -190,6 +193,7 @@ def handle_multimodal(data):
             socketio.sleep(0)
             
             cur_chunk = ""
+            token_count = 0
             
     if cur_chunk.strip() and not user_gen_id[user_id] != generation_id:
         start_tts_time = time.time()
@@ -233,6 +237,7 @@ def handle_audio(data):
                     
     user_info = user_info_prompt(user_row=user_row)
     history = list(user_history[user_id])
+    token_count = 0
     cur_chunk = ""
     response = ""
     
@@ -260,10 +265,12 @@ def handle_audio(data):
         cur_chunk += token
         response += token
         
+        token_count += 1
+        
         if user_gen_id[user_id] != generation_id:
             break
         
-        if token[-1] in pauses:
+        if token[-1] in pauses  and token_count >= 10:
             if user_gen_id[user_id] != generation_id:
                 break
             
@@ -287,6 +294,7 @@ def handle_audio(data):
             socketio.sleep(0)
             
             cur_chunk = ""
+            token_count = 0
             
     if cur_chunk.strip() and user_gen_id[user_id] == generation_id:
         start_tts_time = time.time()
@@ -310,3 +318,9 @@ def handle_audio(data):
     log.info("GenerationComplete", elapsed=round(time.time() - start_generation_time, 3))
     log.info("Input", detail=transcription)
     log.info("Response", detail=response)
+    
+    
+@socketio.on("send_interruption")
+def handle_interruption(user):
+    user_id = user["id"]
+    user_gen_id[user_id] = None
