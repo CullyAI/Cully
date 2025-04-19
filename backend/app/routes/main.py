@@ -1,3 +1,5 @@
+import eventlet
+
 from app import app, db
 from flask import (
     request, 
@@ -22,7 +24,15 @@ with app.app_context():
         print("✅ Connection to Supabase Successful!")
     except Exception as e:
         print(f"❌ Failed to connect to database: {e}")
-
+        
+        
+def user_query(column, value):
+    return eventlet.tpool.execute(
+        lambda: User.query.filter_by(
+            getattr(User, column)==value
+        ).first()
+    )
+    
 # Flask Routes
 @app.route("/")
 def index():
@@ -72,7 +82,7 @@ def get_profile():
     data = request.get_json()
     user_id = data["id"]
     
-    user = User.query.filter_by(user_id=user_id).first()
+    user = user_query("user_id", user_id)
     
     if user:
         diseases = user.diseases
@@ -104,7 +114,7 @@ def set_profile():
     if not user_id:
         return jsonify({"error": "Invalid user object"}), 400
 
-    user = User.query.filter_by(user_id=user_id).first()
+    user = user_query("user_id", user_id)
 
     if not user:
         return jsonify({"error": "Not logged in"}), 401
