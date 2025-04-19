@@ -241,15 +241,6 @@ def handle_audio(data):
     cur_chunk = ""
     response = ""
     
-    result_box = {}
-    task = socketio.start_background_task(
-        background_job,          # the wrapper
-        result_box,              # holder that will receive "value"
-        gpt4o_speech_to_text,    # the function
-        input_audio,             # *args → positional
-        using_base64=True        # **kwargs → keyword
-    )
-    
     stream = gpt4ominiaudio_generate(
         audio=input_audio,
         history=history,
@@ -309,8 +300,7 @@ def handle_audio(data):
         if not user_gen_id[user_id] != generation_id:
             emit("audio_response", {"audio": audio_base64})
         
-    task.join()
-    transcription = result_box["value"]
+    transcription = gpt4o_speech_to_text(input_audio, using_base64=True)
         
     user_history[user_id].append({"role": "user", "content": transcription})
     user_history[user_id].append({"role": "assistant", "content": response})
