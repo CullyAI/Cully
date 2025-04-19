@@ -6,7 +6,7 @@ export const authStyles = StyleSheet.create({
     padding: 24,
     paddingBottom: 100,
     justifyContent: "center",
-    backgroundColor: "#FFFBF4",
+    backgroundColor: "#FFF5E3",
     //backgroundColor: "#fff",
   },
   title: {
@@ -17,10 +17,19 @@ export const authStyles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
+    borderColor: "#FFFBF4",
+    backgroundColor: "#FFFBF4",
+    borderRadius: 50,
     padding: 12,
     marginBottom: 16,
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+
+    color: "#1E2C3D",
   },
   message: {
     marginTop: 20,
