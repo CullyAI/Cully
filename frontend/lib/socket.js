@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 
 const API_URL = "https://cully-4gu8.onrender.com";
+
 const socket = io(API_URL, {
   transports: ['websocket'],  // force WebSocket only (skip long-polling)
   withCredentials: true       // allows cookie/session-based auth
