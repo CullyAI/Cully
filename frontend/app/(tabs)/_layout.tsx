@@ -9,6 +9,8 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Redirect } from "expo-router";
 
+import { Image } from "react-native";
+
 import { useAuth } from "@/context/authcontext";
 
 export default function TabLayout() {
@@ -58,7 +60,7 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="person.fill" color={color} />
+            <IconSymbol size={28} name="person.crop.circle" color={color} />
           ),
         }}
       />
@@ -67,7 +69,7 @@ export default function TabLayout() {
         options={{
           title: "RecipeBot",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="pencil.and.outline" color={color} />
           ),
         }}
       />
@@ -76,7 +78,7 @@ export default function TabLayout() {
         options={{
           title: "Macros",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="chevron.right" color={color} />
+            <IconSymbol size={28} name="chart.pie" color={color} />
           ),
         }}
       />
@@ -85,7 +87,7 @@ export default function TabLayout() {
         options={{
           title: "VoiceBot",
           tabBarIcon: ({ color }: { color: string }) => (
-            <IconSymbol size={28} name="paperplane.fill" color={color} />
+            <IconSymbol size={28} name="waveform.circle" color={color} />
           ),
         }}
       />
