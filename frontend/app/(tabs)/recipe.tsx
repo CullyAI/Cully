@@ -117,14 +117,14 @@ export default function ChatScreen() {
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={chatStyles.container}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0: 0}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
       >
         <View style={chatStyles.header}>
           <Text style={chatStyles.headerText}>Recipe Assistant</Text>
         </View>
 
-        <ScrollView 
-          style={chatStyles.messages} 
+        <ScrollView
+          style={chatStyles.messages}
           ref={scrollRef}
           contentContainerStyle={chatStyles.messagesContent}
         >
@@ -133,12 +133,12 @@ export default function ChatScreen() {
               key={i}
               style={[
                 chatStyles.messageBubble,
-                msg.role === "user" ? chatStyles.userBubble : chatStyles.assistantBubble,
+                msg.role === "user"
+                  ? chatStyles.userBubble
+                  : chatStyles.assistantBubble,
               ]}
             >
-              <Markdown>
-                {msg.content}
-              </Markdown>
+              <Markdown>{msg.content}</Markdown>
             </View>
           ))}
           {isWaitingForFirstToken && <LoadingDots />}
@@ -155,12 +155,15 @@ export default function ChatScreen() {
             returnKeyType="send"
             onSubmitEditing={handleInput}
           />
-          <Pressable 
-            style={[chatStyles.sendButton, !input.trim() && chatStyles.sendButtonDisabled]} 
+          <Pressable
+            style={[
+              chatStyles.sendButton,
+              !input.trim() && chatStyles.sendButtonDisabled,
+            ]}
             onPress={handleInput}
             disabled={!input.trim()}
           >
-            <Send size={20} color={input.trim() ? "#fff" : "#A0AEC0"} />
+            <Send size={20} color={input.trim() ? "#FFFBF4" : "#A0AEC0"} />
           </Pressable>
         </View>
       </KeyboardAvoidingView>

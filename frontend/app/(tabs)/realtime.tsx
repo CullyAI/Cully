@@ -14,6 +14,7 @@ import {
 import { MICRO_AUDIO } from '@/constants/audio_settings';
 
 
+
 export default function RealtimeScreen() {
     const [hasCamPermission, setHasCamPermission] = useState(false);
     const [camPermission, requestCamPermission] = useCameraPermissions();

@@ -68,21 +68,21 @@ export default function MacroScreen() {
 }
 
     const styles = StyleSheet.create({
-    container: {
+      container: {
         position: "relative",
         top: 30,
         padding: 30,
         gap: 10,
-    },
-    input: {
+      },
+      input: {
         borderWidth: 1,
         borderColor: "#aaa",
-        color: "#fff",
+        color: "#FFFBF4",
         borderRadius: 8,
         padding: 10,
         fontSize: 16,
-    },
-    responseBox: {
+      },
+      responseBox: {
         marginTop: 20,
         padding: 16,
         borderWidth: 1,
@@ -90,11 +90,10 @@ export default function MacroScreen() {
         borderRadius: 12,
         backgroundColor: "#e6f5ec",
       },
-      
+
       responseText: {
         fontSize: 16,
         color: "#2e7d32",
         lineHeight: 22,
       },
-      
-});
+    });
