@@ -3,7 +3,7 @@ import { Audio } from 'expo-av';
 import { useEffect, useState, useRef } from 'react';
 import { realtimeStyles, CullyLogo } from '@/styles/realtime';
 import { View, Button, Text, Pressable, Image } from "react-native";
-import { send_multimodal, send_audio } from '@/lib/socket';
+import { send_multimodal, send_audio, send_interruption } from '@/lib/socket';
 import { useAuth } from '@/context/authcontext';
 import { FontAwesome6 } from "@expo/vector-icons";
 import {
@@ -127,6 +127,8 @@ export default function RealtimeScreen() {
                 await soundRef.current.stopAsync();
                 await soundRef.current.unloadAsync();
                 soundRef.current = null;
+
+                send_interruption(user);
             }
 
             setIsPlaying(false)
