@@ -55,6 +55,7 @@ export default function LoginScreen() {
         onChangeText={setEmail}
         autoCapitalize="none"
         keyboardType="email-address"
+        placeholderTextColor={"#E8E0D3"}
       />
       <TextInput
         style={authStyles.input}
@@ -62,6 +63,7 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        placeholderTextColor={"#E8E0D3"}
       />
 
       <Button title="Log In" onPress={handleLogin} />

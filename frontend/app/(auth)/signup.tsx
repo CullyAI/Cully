@@ -67,6 +67,7 @@ export default function SignupScreen() {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        placeholderTextColor={"#E8E0D3"}
       />
 
       <Button title="Sign Up" onPress={handleSignup} />
