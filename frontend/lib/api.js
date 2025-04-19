@@ -1,6 +1,4 @@
-import Constants from 'expo-constants';
-
-const API_URL = "http://10.0.0.242:8888";
+const API_URL = "https://cully-4gu8.onrender.com";
 
 export const signup = async(user) => {
     const res = await fetch(`${API_URL}/signup`, {
