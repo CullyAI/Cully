@@ -78,13 +78,15 @@ def get_profile():
         diseases = user.diseases
         allergies = user.allergies
         nutritional_goals = user.nutritional_goals
-        dietary_preferencess = user.dietary_preferences
+        dietary_preferences = user.dietary_preferences
+        macros = user.macros
         
         response = make_response(jsonify({
             "diseases": diseases,
             "allergies": allergies,
             "nutritional_goals": nutritional_goals,
-            "dietary_preferences": dietary_preferencess,
+            "dietary_preferences": dietary_preferences,
+            "macros": macros,
         }))
         
         return response, 200

@@ -37,7 +37,6 @@ export default function MacroScreen() {
             try {
                 const res = await get_profile(user);
     
-                // 🆕 Set macros
                 setCalories(res["macros"]["calories"] || "");
                 setProtein(res["macros"]["protein"] || "");
                 setCarbs(res["macros"]["carbs"] || "");
