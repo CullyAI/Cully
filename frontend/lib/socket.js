@@ -26,8 +26,18 @@ export const generate_recipe = (data, onChunk, onDone, onError) => {
     });
 };
 
-export const generate_macros = (data, onChunk, onDone, onError) => {
-    socket.emit("generate_macros", data)
+export const generate_macros = (data, onDone, onError) => {
+    socket.emit("generate_macros", data);
+
+    socket.off("macros_complete");
+    socket.on("macros_complete", (response) => {
+        onDone(response);
+    });
+
+    socket.off("error");
+    socket.on("error", (err) => {
+        onError(err.message);
+    });
 }
 
 
