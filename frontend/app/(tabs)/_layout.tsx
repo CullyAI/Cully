@@ -4,19 +4,17 @@ import { Platform } from "react-native";
 
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-//import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Redirect } from "expo-router";
-
-import { Image } from "react-native";
-
 import { useAuth } from "@/context/authcontext";
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+import { NavProvider, useNav } from "./navcontext"; // <-- Add this
 
-  const { isLoggedIn, loading, user } = useAuth();
+function InnerTabs() {
+  const colorScheme = useColorScheme();
+  const { isLoggedIn, loading } = useAuth();
+  const { navHidden } = useNav(); // <-- Hook for nav animation
 
   if (loading) {
     return null;
@@ -29,30 +27,33 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tabIconSelected,
-        tabBarInactiveTintColor: Colors[colorScheme ?? "light"].tabIconDefault,
+        tabBarStyle: [
+          {
+            transform: [{ translateY: navHidden ? 100 : 0 }],
+            opacity: navHidden ? 0 : 1,
+            transitionDuration: "300ms", // Smooth-ish transition
+          },
+          Platform.select({
+            ios: {
+              position: "absolute",
+              borderTopWidth: 0,
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: -4 },
+              shadowOpacity: 0.1,
+              shadowRadius: 10,
+              backgroundColor: Colors[colorScheme ?? "light"].background,
+            },
+            default: {
+              borderTopWidth: 0,
+              elevation: 10,
+              backgroundColor: Colors[colorScheme ?? "light"].background,
+            },
+          }),
+        ],
         headerShown: false,
         tabBarButton: HapticTab,
-        //tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: "absolute",
-            borderTopWidth: 0,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: -4 }, // pushes shadow upward
-            shadowOpacity: 0.1,
-            shadowRadius: 10,
-            //backgroundColor: Colors[colorScheme ?? "light"].navBar,
-            backgroundColor: Colors[colorScheme ?? "light"].background, // <-- Add this
-          },
-
-          default: {
-            borderTopWidth: 0,
-            elevation: 10, // Android shadow
-            //backgroundColor: Colors[colorScheme ?? "light"].navBar,
-            backgroundColor: Colors[colorScheme ?? "light"].background, // <-- Add this
-          },
-        }),
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tabIconSelected,
+        tabBarInactiveTintColor: Colors[colorScheme ?? "light"].tabIconDefault,
       }}
     >
       <Tabs.Screen
@@ -92,5 +93,14 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+  );
+}
+
+// 🔄 Wrap the InnerTabs with NavProvider here
+export default function TabLayoutWithNavContext() {
+  return (
+    <NavProvider>
+      <InnerTabs />
+    </NavProvider>
   );
 }
