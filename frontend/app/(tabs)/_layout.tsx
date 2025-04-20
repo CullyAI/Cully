@@ -1,30 +1,22 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform } from "react-native";
-
+import { Animated, Platform } from "react-native";
+import { useNav } from "../navcontext"; // ✅ useNav hook
 import { HapticTab } from "@/components/HapticTab";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-//import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Redirect } from "expo-router";
-
-import { Image } from "react-native";
-
 import { useAuth } from "@/context/authcontext";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { isLoggedIn, loading } = useAuth();
 
-  const { isLoggedIn, loading, user } = useAuth();
+  const { animatedValue } = useNav(); // ✅ grab the animated value
 
-  if (loading) {
-    return null;
-  }
-
-  if (!isLoggedIn) {
-    return <Redirect href="/(auth)/login" />;
-  }
+  if (loading) return null;
+  if (!isLoggedIn) return <Redirect href="/(auth)/login" />;
 
   return (
     <Tabs
@@ -33,33 +25,24 @@ export default function TabLayout() {
         tabBarInactiveTintColor: Colors[colorScheme ?? "light"].tabIconDefault,
         headerShown: false,
         tabBarButton: HapticTab,
-        //tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: "absolute",
-            borderTopWidth: 0,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: -4 }, // pushes shadow upward
-            shadowOpacity: 0.1,
-            shadowRadius: 10,
-            //backgroundColor: Colors[colorScheme ?? "light"].navBar,
-            backgroundColor: Colors[colorScheme ?? "light"].background, // <-- Add this
-          },
-
-          default: {
-            borderTopWidth: 0,
-            elevation: 10, // Android shadow
-            //backgroundColor: Colors[colorScheme ?? "light"].navBar,
-            backgroundColor: Colors[colorScheme ?? "light"].background, // <-- Add this
-          },
-        }),
+        tabBarStyle: {
+          position: "absolute",
+          borderTopWidth: 0,
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+          transform: [
+            {
+              translateY: animatedValue, // ✅ animate the Y position
+            },
+          ],
+        },
       }}
     >
+      {/* Your Screens */}
       <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }: { color: string }) => (
+          tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="person.crop.circle" color={color} />
           ),
         }}
@@ -68,7 +51,7 @@ export default function TabLayout() {
         name="recipe"
         options={{
           title: "RecipeBot",
-          tabBarIcon: ({ color }: { color: string }) => (
+          tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="pencil.and.outline" color={color} />
           ),
         }}
@@ -77,7 +60,7 @@ export default function TabLayout() {
         name="macros"
         options={{
           title: "Macros",
-          tabBarIcon: ({ color }: { color: string }) => (
+          tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="chart.pie" color={color} />
           ),
         }}
@@ -86,7 +69,7 @@ export default function TabLayout() {
         name="realtime"
         options={{
           title: "VoiceBot",
-          tabBarIcon: ({ color }: { color: string }) => (
+          tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="waveform.circle" color={color} />
           ),
         }}
