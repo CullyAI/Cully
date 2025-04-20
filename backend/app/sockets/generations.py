@@ -19,7 +19,7 @@ log = structlog.get_logger()
 user_history = defaultdict(lambda: deque(maxlen=10))
 user_gen_id = defaultdict(lambda: False)
 
-with open("preprocess/preprocess_base64.json", 'r', encoding='utf-8') as f:
+with open("preprocess/preprocess_audios.json", 'r', encoding='utf-8') as f:
     preprocesses = json.load(f)
 
 
@@ -129,8 +129,10 @@ def handle_multimodal(data):
     )
 
     preprocess = random.choice(preprocesses)
+    preprocess_audio = preprocess["audio"]
+    preprocess_text = preprocess["text"]
     
-    emit("audio_response", {"audio": preprocess})
+    emit("audio_response", {"audio": preprocess_audio})
     socketio.sleep(0)
     
     sent_preprocess_audio_time = time.time()
@@ -152,6 +154,7 @@ def handle_multimodal(data):
         instructions=realtime_instructions,
         image=input_image,
         other=user_info,
+        prefix=preprocess_text,
         using_base64=True,
     )
     
