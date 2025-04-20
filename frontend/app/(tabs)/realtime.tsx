@@ -2,7 +2,7 @@ import * as FileSystem from 'expo-file-system';
 import { Audio } from 'expo-av';
 import { useEffect, useState, useRef } from 'react';
 import { realtimeStyles, CullyLogo } from '@/styles/realtime';
-import { View, Button, Text, Pressable, Image } from "react-native";
+import { View, Button, Text, Pressable, Image, Animated, Easing } from "react-native";
 import { send_multimodal, send_audio, send_interruption } from '@/lib/socket';
 import { useAuth } from '@/context/authcontext';
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -267,45 +267,72 @@ export default function RealtimeScreen() {
     
 
     return (
-        <View style={realtimeStyles.container}>
-            {cameraOn ? (
-                <View style={[
-                    realtimeStyles.cameraContainer,
-                    isPlaying && realtimeStyles.playingBorder,
-                    !isPlaying && realtimeStyles.notPlayingBorder,
-                    isThinking && realtimeStyles.thinkingBorder,
-                ]}>
-                    <CameraView
-                        ref={cameraRef}
-                        style={realtimeStyles.camera}
-                        facing={facing}
-                        animateShutter={false}
-                    >
-                        <Pressable onPress={toggleFacing} style={realtimeStyles.toggleButton}>
-                            <FontAwesome6 name="rotate-left" size={32} color="white" />
-                        </Pressable>
-                    </CameraView>
-                </View>
-            ) : (
-                <View style={[
-                    realtimeStyles.logoContainer, 
-                    isPlaying && realtimeStyles.playingBorder,
-                    !isPlaying && realtimeStyles.notPlayingBorder,
-                    isThinking && realtimeStyles.thinkingBorder,
-                ]
-                }>
-                    <Image
-                        source={CullyLogo}
-                        style={realtimeStyles.logoImage}
-                        resizeMode="cover"
-                    />
-                </View>
-            )}
-
-            <View style={realtimeStyles.buttonGroup}>
-                {record()}
-                {toggleCameraButton()}
+      <Pressable
+        onPressIn={startRecording}
+        onPressOut={stopRecording}
+        style={{ flex: 1 }}
+      >
+        <View style={realtimeStyles.container} pointerEvents="box-none">
+          {cameraOn ? (
+            <View
+              style={[
+                realtimeStyles.cameraContainer,
+                isPlaying && realtimeStyles.playingBorder,
+                !isPlaying && realtimeStyles.notPlayingBorder,
+                isThinking && realtimeStyles.thinkingBorder,
+              ]}
+            >
+              <CameraView
+                ref={cameraRef}
+                style={realtimeStyles.camera}
+                facing={facing}
+                animateShutter={false}
+              >
+                <Pressable
+                  onPress={toggleFacing}
+                  style={realtimeStyles.toggleButton}
+                  onPressIn={(e) => e.stopPropagation()}
+                  onPressOut={(e) => e.stopPropagation()}
+                >
+                  <FontAwesome6 name="rotate-left" size={32} color="white" />
+                </Pressable>
+              </CameraView>
             </View>
+          ) : (
+            <View
+              style={[
+                realtimeStyles.logoContainer,
+                isPlaying && realtimeStyles.playingBorder,
+                !isPlaying && realtimeStyles.notPlayingBorder,
+                isThinking && realtimeStyles.thinkingBorder,
+              ]}
+            >
+              <Image
+                source={CullyLogo}
+                style={realtimeStyles.logoImage}
+                resizeMode="cover"
+              />
+            </View>
+          )}
+
+          <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
+            <Pressable
+              onPressIn={(e) => {
+                e.stopPropagation();
+                setCameraOn((prev) => !prev);
+              }}
+              style={({ pressed }) => [
+                realtimeStyles.recordButton,
+                { backgroundColor: pressed ? "#ff4444" : "#ff6666" },
+              ]}
+            >
+              <Text style={realtimeStyles.recordButtonText}>
+                {cameraOn ? "Tap to disable camera" : "Tap to enable camera"}
+              </Text>
+            </Pressable>
+          </View>
         </View>
+      </Pressable>
     );
+
 }
