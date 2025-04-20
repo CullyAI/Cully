@@ -5,7 +5,7 @@ import { realtimeStyles, CullyLogo } from "@/styles/realtime";
 import { View, Text, Pressable, Image } from "react-native";
 import { send_multimodal, send_audio, send_interruption } from "@/lib/socket";
 import { useAuth } from "@/context/authcontext";
-import { useNav } from "./navcontext"; // <-- ✅ add this
+import { useNav } from "../navcontext"; // <-- ✅ add this
 import { FontAwesome6 } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { MICRO_AUDIO } from "@/constants/audio_settings";
