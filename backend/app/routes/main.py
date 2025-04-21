@@ -13,7 +13,7 @@ from werkzeug.security import (
 
 from app.routes.setup_utils import *
 
-from app.models import User
+from app.models import *
 
 # Test the connection using Flask-SQLAlchemy
 with app.app_context():
@@ -61,7 +61,6 @@ def login():
     if user and check_password_hash(user.password_hash, password):
         session["user_id"] = user.user_id
         response = make_response(jsonify({"message": "Login successful!"}))
-        print(dict(response.headers))  # Should include Set-Cookie
         return response
     else:
         return jsonify({"error": "Invalid credentials"}), 401
@@ -116,8 +115,6 @@ def set_profile():
         "dietary_preferences": data.get("dietary_preferences"),
         "macros": data.get("macros"),
     }
-    
-    print(update_fields)
 
     for attr, value in update_fields.items():
         if value is not None:
@@ -126,6 +123,40 @@ def set_profile():
     db.session.commit()
     
     return jsonify({"success": True}), 200
+
+
+@app.route("/set_recipe", methods=["POST"])
+def set_recipe():
+    data = request.get_json()
+    
+    user_info = data.get("user", {})
+    user_id = user_info.get("id")
+
+    if not user_id:
+        return jsonify({"error": "Invalid user object"}), 400
+
+    try:
+        recipe = Recipe(
+            user_id=user_id,
+            title=data.get("title"),
+            description=data.get("description", ""),
+            preparation_time=data.get("preparation_time"),
+            cooking_time=data.get("cooking_time"),
+            difficulty_level=data.get("difficulty_level"),
+            calories=data.get("calories"),
+            protein=data.get("protein"),
+            carbs=data.get("carbs", 0),  # optional fallback
+            fat=data.get("fat")
+        )
+
+        db.session.add(recipe)
+        db.session.commit()
+
+        return jsonify({"success": True, "recipe_id": recipe.recipe_id}), 200
+
+    except Exception as e:
+        print("❌ Error saving recipe:", e)
+        return jsonify({"error": "Failed to save recipe"}), 500
 
         
     
