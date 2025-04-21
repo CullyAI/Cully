@@ -1,5 +1,8 @@
 from configs.diseases import diseases
 
+####################
+### Instructions ###
+####################
 
 recipe_instructions = "You are a friendly, helpful recipe generator that only generates recipes."
 
@@ -33,17 +36,35 @@ audio_only_instructions = (
     "let them know that you can see, but they should enable their camera. "
 )
 
+recipe_detail_instructions = (
+    "Given a recipe, respond in the following JSON format ONLY:\n\n"
+    "{\n"
+    "  \"title\": str,\n"
+    "  \"description\": str,\n"
+    "  \"preparation_time\": int,\n"
+    "  \"cooking_time\": int,\n"
+    "  \"difficulty_level\": str,\n"
+    "  \"calories\": float,\n"
+    "  \"protein\": float,\n"
+    "  \"carbs\": float,\n"
+    "  \"fat\": float\n"
+    "}\n\n"
+    "Respond ONLY with a valid JSON object and no extra commentary.\n\n"
+    "If the input is not a recipe, then respond with the string \"False\" (in quotes)."
+)
+
+
+
 tts_instructions = (
     "Be warm and friendly."
 )
 
 pauses = ["!", ".", "?", ":", "\n", "\n\n"]
-
-
-def background_job(holder: dict, func, *args, **kwargs):
-    """Run *func* in a background thread/green-thread and stash the result."""
-    holder["value"] = func(*args, **kwargs)
     
+
+########################
+### Building Prompts ###
+########################
 
 def user_info_prompt(user_row):
     user_diseases = [d.strip() for d in user_row.diseases.split(",") if d.strip()]
@@ -109,3 +130,10 @@ def macro_info_prompt(age, sex, height, weight, activity_level, target_weight, o
     
     return prompt
 
+#############
+### Other ###
+#############
+
+def background_job(holder: dict, func, *args, **kwargs):
+    """Run *func* in a background thread/green-thread and stash the result."""
+    holder["value"] = func(*args, **kwargs)

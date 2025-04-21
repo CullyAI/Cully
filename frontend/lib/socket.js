@@ -1,6 +1,6 @@
 import { io } from "socket.io-client";
 
-const API_URL = "https://cully-4gu8.onrender.com";
+const API_URL = "http://10.0.0.242:8888";
 
 const socket = io(API_URL, {
   transports: ['websocket'],  // force WebSocket only (skip long-polling)
@@ -27,6 +27,22 @@ export const generate_recipe = (data, onChunk, onDone, onError) => {
     });
 };
 
+
+export const generate_recipe_details = (data, onDone, onError) => {
+    socket.emit("generate_recipe_details", data);
+
+    socket.off("recipe_details_complete");
+    socket.on("recipe_details_complete", (recipe_details) => {
+        onDone(recipe_details);
+    });
+
+    socket.off("error");
+    socket.on("error", (err) => {
+        onError(err.message);
+    });
+}
+
+
 export const generate_macros = (data, onDone, onError) => {
     socket.emit("generate_macros", data);
 
@@ -50,8 +66,8 @@ export const send_multimodal = (data, onResponse, onError) => {
         onResponse(audio);
     });
 
-    socket.off("error");
-    socket.on("error", (err) => {
+    socket.off("send_multimodal_error");
+    socket.on("sned_multimodal_error", (err) => {
         onError(err.message);
     });
 }
@@ -65,8 +81,8 @@ export const send_audio = (data, onResponse, onError) => {
         onResponse(audio);
     });
 
-    socket.off("error");
-    socket.on("error", (err) => {
+    socket.off("send_audio_error");
+    socket.on("send_audio_error", (err) => {
         onError(err.message);
     });
 }

@@ -18,14 +18,18 @@ class User(db.Model):
     nutritional_goals = db.Column(db.String(255), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    recipes = db.relationship("Recipe", backref="user", lazy=True)
 
 # Recipes Table
 class Recipe(db.Model):
     __tablename__ = 'recipes'
     
-    recipe_id = db.Column(db.Integer, primary_key=True)
+    recipe_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.String(36), db.ForeignKey('users.user_id'), nullable=False)
+    steps = db.Column(db.Text, nullable=True)
     title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text, nullable=True)
+    description = db.Column(db.String(255), nullable=False)
     preparation_time = db.Column(db.Integer, nullable=False)
     cooking_time = db.Column(db.Integer, nullable=False)
     difficulty_level = db.Column(db.String(50), nullable=False)

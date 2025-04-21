@@ -12,6 +12,7 @@ import {
 import { generate_macros } from "@/lib/socket";
 import { set_profile, get_profile } from "@/lib/api";
 import { useAuth } from "@/context/authcontext";
+import { cleanAndParseJSON } from "@/utils/basic_functions";
 
 
 export default function MacroScreen() {
@@ -50,20 +51,6 @@ export default function MacroScreen() {
         fetchProfile();
     }, []);
 
-
-    const cleanAndParseJSON = (raw: string) => {
-        try {
-            // Remove any outer whitespace
-            const trimmed = raw.trim();
-        
-            // Parse it — most models output valid JSON strings directly
-            const parsed = JSON.parse(trimmed);
-            return parsed;
-        } catch (err) {
-            console.error("❌ Failed to parse JSON:", err);
-            return null;
-        }
-      };
 
     const logError = (errMsg: string) => {
         console.error("❌ Macro generation error:", errMsg);
