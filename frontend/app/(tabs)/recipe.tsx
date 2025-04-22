@@ -150,67 +150,72 @@ export default function ChatScreen() {
 	};
 
 	return (
-		<SafeAreaView style={chatStyles.safeArea}>
-		<KeyboardAvoidingView
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			style={chatStyles.container}
-			keyboardVerticalOffset={Platform.OS === "ios" ? 0: 0}
-		>
+    <SafeAreaView style={chatStyles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={chatStyles.container}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+      >
+        <View style={chatStyles.header}>
+          <Text style={chatStyles.headerText}>Recipe Assistant</Text>
+        </View>
 
-			<View style={chatStyles.header}>
-				<Text style={chatStyles.headerText}>Recipe Assistant</Text>
-			</View>
+        <ScrollView
+          style={chatStyles.messages}
+          ref={scrollRef}
+          contentContainerStyle={chatStyles.messagesContent}
+        >
+          {history.map((msg, i) => (
+            <View
+              key={i}
+              style={[
+                chatStyles.messageBubble,
+                msg.role === "user"
+                  ? chatStyles.userBubble
+                  : chatStyles.assistantBubble,
+              ]}
+            >
+              <Markdown>{msg.content}</Markdown>
 
-			<ScrollView 
-				style={chatStyles.messages} 
-				ref={scrollRef}
-				contentContainerStyle={chatStyles.messagesContent}
-			>
-				{history.map((msg, i) => (
-					<View
-						key={i}
-						style={[
-							chatStyles.messageBubble,
-							msg.role === "user" ? chatStyles.userBubble : chatStyles.assistantBubble,
-						]}
-					>
-						<Markdown>
-							{msg.content}
-						</Markdown>
-						
-						{msg.role == "assistant" && 
-						<Pressable 
-							style={[chatStyles.sendButton, !input.trim() && chatStyles.sendButtonDisabled]} 
-							onPress={() => handleSave(msg.content)}
-						>
-							<Send size={20} color={input.trim() ? "#fff" : "#A0AEC0"} />
-						</Pressable>}
-					</View>
-				))}
-				{isWaitingForFirstToken && <LoadingDots />}
-			</ScrollView>
+              {msg.role == "assistant" && (
+                <Pressable
+                  style={[
+                    chatStyles.sendButton,
+                    !input.trim() && chatStyles.sendButtonDisabled,
+                  ]}
+                  onPress={() => handleSave(msg.content)}
+                >
+                  <Send size={20} color={input.trim() ? "#fff" : "#A0AEC0"} />
+                </Pressable>
+              )}
+            </View>
+          ))}
+          {isWaitingForFirstToken && <LoadingDots />}
+        </ScrollView>
 
-			<View style={chatStyles.inputContainer}>
-				<TextInput
-					style={chatStyles.input}
-					placeholder="Ask for a recipe..."
-					value={input}
-					onChangeText={setInput}
-					multiline
-					maxLength={1000}
-					returnKeyType="send"
-					onSubmitEditing={handleInput}
-				/>
-				<Pressable 
-					style={[chatStyles.sendButton, !input.trim() && chatStyles.sendButtonDisabled]} 
-					onPress={handleInput}
-					disabled={!input.trim()}
-				>
-					<Send size={20} color={input.trim() ? "#fff" : "#A0AEC0"} />
-				</Pressable>
-			</View>
-
-		</KeyboardAvoidingView>
-		</SafeAreaView>
-	);
+        <View style={chatStyles.inputContainer}>
+          <TextInput
+            style={chatStyles.input}
+            placeholder="Ask for a recipe..."
+            value={input}
+            onChangeText={setInput}
+            multiline
+            maxLength={1000}
+            returnKeyType="send"
+            onSubmitEditing={handleInput}
+          />
+          <Pressable
+            style={[
+              chatStyles.sendButton,
+              !input.trim() && chatStyles.sendButtonDisabled,
+            ]}
+            onPress={handleInput}
+            disabled={!input.trim()}
+          >
+            <IconSymbol size={20} name="arrow.up" color="#FFFBF4" />
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 }
