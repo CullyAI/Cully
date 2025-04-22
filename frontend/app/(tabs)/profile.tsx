@@ -225,22 +225,23 @@ export default function ProfilePage() {
 					</Pressable>
 
 					{showDropdown && (
-						<View style={profileStyles.dropdownList}>
-						<FlatList
-							data={filteredDiseases}
-							keyExtractor={(item) => item}
-							keyboardShouldPersistTaps="handled"
-							renderItem={({ item }) => (
-							<Pressable
-								onPress={() => {
-								addDisease(item);
-								}}
-								style={profileStyles.dropdownItem}
-							>
-								<Text>{item}</Text>
-							</Pressable>
-							)}
-						/>
+						<View style={[profileStyles.dropdownList]}>
+							<ScrollView>
+								<FlatList
+									data={filteredDiseases}
+									keyExtractor={(item) => item}
+									keyboardShouldPersistTaps="handled"
+									scrollEnabled={false}
+									renderItem={({ item }) => (
+										<Pressable
+										onPress={() => addDisease(item)}
+										style={profileStyles.dropdownItem}
+										>
+										<Text>{item}</Text>
+										</Pressable>
+									)}
+								/>
+							</ScrollView>
 						</View>
 					)}
 
@@ -303,14 +304,6 @@ export default function ProfilePage() {
 
 			{showMacrosForm &&
 				<>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Enter your age..."
-						value={age}
-						onChangeText={setAge}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
 					<TextInput
 						style={profileStyles.input}
 						placeholder="Enter your age..."
