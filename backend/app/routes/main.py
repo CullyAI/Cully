@@ -116,7 +116,6 @@ def set_profile():
 
     db.session.commit()
     
-    
     return jsonify({"success": True}), 200
 
 
@@ -147,8 +146,6 @@ def get_recipes():
                 "created_at": recipe.created_at.isoformat(),
                 "updated_at": recipe.updated_at.isoformat(),
             })
-            
-        print("RECIPES:", serialized)
 
         return jsonify(serialized), 200
     else:
