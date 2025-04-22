@@ -268,6 +268,8 @@ export default function RealtimeScreen() {
 
 	const handleSelection = (recipe: Recipe) => {
 		setSelectedRecipe(recipe);
+		setRecipeSelected(true);
+		console.log(recipe);
 	}
 
 	return (
