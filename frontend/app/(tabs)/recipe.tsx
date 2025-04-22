@@ -104,7 +104,7 @@ export default function ChatScreen() {
 	};
 
 
-	const addRecipe = (raw: string, steps: string) => {
+	const addRecipe = (raw: string) => {
 		console.log(raw);
 		if (raw.trim() === "False") return;
 
@@ -112,9 +112,9 @@ export default function ChatScreen() {
 
 		set_recipe({
 			"user": user,
-			"steps": steps,
 			"title": json["title"],
 			"description": json["description"],
+			"steps": json["steps"],
 			"preparation_time": json["preparation_time"],
 			"cooking_time": json["cooking_time"],
 			"difficulty_level": json["difficulty_level"],
@@ -131,7 +131,7 @@ export default function ChatScreen() {
 				history,
 				recipe,
 			},
-			(details: string) => addRecipe(details, recipe)
+			addRecipe,
 		)
 	}
 
