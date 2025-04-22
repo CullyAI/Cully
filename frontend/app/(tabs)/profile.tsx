@@ -189,9 +189,7 @@ export default function ProfilePage() {
 			</Pressable>
 
 			{showProfileForm && (
-				<View style={profileStyles.container}>
-					<Text style={profileStyles.title}>Edit Profile</Text>
-
+				<>
 					<Text style={profileStyles.header}>Diseases/Conditions</Text>
 					<View style={profileStyles.selectedContainer}>
 						{selectedDiseases.map((disease) => (
@@ -212,12 +210,12 @@ export default function ProfilePage() {
 						style={[profileStyles.input, profileStyles.dropdown]}
 					>
 						<TextInput
-						style={profileStyles.searchInput}
-						placeholder="Search diseases..."
-						value={searchQuery}
-						onChangeText={setSearchQuery}
-						onFocus={() => setShowDropdown(true)}
-						placeholderTextColor={"#E8E0D3"}
+							style={profileStyles.searchInput}
+							placeholder="Search diseases..."
+							value={searchQuery}
+							onChangeText={setSearchQuery}
+							onFocus={() => setShowDropdown(true)}
+							placeholderTextColor={"#E8E0D3"}
 						/>
 						{showDropdown ? (
 						<ChevronUp size={20} color="#666" />
@@ -245,8 +243,6 @@ export default function ProfilePage() {
 						/>
 						</View>
 					)}
-
-					<View style={profileStyles.container}>
 
 					<Text style={profileStyles.header}>Allergies</Text>
 					<TextInput
@@ -293,8 +289,7 @@ export default function ProfilePage() {
 						</Animated.View>
 					</TouchableOpacity>
 
-					</View>
-				</View>
+				</>
 			)}
 
 			<Pressable 
@@ -307,91 +302,89 @@ export default function ProfilePage() {
 			</Pressable>
 
 			{showMacrosForm &&
-			<View style={profileStyles.container}>
-			
-				<TextInput
-					style={profileStyles.input}
-					placeholder="Enter your age..."
-					value={age}
-					onChangeText={setAge}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<TextInput
-					style={profileStyles.input}
-					placeholder="Enter your age..."
-					value={age}
-					onChangeText={setAge}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<TextInput
-					style={profileStyles.input}
-					placeholder="Sex (M/F)"
-					value={sex}
-					onChangeText={setSex}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<TextInput
-					style={profileStyles.input}
-					placeholder="Height (in.)"
-					value={height}
-					onChangeText={setHeight}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<TextInput
-					style={profileStyles.input}
-					placeholder="How much do you weigh? (lbs)"
-					value={weight}
-					onChangeText={setWeight}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<TextInput
-					style={profileStyles.input}
-					placeholder="How many times do you work out weekly?"
-					value={activityLevel}
-					onChangeText={setActivityLevel}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<TextInput
-					style={profileStyles.input}
-					placeholder="What is your target weight? (lbs)"
-					value={targetWeight}
-					onChangeText={setTargetWeight}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<TextInput
-					style={profileStyles.input}
-					placeholder="Any other information?"
-					value={otherInfo}
-					onChangeText={setOtherInfo}
-					autoCapitalize="none"
-					placeholderTextColor={"#E8E0D3"}
-				/>
-				<Button title="Generate Macros" onPress={generateMacros}/>
+				<>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Enter your age..."
+						value={age}
+						onChangeText={setAge}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Enter your age..."
+						value={age}
+						onChangeText={setAge}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Sex (M/F)"
+						value={sex}
+						onChangeText={setSex}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Height (in.)"
+						value={height}
+						onChangeText={setHeight}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="How much do you weigh? (lbs)"
+						value={weight}
+						onChangeText={setWeight}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="How many times do you work out weekly?"
+						value={activityLevel}
+						onChangeText={setActivityLevel}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="What is your target weight? (lbs)"
+						value={targetWeight}
+						onChangeText={setTargetWeight}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Any other information?"
+						value={otherInfo}
+						onChangeText={setOtherInfo}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+					<Button title="Generate Macros" onPress={generateMacros}/>
 
-				<View style={macroStyles.responseBox}>
-					<Text style={macroStyles.header}>Target Calories</Text>
-					<TextInput style={macroStyles.output} placeholder={"Your target calories will appear here."} value={calories} onChangeText={setCalories} />
-					<Text style={macroStyles.header}>Target Protein</Text>
-					<TextInput style={macroStyles.output} placeholder={"Your target protein will appear here."} value={protein} onChangeText={setProtein} />
-					<Text style={macroStyles.header}>Target Carbs</Text>
-					<TextInput style={macroStyles.output} placeholder={"Your target carbs will appear here."} value={carbs} onChangeText={setCarbs} />
-					<Text style={macroStyles.header}>Target Fat</Text>
-					<TextInput style={macroStyles.output} placeholder={"Your target fat will appear here."} value={fat} onChangeText={setFat} />
-					<Text style={macroStyles.header}>Target Meals Per Day</Text>
-					<TextInput style={macroStyles.output} placeholder={"Your target meals per day will appear here."} value={mealsPerDay} onChangeText={setMealsPerDay} />
+					<View style={macroStyles.responseBox}>
+						<Text style={macroStyles.header}>Target Calories</Text>
+						<TextInput style={macroStyles.output} placeholder={"Your target calories will appear here."} value={calories} onChangeText={setCalories} />
+						<Text style={macroStyles.header}>Target Protein</Text>
+						<TextInput style={macroStyles.output} placeholder={"Your target protein will appear here."} value={protein} onChangeText={setProtein} />
+						<Text style={macroStyles.header}>Target Carbs</Text>
+						<TextInput style={macroStyles.output} placeholder={"Your target carbs will appear here."} value={carbs} onChangeText={setCarbs} />
+						<Text style={macroStyles.header}>Target Fat</Text>
+						<TextInput style={macroStyles.output} placeholder={"Your target fat will appear here."} value={fat} onChangeText={setFat} />
+						<Text style={macroStyles.header}>Target Meals Per Day</Text>
+						<TextInput style={macroStyles.output} placeholder={"Your target meals per day will appear here."} value={mealsPerDay} onChangeText={setMealsPerDay} />
 
-					<Button title="Save Macros" onPress={updateProfile}/>
-				</View>
-	
-			</View>
-		}
+						<Button title="Save Macros" onPress={updateProfile}/>
+					</View>
+				</>
+			}
 
 		</View>
 		</ScrollView>
