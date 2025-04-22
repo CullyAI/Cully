@@ -177,220 +177,263 @@ export default function ProfilePage() {
     };
 
     return (
-		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-		<ScrollView
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <ScrollView
           contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}
           style={{ backgroundColor: "#FFF5E3" }}
         >
-		<View style={profileStyles.container}>
+          <View style={profileStyles.container}>
+            <Text style={profileStyles.daHeader}>Dietary Restrictions</Text>
 
-			<Pressable 
-				onPress={() => setShowProfileForm(!showProfileForm)}
-				style={profileStyles.title}
-				>
-				<Text style={profileStyles.title}>
-					{showProfileForm ? "Hide Profile" : "Edit Profile"}
-				</Text>
-			</Pressable>
+            <Pressable
+              onPress={() => setShowProfileForm(!showProfileForm)}
+              style={profileStyles.titleContainer}
+            >
+              <Text style={profileStyles.title}>
+                {showProfileForm ? "Hide Profile" : "Edit Profile"}
+              </Text>
+            </Pressable>
 
-			{showProfileForm && (
-				<>
-					<Text style={profileStyles.header}>Diseases/Conditions</Text>
-					<View style={profileStyles.selectedContainer}>
-						{selectedDiseases.map((disease) => (
-						<View key={disease} style={profileStyles.chip}>
-							<Text style={profileStyles.chipText}>{disease}</Text>
-							<Pressable
-							onPress={() => removeDisease(disease)}
-							style={profileStyles.chipButton}
-							>
-							<X size={16} color="#666" />
-							</Pressable>
-						</View>
-						))}
-					</View>
+            {showProfileForm && (
+              <>
+                <Text style={profileStyles.header}>Diseases/Conditions</Text>
+                <View style={profileStyles.selectedContainer}>
+                  {selectedDiseases.map((disease) => (
+                    <View key={disease} style={profileStyles.chip}>
+                      <Text style={profileStyles.chipText}>{disease}</Text>
+                      <Pressable
+                        onPress={() => removeDisease(disease)}
+                        style={profileStyles.chipButton}
+                      >
+                        <X size={16} color="#666" />
+                      </Pressable>
+                    </View>
+                  ))}
+                </View>
 
-					<Pressable
-						onPress={() => setShowDropdown(!showDropdown)}
-						style={[profileStyles.input, profileStyles.dropdown]}
-					>
-						<TextInput
-							style={profileStyles.searchInput}
-							placeholder="Search diseases..."
-							value={searchQuery}
-							onChangeText={setSearchQuery}
-							onFocus={() => setShowDropdown(true)}
-							placeholderTextColor={"#E8E0D3"}
-						/>
-						{showDropdown ? (
-						<ChevronUp size={20} color="#666" />
-						) : (
-						<ChevronDown size={20} color="#666" />
-						)}
-					</Pressable>
+                <Pressable
+                  onPress={() => setShowDropdown(!showDropdown)}
+                  style={[profileStyles.input, profileStyles.dropdown]}
+                >
+                  <TextInput
+                    style={profileStyles.searchInput}
+                    placeholder="Search diseases..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    onFocus={() => setShowDropdown(true)}
+                    placeholderTextColor={"#E8E0D3"}
+                  />
+                  {showDropdown ? (
+                    <ChevronUp size={20} color="#666" />
+                  ) : (
+                    <ChevronDown size={20} color="#666" />
+                  )}
+                </Pressable>
 
-					{showDropdown && (
-						<View style={[profileStyles.dropdownList]}>
-							<ScrollView>
-								<FlatList
-									data={filteredDiseases}
-									keyExtractor={(item) => item}
-									keyboardShouldPersistTaps="handled"
-									scrollEnabled={false}
-									renderItem={({ item }) => (
-										<Pressable
-										onPress={() => addDisease(item)}
-										style={profileStyles.dropdownItem}
-										>
-										<Text>{item}</Text>
-										</Pressable>
-									)}
-								/>
-							</ScrollView>
-						</View>
-					)}
+                {showDropdown && (
+                  <View style={[profileStyles.dropdownList]}>
+                    <ScrollView>
+                      <FlatList
+                        data={filteredDiseases}
+                        keyExtractor={(item) => item}
+                        keyboardShouldPersistTaps="handled"
+                        scrollEnabled={false}
+                        renderItem={({ item }) => (
+                          <Pressable
+                            onPress={() => addDisease(item)}
+                            style={profileStyles.dropdownItem}
+                          >
+                            <Text>{item}</Text>
+                          </Pressable>
+                        )}
+                      />
+                    </ScrollView>
+                  </View>
+                )}
 
-					<Text style={profileStyles.header}>Allergies</Text>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Enter any allergies you have..."
-						value={allergies}
-						onChangeText={setAllergies}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
+                <Text style={profileStyles.header}>Allergies</Text>
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="Enter any allergies you have..."
+                  value={allergies}
+                  onChangeText={setAllergies}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
 
-					<Text style={profileStyles.header}>Nutritional Goals</Text>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Enter any nutritional goals you have..."
-						value={nutritionalGoals}
-						onChangeText={setNutritionalGoals}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
+                <Text style={profileStyles.header}>Nutritional Goals</Text>
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="Enter any nutritional goals you have..."
+                  value={nutritionalGoals}
+                  onChangeText={setNutritionalGoals}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
 
-					<Text style={profileStyles.header}>Dietary Preferences</Text>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Enter any dietary preferences you have..."
-						value={dietaryPreferences}
-						onChangeText={setDietaryPreferences}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
+                <Text style={profileStyles.header}>Dietary Preferences</Text>
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="Enter any dietary preferences you have..."
+                  value={dietaryPreferences}
+                  onChangeText={setDietaryPreferences}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
 
-					<TouchableOpacity
-						style={profileStyles.button}
-						onPressIn={handleSubmitIn}
-						onPressOut={handleSubmitOut}
-						onPress={handleSubmit}
-						activeOpacity={0.7}
-					>
-						<Animated.View
-						style={[profileStyles.buttonContent, { transform: [{ scale }] }]}
-						>
-						<Text style={profileStyles.buttonText}>Save Profile</Text>
-						<IconSymbol size={20} name="checkmark" color="#FFFBF4" />
-						</Animated.View>
-					</TouchableOpacity>
+                <TouchableOpacity
+                  style={profileStyles.button}
+                  onPressIn={handleSubmitIn}
+                  onPressOut={handleSubmitOut}
+                  onPress={handleSubmit}
+                  activeOpacity={0.7}
+                >
+                  <Animated.View
+                    style={[
+                      profileStyles.buttonContent,
+                      { transform: [{ scale }] },
+                    ]}
+                  >
+                    <Text style={profileStyles.buttonText}>Save Profile</Text>
+                    <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+                  </Animated.View>
+                </TouchableOpacity>
+              </>
+            )}
 
-				</>
-			)}
+            <Pressable
+              onPress={() => setShowMacrosForm(!showMacrosForm)}
+              style={profileStyles.titleContainer}
+            >
+              <Text style={profileStyles.title}>
+                {showMacrosForm ? "Hide Macros" : "Edit Macros"}
+              </Text>
+            </Pressable>
 
-			<Pressable 
-				onPress={() => setShowMacrosForm(!showMacrosForm)}
-				style={profileStyles.title}
-				>
-				<Text style={profileStyles.title}>
-					{showMacrosForm ? "Hide Macros" : "Edit Macros"}
-				</Text>
-			</Pressable>
+            {showMacrosForm && (
+              <>
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="Enter your age..."
+                  value={age}
+                  onChangeText={setAge}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="Sex (M/F)"
+                  value={sex}
+                  onChangeText={setSex}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="Height (in.)"
+                  value={height}
+                  onChangeText={setHeight}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="How much do you weigh? (lbs)"
+                  value={weight}
+                  onChangeText={setWeight}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="How many times do you work out weekly?"
+                  value={activityLevel}
+                  onChangeText={setActivityLevel}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="What is your target weight? (lbs)"
+                  value={targetWeight}
+                  onChangeText={setTargetWeight}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
+                <TextInput
+                  style={profileStyles.input}
+                  placeholder="Any other information?"
+                  value={otherInfo}
+                  onChangeText={setOtherInfo}
+                  autoCapitalize="none"
+                  placeholderTextColor={"#E8E0D3"}
+                />
+                <Button title="Generate Macros" onPress={generateMacros} />
 
-			{showMacrosForm &&
-				<>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Enter your age..."
-						value={age}
-						onChangeText={setAge}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Sex (M/F)"
-						value={sex}
-						onChangeText={setSex}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Height (in.)"
-						value={height}
-						onChangeText={setHeight}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="How much do you weigh? (lbs)"
-						value={weight}
-						onChangeText={setWeight}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="How many times do you work out weekly?"
-						value={activityLevel}
-						onChangeText={setActivityLevel}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="What is your target weight? (lbs)"
-						value={targetWeight}
-						onChangeText={setTargetWeight}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
-					<TextInput
-						style={profileStyles.input}
-						placeholder="Any other information?"
-						value={otherInfo}
-						onChangeText={setOtherInfo}
-						autoCapitalize="none"
-						placeholderTextColor={"#E8E0D3"}
-					/>
-					<Button title="Generate Macros" onPress={generateMacros}/>
+                <View style={macroStyles.responseBox}>
+                  <Text style={macroStyles.header}>Target Calories</Text>
+                  <TextInput
+                    style={macroStyles.output}
+                    placeholder={"Your target calories will appear here."}
+                    value={calories}
+                    onChangeText={setCalories}
+                  />
+                  <Text style={macroStyles.header}>Target Protein</Text>
+                  <TextInput
+                    style={macroStyles.output}
+                    placeholder={"Your target protein will appear here."}
+                    value={protein}
+                    onChangeText={setProtein}
+                  />
+                  <Text style={macroStyles.header}>Target Carbs</Text>
+                  <TextInput
+                    style={macroStyles.output}
+                    placeholder={"Your target carbs will appear here."}
+                    value={carbs}
+                    onChangeText={setCarbs}
+                  />
+                  <Text style={macroStyles.header}>Target Fat</Text>
+                  <TextInput
+                    style={macroStyles.output}
+                    placeholder={"Your target fat will appear here."}
+                    value={fat}
+                    onChangeText={setFat}
+                  />
+                  <Text style={macroStyles.header}>Target Meals Per Day</Text>
+                  <TextInput
+                    style={macroStyles.output}
+                    placeholder={"Your target meals per day will appear here."}
+                    value={mealsPerDay}
+                    onChangeText={setMealsPerDay}
+                  />
 
-					<View style={macroStyles.responseBox}>
-						<Text style={macroStyles.header}>Target Calories</Text>
-						<TextInput style={macroStyles.output} placeholder={"Your target calories will appear here."} value={calories} onChangeText={setCalories} />
-						<Text style={macroStyles.header}>Target Protein</Text>
-						<TextInput style={macroStyles.output} placeholder={"Your target protein will appear here."} value={protein} onChangeText={setProtein} />
-						<Text style={macroStyles.header}>Target Carbs</Text>
-						<TextInput style={macroStyles.output} placeholder={"Your target carbs will appear here."} value={carbs} onChangeText={setCarbs} />
-						<Text style={macroStyles.header}>Target Fat</Text>
-						<TextInput style={macroStyles.output} placeholder={"Your target fat will appear here."} value={fat} onChangeText={setFat} />
-						<Text style={macroStyles.header}>Target Meals Per Day</Text>
-						<TextInput style={macroStyles.output} placeholder={"Your target meals per day will appear here."} value={mealsPerDay} onChangeText={setMealsPerDay} />
+                  <Button title="Save Macros" onPress={updateProfile} />
 
-						<Button title="Save Macros" onPress={updateProfile}/>
-					</View>
-				</>
-			}
+                  <TouchableOpacity
+                    style={profileStyles.buttonMacros}
+                    onPress={updateProfile}
+                    activeOpacity={0.7}
+                  >
+                    <Animated.View
+                      style={[
+                        profileStyles.buttonContent,
+                        { transform: [{ scale }] },
+                      ]}
+                    >
+                      <Text style={profileStyles.buttonText}>Save Macros</Text>
+                      <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+                    </Animated.View>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
 
-			<View style={authStyles.container}>
-				<Button title="Log Out" onPress={logout} />
-			</View>
-
-		</View>
-		</ScrollView>
-		</TouchableWithoutFeedback>
+            <View style={authStyles.container}>
+              <Text style={profileStyles.logout} onPress={logout}>Log Out</Text>
+            </View>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
     );
 }
 
