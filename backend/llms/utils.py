@@ -108,8 +108,8 @@ def user_info_prompt(user_row, recipe={}):
         )
         
     recipe_string = (
-        f"The user is working on the following recipe: {recipe.get("title")}\n"
-        f"These are the steps: {recipe.get("steps")}\n"
+        f"The user is working on the following recipe: {recipe.get('title')}\n"
+        f"These are the steps: {recipe.get('steps')}\n"
         if recipe else ""
     )
 
