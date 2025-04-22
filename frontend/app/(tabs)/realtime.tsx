@@ -9,6 +9,7 @@ import { useNav } from "../navcontext"; // <-- ✅ add this
 import { FontAwesome6 } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { MICRO_AUDIO } from "@/constants/audio_settings";
+import { IconSymbol } from "@/components/ui/IconSymbol"; 
 
 export default function RealtimeScreen() {
 	const [hasCamPermission, setHasCamPermission] = useState(false);
@@ -219,73 +220,71 @@ export default function RealtimeScreen() {
 	};
 
 	return (
-		<Pressable
-		onPressIn={startRecording}
-		onPressOut={stopRecording}
-		style={{ flex: 1 }}
-		>
-		<View style={realtimeStyles.container} pointerEvents="box-none">
-			{cameraOn ? (
-			<View
-				style={[
-				realtimeStyles.cameraContainer,
-				isPlaying
-					? realtimeStyles.playingBorder
-					: realtimeStyles.notPlayingBorder,
-				isThinking && realtimeStyles.thinkingBorder,
-				]}
-			>
-				<CameraView
-				ref={cameraRef}
-				style={realtimeStyles.camera}
-				facing={facing}
-				animateShutter={false}
-				>
-				<Pressable
-					onPress={toggleFacing}
-					style={realtimeStyles.toggleButton}
-					onPressIn={(e) => e.stopPropagation()}
-					onPressOut={(e) => e.stopPropagation()}
-				>
-					<FontAwesome6 name="rotate-left" size={32} color="white" />
-				</Pressable>
-				</CameraView>
-			</View>
-			) : (
-			<View
-				style={[
-				realtimeStyles.logoContainer,
-				isPlaying
-					? realtimeStyles.playingBorder
-					: realtimeStyles.notPlayingBorder,
-				isThinking && realtimeStyles.thinkingBorder,
-				]}
-			>
-				<Image
-				source={CullyLogo}
-				style={realtimeStyles.logoImage}
-				resizeMode="cover"
-				/>
-			</View>
-			)}
+    <Pressable
+      onPressIn={startRecording}
+      onPressOut={stopRecording}
+      style={{ flex: 1 }}
+    >
+      <View style={realtimeStyles.container} pointerEvents="box-none">
+        {cameraOn ? (
+          <View
+            style={[
+              realtimeStyles.cameraContainer,
+              isPlaying
+                ? realtimeStyles.playingBorder
+                : realtimeStyles.notPlayingBorder,
+              isThinking && realtimeStyles.thinkingBorder,
+            ]}
+          >
+            <CameraView
+              ref={cameraRef}
+              style={realtimeStyles.camera}
+              facing={facing}
+              animateShutter={false}
+            >
+              <Pressable
+                onPress={toggleFacing}
+                style={realtimeStyles.toggleButton}
+                onPressIn={(e) => e.stopPropagation()}
+                onPressOut={(e) => e.stopPropagation()}
+              >
+                <FontAwesome6 name="rotate-left" size={32} color="white" />
+              </Pressable>
+            </CameraView>
+          </View>
+        ) : (
+          <View
+            style={[
+              realtimeStyles.logoContainer,
+              isPlaying
+                ? realtimeStyles.playingBorder
+                : realtimeStyles.notPlayingBorder,
+              isThinking && realtimeStyles.thinkingBorder,
+            ]}
+          >
+            <Image
+              source={CullyLogo}
+              style={realtimeStyles.logoImage}
+              resizeMode="cover"
+            />
+          </View>
+        )}
 
-			<View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
-			<Pressable
-				onPressIn={(e) => {
-				e.stopPropagation();
-				setCameraOn((prev) => !prev);
-				}}
-				style={({ pressed }) => [
-				realtimeStyles.recordButton,
-				{ backgroundColor: pressed ? "#ff4444" : "#ff6666" },
-				]}
-			>
-				<Text style={realtimeStyles.recordButtonText}>
-				{cameraOn ? "Tap to disable camera" : "Tap to enable camera"}
-				</Text>
-			</Pressable>
-			</View>
-		</View>
-		</Pressable>
-	);
+        <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
+          <Pressable
+            onPressIn={(e) => {
+              e.stopPropagation();
+              setCameraOn((prev) => !prev);
+            }}
+            style={({ pressed }) => [
+              realtimeStyles.recordButton,
+              { backgroundColor: pressed ? "#D2B378" : "#FFF5E3" },
+            ]}
+          >
+            <IconSymbol size={35} name="camera" color="#1E2C3D" />
+          </Pressable>
+        </View>
+      </View>
+    </Pressable>
+  );
 }

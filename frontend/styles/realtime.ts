@@ -53,7 +53,7 @@ export const realtimeStyles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 8,
     borderRadius: 100,
-    bottom: 115,
+    bottom: 120,
     right: 20,
     zIndex: 2,
   },
@@ -70,9 +70,15 @@ export const realtimeStyles = StyleSheet.create({
   },
   recordButton: {
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 100,
     marginVertical: 10,
     alignItems: "center",
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   playingBorder: {
     borderWidth: 4,
