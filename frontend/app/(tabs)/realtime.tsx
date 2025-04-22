@@ -2,7 +2,7 @@ import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import { useEffect, useState, useRef } from "react";
 import { realtimeStyles, CullyLogo } from "@/styles/realtime";
-import { View, Text, Pressable, Image } from "react-native";
+import { View, Text, Pressable, Image, ScrollView } from "react-native";
 import { send_multimodal, send_audio, send_interruption } from "@/lib/socket";
 import { get_recipes } from "@/lib/api";
 import { useAuth } from "@/context/authcontext";
@@ -11,6 +11,11 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { MICRO_AUDIO } from "@/constants/audio_settings";
 import { IconSymbol } from "@/components/ui/IconSymbol"; 
+
+type Recipe = {
+	title: string,
+	steps: string,
+};
 
 export default function RealtimeScreen() {
 	const [hasCamPermission, setHasCamPermission] = useState(false);
@@ -31,7 +36,13 @@ export default function RealtimeScreen() {
 	const [audioQueue, setAudioQueue] = useState<string[]>([]);
 	const [isPlaying, setIsPlaying] = useState(false);
 
-	const [recipes, setRecipes] = useState([])
+	const [showRecipeBar, setShowRecipeBar] = useState(false);
+	const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
+	const [recipeSelected, setRecipeSelected] = useState(false);
+	const [selectedRecipe, setSelectedRecipe] = useState<Recipe>({
+		title: "No Recipe Selected",
+		steps: "Select a recipe above to view steps",
+	});
 
 	const addToQueue = (audio: string) => {
 		setAudioQueue((prev) => [...prev, audio]);
@@ -45,18 +56,20 @@ export default function RealtimeScreen() {
 	useEffect(() => {
 		const fetchRecipes = async () => {
 			try {
-				const res = await get_recipes(user);
-				setRecipes(res);
-
-				console.log(recipes);
-
+				const res: Recipe[] = await get_recipes(user);
+				const formattedRecipes = res.map((recipe) => ({
+					title: recipe.title,
+					steps: recipe.steps,
+				}));
+	
+				setSavedRecipes(formattedRecipes);
 			} catch (err) {
 				console.error("Failed to get recipes", err);
 			}
 		};
-		
+	
 		fetchRecipes();
-	}, []);
+	}, [user]);
 
 	// Microphone and camera permissions //
 	useEffect(() => {
@@ -102,7 +115,7 @@ export default function RealtimeScreen() {
 		return (
 		<View style={realtimeStyles.container}>
 			<Text style={realtimeStyles.text}>
-			Camera permission is required to use this feature.
+				Camera permission is required to use this feature.
 			</Text>
 			{!hasCamPermission && (
 			<Pressable
@@ -194,12 +207,24 @@ export default function RealtimeScreen() {
 
 			if (cameraOn) {
 			send_multimodal(
-				{ user, audio: base64Audio, image: base64Image },
+				{ 
+					user, 
+					recipe: selectedRecipe, 
+					audio: base64Audio, 
+					image: base64Image 
+				},
 				addToQueue,
 				logError
 			);
 			} else {
-			send_audio({ user, audio: base64Audio }, addToQueue, logError);
+				send_audio({ 
+						user, 
+						recipe: selectedRecipe, 
+						audio: base64Audio 
+					}, 
+					addToQueue, 
+					logError
+				);
 			}
 		}
 		} catch (error) {
@@ -241,78 +266,115 @@ export default function RealtimeScreen() {
 		}
 	};
 
+	const handleSelection = (recipe: Recipe) => {
+		setSelectedRecipe(recipe);
+	}
+
 	return (
+		<>
+		{!cameraOn && (
+			<View style={realtimeStyles.recipeBar}>
+				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+				{savedRecipes.map((recipe, index) => (
+					<Pressable
+						key={index}
+						onPress={() => handleSelection(recipe)}
+						style={realtimeStyles.recipeChip}
+					>
+						<Text style={realtimeStyles.recipeChipText}>
+							{recipe.title}
+						</Text>
+					</Pressable>
+				))}
+				</ScrollView>
+			</View>
+		)}
+					
 		<Pressable
 
-		onPressIn={startRecording}
-		onPressOut={stopRecording}
-		style={{ flex: 1 }}
-		>
-		<View style={realtimeStyles.container} pointerEvents="box-none">
-			{cameraOn ? (
-			<View
-				style={[
-				realtimeStyles.cameraContainer,
-				isPlaying
-					? realtimeStyles.playingBorder
-					: realtimeStyles.notPlayingBorder,
-				isThinking && realtimeStyles.thinkingBorder,
-				]}
+			onPressIn={startRecording}
+			onPressOut={stopRecording}
+			style={{ flex: 1 }}
 			>
-				<CameraView
-				ref={cameraRef}
-				style={realtimeStyles.camera}
-				facing={facing}
-				animateShutter={false}
-				>
-				<Pressable
-					onPress={toggleFacing}
-					style={realtimeStyles.toggleButton}
-					onPressIn={(e) => e.stopPropagation()}
-					onPressOut={(e) => e.stopPropagation()}
-				>
-					<FontAwesome6 name="rotate-left" size={32} color="white" />
-				</Pressable>
-				</CameraView>
-			</View>
-			) : (
-			<View
-				style={[
-				realtimeStyles.logoContainer,
-				isPlaying
-					? realtimeStyles.playingBorder
-					: realtimeStyles.notPlayingBorder,
-				isThinking && realtimeStyles.thinkingBorder,
-				]}
-			>
-				<Image
-				source={CullyLogo}
-				style={realtimeStyles.logoImage}
-				resizeMode="cover"
-				/>
-			</View>
-			)}
+			<View style={realtimeStyles.container} pointerEvents="box-none">
+				{cameraOn ? (
+					<View
+						style={[
+						realtimeStyles.cameraContainer,
+						isPlaying
+							? realtimeStyles.playingBorder
+							: realtimeStyles.notPlayingBorder,
+						isThinking && realtimeStyles.thinkingBorder,
+						]}
+					>
+						<CameraView
+						ref={cameraRef}
+						style={realtimeStyles.camera}
+						facing={facing}
+						animateShutter={false}
+						>
+						<Pressable
+							onPress={toggleFacing}
+							style={realtimeStyles.toggleButton}
+							onPressIn={(e) => e.stopPropagation()}
+							onPressOut={(e) => e.stopPropagation()}
+						>
+							<FontAwesome6 name="rotate-left" size={32} color="white" />
+						</Pressable>
+						</CameraView>
+					</View>
+					) : recipeSelected ? (
+						<View style={realtimeStyles.recipeContainer} pointerEvents="box-none">
+							<ScrollView>
+								<Text style={realtimeStyles.recipeTitle}>
+									{selectedRecipe.title}
+								</Text>
+								<Text style={realtimeStyles.recipeSteps}>
+									{selectedRecipe.steps}
+								</Text>
+							</ScrollView>
+						</View>
+					  
+						) : (
+							<View
+								style={[
+								realtimeStyles.logoContainer,
+								isPlaying
+									? realtimeStyles.playingBorder
+									: realtimeStyles.notPlayingBorder,
+								isThinking && realtimeStyles.thinkingBorder,
+								]}
+							>
+								<Image
+									source={CullyLogo}
+									style={realtimeStyles.logoImage}
+									resizeMode="cover"
+								/>
+							</View>
+						)
+					}
 
-			<View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
-			<Pressable
-				onPressIn={(e) => {
-				e.stopPropagation();
-				setCameraOn((prev) => !prev);
-				}}
-				style={({ pressed }) => [
-				realtimeStyles.recordButton,
-				{ backgroundColor: pressed ? "#D2B378" : "#FFF5E3" },
-				]}
-			>
-				<IconSymbol
-				size={35}
-				name={cameraOn ? "camera.fill" : "camera"}
-				color="#1E2C3D"
-				/>
-			</Pressable>
+				<View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
+				<Pressable
+					onPressIn={(e) => {
+					e.stopPropagation();
+					setCameraOn((prev) => !prev);
+					}}
+					style={({ pressed }) => [
+					realtimeStyles.recordButton,
+					{ backgroundColor: pressed ? "#D2B378" : "#FFF5E3" },
+					]}
+				>
+					<IconSymbol
+					size={35}
+					name={cameraOn ? "camera.fill" : "camera"}
+					color="#1E2C3D"
+					/>
+				</Pressable>
+				</View>
 			</View>
-		</View>
-		
+
 		</Pressable>
+		</>
 	);
 }

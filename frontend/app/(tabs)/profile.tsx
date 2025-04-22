@@ -69,10 +69,6 @@ export default function ProfilePage() {
       	}).start();
     };
 
-    const handleSubmit = () => {
-      	updateProfile();
-    };
-
 	// Gets the current info from the user's profile on page mount
     useEffect(() => {
         const fetchProfile = async () => {
@@ -285,7 +281,7 @@ export default function ProfilePage() {
                   style={profileStyles.button}
                   onPressIn={handleSubmitIn}
                   onPressOut={handleSubmitOut}
-                  onPress={handleSubmit}
+                  onPress={updateProfile}
                   activeOpacity={0.7}
                 >
                   <Animated.View
@@ -368,7 +364,24 @@ export default function ProfilePage() {
                   autoCapitalize="none"
                   placeholderTextColor={"#E8E0D3"}
                 />
-                <Button title="Generate Macros" onPress={generateMacros} />
+
+				<TouchableOpacity
+					style={profileStyles.button}
+					onPressIn={handleSubmitIn}
+					onPressOut={handleSubmitOut}
+					onPress={generateMacros}
+					activeOpacity={0.7}
+					>
+					<Animated.View
+						style={[
+							profileStyles.buttonContent,
+							{ transform: [{ scale }] },
+						]}
+					>
+						<Text style={profileStyles.buttonText}>Generate Macros</Text>
+						<IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+					</Animated.View>
+                </TouchableOpacity>
 
                 <View style={macroStyles.responseBox}>
                   <Text style={macroStyles.header}>Target Calories</Text>
@@ -407,10 +420,10 @@ export default function ProfilePage() {
                     onChangeText={setMealsPerDay}
                   />
 
-                  <Button title="Save Macros" onPress={updateProfile} />
-
                   <TouchableOpacity
                     style={profileStyles.buttonMacros}
+					onPressIn={handleSubmitIn}
+					onPressOut={handleSubmitOut}
                     onPress={updateProfile}
                     activeOpacity={0.7}
                   >
