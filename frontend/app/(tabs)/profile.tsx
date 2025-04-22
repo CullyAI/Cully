@@ -1,25 +1,30 @@
 import { get_profile, set_profile } from "@/lib/api.js";
 import { useState, useEffect } from "react";
 import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  FlatList,
-  Pressable,
-  Keyboard,
-  TouchableWithoutFeedback,
-  TouchableOpacity,
-  Animated,
-  ScrollView,
+	View,
+	TextInput,
+	Button,
+	Text,
+	FlatList,
+	Pressable,
+	Keyboard,
+	TouchableWithoutFeedback,
+	TouchableOpacity,
+	Animated,
+	ScrollView,
 } from "react-native";
-import { profileStyles } from "@/styles/profile";
+import { profileStyles, macroStyles } from "@/styles/profile";
 import { IconSymbol } from "@/components/ui/IconSymbol"; 
 import { useAuth } from '@/context/authcontext';
 import { diseaseData } from '@/assets/info/diseases';
 import { X, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { generate_macros } from "@/lib/socket";
+import { cleanAndParseJSON } from "@/utils/basic_functions";
 
 export default function ProfilePage() {
+	const [showProfileForm, setShowProfileForm] = useState(false);
+	const [showMacrosForm, setShowMacrosForm] = useState(false);
+
     const [dietaryPreferences, setDietaryPreferences] = useState("");
     const [allergies, setAllergies] = useState("");
     const [nutritionalGoals, setNutritionalGoals] = useState("");
@@ -28,11 +33,25 @@ export default function ProfilePage() {
     const [filteredDiseases, setFilteredDiseases] = useState<string[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
 
-    const { user } = useAuth();
+	const [age, setAge] = useState("");
+    const [sex, setSex] = useState("");
+    const [height, setHeight] = useState("");
+    const [weight, setWeight] = useState("");
+    const [activityLevel, setActivityLevel] = useState("");
+    const [targetWeight, setTargetWeight] = useState("");
+    const [otherInfo, setOtherInfo] = useState("");
 
+    const [response, setResponse] = useState("");
+    const [calories, setCalories] = useState("");
+    const [protein, setProtein] = useState("");
+    const [carbs, setCarbs] = useState("");
+    const [fat, setFat] = useState("");
+    const [mealsPerDay, setMealsPerDay] = useState("");
+
+    const { user } = useAuth();
     const [scale] = useState(new Animated.Value(1)); // Initial scale value is 1 (normal size)
 
-    const handlePressIn = () => {
+    const handleSubmitIn = () => {
 		// Animate the button down when pressed
 		Animated.spring(scale, {
 			toValue: 0.95, // Scale down to 95% of original size
@@ -40,7 +59,7 @@ export default function ProfilePage() {
 		}).start();
     };
 
-    const handlePressOut = () => {
+    const handleSubmitOut = () => {
 		// Animate the button back up when released
 		Animated.spring(scale, {
 			toValue: 1, // Scale back to normal size
@@ -48,18 +67,27 @@ export default function ProfilePage() {
       	}).start();
     };
 
-    const handlePress = () => {
+    const handleSubmit = () => {
       	updateProfile();
     };
 
+	// Gets the current info from the user's profile on page mount
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const res = await get_profile(user);
+
                 setSelectedDiseases(res["diseases"] ? res["diseases"].split(',') : []);
                 setAllergies(res["allergies"]);
                 setNutritionalGoals(res["nutritional_goals"]);
                 setDietaryPreferences(res["dietary_preferences"]);
+
+				setCalories(res["macros"]["calories"] || "");
+                setProtein(res["macros"]["protein"] || "");
+                setCarbs(res["macros"]["carbs"] || "");
+                setFat(res["macros"]["fat"] || "");
+                setMealsPerDay(res["macros"]["meals_per_day"] || "");
+
             } catch (err) {
                 console.error("Failed to get profile", err);
             }
@@ -68,6 +96,7 @@ export default function ProfilePage() {
         fetchProfile();
     }, []);
       
+	// Sends the request to update user's profile
     const updateProfile = async () => {
         try {
             const res = await set_profile({
@@ -76,12 +105,20 @@ export default function ProfilePage() {
                 "allergies": allergies,
                 "nutritional_goals": nutritionalGoals,
                 "dietary_preferences": dietaryPreferences,
+				"macros": {
+                    "calories": calories,
+                    "protein": protein,
+                    "carbs": carbs,
+                    "fat": fat,
+                    "meals_per_day": mealsPerDay,
+                }
             });
         } catch (err) {
             console.error("Failed to update profile", err);
         }
     };
 
+	// For filtering out the diseases with the search bar
     useEffect(() => {
         if (!searchQuery) {
             setFilteredDiseases(Object.keys(diseaseData).filter(
@@ -106,111 +143,260 @@ export default function ProfilePage() {
         setSearchQuery("");
     };
 
+	const handleFinish = (generation: string) => {
+		let json = cleanAndParseJSON(generation);
+
+		setCalories(json.calories?.toString() ?? "N/A")
+		setProtein(json.macros?.protein_g?.toString() ?? "N/A")
+		setCarbs(json.macros?.carbs_g?.toString() ?? "N/A")
+		setFat(json.macros?.fat_g?.toString() ?? "N/A")
+		setMealsPerDay(json.meals_per_day?.toString() ?? "N/A")
+	};
+
+	const logError = (errMsg: string) => {
+        console.error("❌ Macro generation error:", errMsg);
+    };
+
+	const generateMacros = () => {
+        generate_macros(
+            {
+                user,
+                age,
+                sex,
+                height,
+                weight,
+                activityLevel,
+                targetWeight,
+                otherInfo,
+            },
+            handleFinish,
+            logError,
+        );
+    };
+
     return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-			<View style={profileStyles.container}>
-			<Text style={profileStyles.title}>Edit Profile</Text>
+		<ScrollView contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}>
+		<View style={profileStyles.container}>
 
-			<Text style={profileStyles.header}>Diseases/Conditions</Text>
-			<View style={profileStyles.selectedContainer}>
-				{selectedDiseases.map((disease) => (
-				<View key={disease} style={profileStyles.chip}>
-					<Text style={profileStyles.chipText}>{disease}</Text>
-					<Pressable
-					onPress={() => removeDisease(disease)}
-					style={profileStyles.chipButton}
-					>
-					<X size={16} color="#666" />
-					</Pressable>
-				</View>
-				))}
-			</View>
-
-			<Pressable
-				onPress={() => setShowDropdown(!showDropdown)}
-				style={[profileStyles.input, profileStyles.dropdown]}
-			>
-				<TextInput
-				style={profileStyles.searchInput}
-				placeholder="Search diseases..."
-				value={searchQuery}
-				onChangeText={setSearchQuery}
-				onFocus={() => setShowDropdown(true)}
-				placeholderTextColor={"#E8E0D3"}
-				/>
-				{showDropdown ? (
-				<ChevronUp size={20} color="#666" />
-				) : (
-				<ChevronDown size={20} color="#666" />
-				)}
+			<Pressable 
+				onPress={() => setShowProfileForm(!showProfileForm)}
+				style={profileStyles.title}
+				>
+				<Text style={profileStyles.title}>
+					{showProfileForm ? "Hide Profile" : "Edit Profile"}
+				</Text>
 			</Pressable>
 
-			{showDropdown && (
-				<View style={profileStyles.dropdownList}>
-				<FlatList
-					data={filteredDiseases}
-					keyExtractor={(item) => item}
-					keyboardShouldPersistTaps="handled"
-					renderItem={({ item }) => (
+			{showProfileForm && (
+				<View style={profileStyles.container}>
+					<Text style={profileStyles.title}>Edit Profile</Text>
+
+					<Text style={profileStyles.header}>Diseases/Conditions</Text>
+					<View style={profileStyles.selectedContainer}>
+						{selectedDiseases.map((disease) => (
+						<View key={disease} style={profileStyles.chip}>
+							<Text style={profileStyles.chipText}>{disease}</Text>
+							<Pressable
+							onPress={() => removeDisease(disease)}
+							style={profileStyles.chipButton}
+							>
+							<X size={16} color="#666" />
+							</Pressable>
+						</View>
+						))}
+					</View>
+
 					<Pressable
-						onPress={() => {
-						addDisease(item);
-						}}
-						style={profileStyles.dropdownItem}
+						onPress={() => setShowDropdown(!showDropdown)}
+						style={[profileStyles.input, profileStyles.dropdown]}
 					>
-						<Text>{item}</Text>
+						<TextInput
+						style={profileStyles.searchInput}
+						placeholder="Search diseases..."
+						value={searchQuery}
+						onChangeText={setSearchQuery}
+						onFocus={() => setShowDropdown(true)}
+						placeholderTextColor={"#E8E0D3"}
+						/>
+						{showDropdown ? (
+						<ChevronUp size={20} color="#666" />
+						) : (
+						<ChevronDown size={20} color="#666" />
+						)}
 					</Pressable>
+
+					{showDropdown && (
+						<View style={profileStyles.dropdownList}>
+						<FlatList
+							data={filteredDiseases}
+							keyExtractor={(item) => item}
+							keyboardShouldPersistTaps="handled"
+							renderItem={({ item }) => (
+							<Pressable
+								onPress={() => {
+								addDisease(item);
+								}}
+								style={profileStyles.dropdownItem}
+							>
+								<Text>{item}</Text>
+							</Pressable>
+							)}
+						/>
+						</View>
 					)}
-				/>
+
+					<View style={profileStyles.container}>
+
+					<Text style={profileStyles.header}>Allergies</Text>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Enter any allergies you have..."
+						value={allergies}
+						onChangeText={setAllergies}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+
+					<Text style={profileStyles.header}>Nutritional Goals</Text>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Enter any nutritional goals you have..."
+						value={nutritionalGoals}
+						onChangeText={setNutritionalGoals}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+
+					<Text style={profileStyles.header}>Dietary Preferences</Text>
+					<TextInput
+						style={profileStyles.input}
+						placeholder="Enter any dietary preferences you have..."
+						value={dietaryPreferences}
+						onChangeText={setDietaryPreferences}
+						autoCapitalize="none"
+						placeholderTextColor={"#E8E0D3"}
+					/>
+
+					<TouchableOpacity
+						style={profileStyles.button}
+						onPressIn={handleSubmitIn}
+						onPressOut={handleSubmitOut}
+						onPress={handleSubmit}
+						activeOpacity={0.7}
+					>
+						<Animated.View
+						style={[profileStyles.buttonContent, { transform: [{ scale }] }]}
+						>
+						<Text style={profileStyles.buttonText}>Save Profile</Text>
+						<IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+						</Animated.View>
+					</TouchableOpacity>
+
+					</View>
 				</View>
 			)}
 
-			<Text style={profileStyles.header}>Allergies</Text>
-			<TextInput
-				style={profileStyles.input}
-				placeholder="Enter any allergies you have..."
-				value={allergies}
-				onChangeText={setAllergies}
-				autoCapitalize="none"
-				placeholderTextColor={"#E8E0D3"}
-			/>
-
-			<Text style={profileStyles.header}>Nutritional Goals</Text>
-			<TextInput
-				style={profileStyles.input}
-				placeholder="Enter any nutritional goals you have..."
-				value={nutritionalGoals}
-				onChangeText={setNutritionalGoals}
-				autoCapitalize="none"
-				placeholderTextColor={"#E8E0D3"}
-			/>
-
-			<Text style={profileStyles.header}>Dietary Preferences</Text>
-			<TextInput
-				style={profileStyles.input}
-				placeholder="Enter any dietary preferences you have..."
-				value={dietaryPreferences}
-				onChangeText={setDietaryPreferences}
-				autoCapitalize="none"
-				placeholderTextColor={"#E8E0D3"}
-			/>
-
-			<TouchableOpacity
-				style={profileStyles.button}
-				onPressIn={handlePressIn}
-				onPressOut={handlePressOut}
-				onPress={handlePress}
-				activeOpacity={0.7}
-			>
-				<Animated.View
-				style={[profileStyles.buttonContent, { transform: [{ scale }] }]}
+			<Pressable 
+				onPress={() => setShowMacrosForm(!showMacrosForm)}
+				style={profileStyles.title}
 				>
-				<Text style={profileStyles.buttonText}>Save Profile</Text>
-				<IconSymbol size={20} name="checkmark" color="#FFFBF4" />
-				</Animated.View>
-			</TouchableOpacity>
+				<Text style={profileStyles.title}>
+					{showMacrosForm ? "Hide Macros" : "Edit Macros"}
+				</Text>
+			</Pressable>
+
+			{showMacrosForm &&
+			<View style={profileStyles.container}>
+			
+				<TextInput
+					style={profileStyles.input}
+					placeholder="Enter your age..."
+					value={age}
+					onChangeText={setAge}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<TextInput
+					style={profileStyles.input}
+					placeholder="Enter your age..."
+					value={age}
+					onChangeText={setAge}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<TextInput
+					style={profileStyles.input}
+					placeholder="Sex (M/F)"
+					value={sex}
+					onChangeText={setSex}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<TextInput
+					style={profileStyles.input}
+					placeholder="Height (in.)"
+					value={height}
+					onChangeText={setHeight}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<TextInput
+					style={profileStyles.input}
+					placeholder="How much do you weigh? (lbs)"
+					value={weight}
+					onChangeText={setWeight}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<TextInput
+					style={profileStyles.input}
+					placeholder="How many times do you work out weekly?"
+					value={activityLevel}
+					onChangeText={setActivityLevel}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<TextInput
+					style={profileStyles.input}
+					placeholder="What is your target weight? (lbs)"
+					value={targetWeight}
+					onChangeText={setTargetWeight}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<TextInput
+					style={profileStyles.input}
+					placeholder="Any other information?"
+					value={otherInfo}
+					onChangeText={setOtherInfo}
+					autoCapitalize="none"
+					placeholderTextColor={"#E8E0D3"}
+				/>
+				<Button title="Generate Macros" onPress={generateMacros}/>
+
+				<View style={macroStyles.responseBox}>
+					<Text style={macroStyles.header}>Target Calories</Text>
+					<TextInput style={macroStyles.output} placeholder={"Your target calories will appear here."} value={calories} onChangeText={setCalories} />
+					<Text style={macroStyles.header}>Target Protein</Text>
+					<TextInput style={macroStyles.output} placeholder={"Your target protein will appear here."} value={protein} onChangeText={setProtein} />
+					<Text style={macroStyles.header}>Target Carbs</Text>
+					<TextInput style={macroStyles.output} placeholder={"Your target carbs will appear here."} value={carbs} onChangeText={setCarbs} />
+					<Text style={macroStyles.header}>Target Fat</Text>
+					<TextInput style={macroStyles.output} placeholder={"Your target fat will appear here."} value={fat} onChangeText={setFat} />
+					<Text style={macroStyles.header}>Target Meals Per Day</Text>
+					<TextInput style={macroStyles.output} placeholder={"Your target meals per day will appear here."} value={mealsPerDay} onChangeText={setMealsPerDay} />
+
+					<Button title="Save Macros" onPress={updateProfile}/>
+				</View>
+	
 			</View>
+		}
+
+		</View>
+		</ScrollView>
 		</TouchableWithoutFeedback>
     );
 }
+
     
