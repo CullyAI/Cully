@@ -1,195 +1,246 @@
 import { get_profile, set_profile } from "@/lib/api.js";
 import { useState, useEffect } from "react";
 import {
-	View,
-	TextInput,
-	Button,
-	Text,
-	FlatList,
-	Pressable,
-	Keyboard,
-	TouchableWithoutFeedback,
-	TouchableOpacity,
-	Animated,
-	ScrollView,
+  View,
+  TextInput,
+  Button,
+  Text,
+  FlatList,
+  Pressable,
+  Keyboard,
+  TouchableWithoutFeedback,
+  TouchableOpacity,
+  Animated,
+  ScrollView,
 } from "react-native";
 import { profileStyles, macroStyles } from "@/styles/profile";
 import { authStyles } from "@/styles/auth";
-import { IconSymbol } from "@/components/ui/IconSymbol"; 
-import { useAuth } from '@/context/authcontext';
-import { diseaseData } from '@/assets/info/diseases';
-import { X, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import { useAuth } from "@/context/authcontext";
+import { diseaseData } from "@/assets/info/diseases";
 import { generate_macros } from "@/lib/socket";
 import { cleanAndParseJSON } from "@/utils/basic_functions";
-import { logout } from "@/lib/supabase"
+import { logout } from "@/lib/supabase";
 
 export default function ProfilePage() {
-	const [showProfileForm, setShowProfileForm] = useState(false);
-	const [showMacrosForm, setShowMacrosForm] = useState(false);
+  const [showProfileForm, setShowProfileForm] = useState(false);
+  const [showMacrosForm, setShowMacrosForm] = useState(false);
 
-    const [dietaryPreferences, setDietaryPreferences] = useState("");
-    const [allergies, setAllergies] = useState("");
-    const [nutritionalGoals, setNutritionalGoals] = useState("");
-    const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [filteredDiseases, setFilteredDiseases] = useState<string[]>([]);
-    const [showDropdown, setShowDropdown] = useState(false);
+  const [profileAnim] = useState(new Animated.Value(0));
+  const [macrosAnim] = useState(new Animated.Value(0));
+  const [scale] = useState(new Animated.Value(1));
 
-	const [age, setAge] = useState("");
-    const [sex, setSex] = useState("");
-    const [height, setHeight] = useState("");
-    const [weight, setWeight] = useState("");
-    const [activityLevel, setActivityLevel] = useState("");
-    const [targetWeight, setTargetWeight] = useState("");
-    const [otherInfo, setOtherInfo] = useState("");
+  const [dietaryPreferences, setDietaryPreferences] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [nutritionalGoals, setNutritionalGoals] = useState("");
+  const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredDiseases, setFilteredDiseases] = useState<string[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
-    const [response, setResponse] = useState("");
-    const [calories, setCalories] = useState("");
-    const [protein, setProtein] = useState("");
-    const [carbs, setCarbs] = useState("");
-    const [fat, setFat] = useState("");
-    const [mealsPerDay, setMealsPerDay] = useState("");
+  const [age, setAge] = useState("");
+  const [sex, setSex] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [activityLevel, setActivityLevel] = useState("");
+  const [targetWeight, setTargetWeight] = useState("");
+  const [otherInfo, setOtherInfo] = useState("");
 
-    const { user } = useAuth();
-    const [scale] = useState(new Animated.Value(1)); // Initial scale value is 1 (normal size)
+  const [response, setResponse] = useState("");
+  const [calories, setCalories] = useState("");
+  const [protein, setProtein] = useState("");
+  const [carbs, setCarbs] = useState("");
+  const [fat, setFat] = useState("");
+  const [mealsPerDay, setMealsPerDay] = useState("");
 
-    const handleSubmitIn = () => {
-		// Animate the button down when pressed
-		Animated.spring(scale, {
-			toValue: 0.95, // Scale down to 95% of original size
-			useNativeDriver: true,
-		}).start();
+  const { user } = useAuth();
+
+  const handleSubmitIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleSubmitOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await get_profile(user);
+
+        setSelectedDiseases(res["diseases"] ? res["diseases"].split(",") : []);
+        setAllergies(res["allergies"]);
+        setNutritionalGoals(res["nutritional_goals"]);
+        setDietaryPreferences(res["dietary_preferences"]);
+
+        setCalories(res["macros"]["calories"] || "");
+        setProtein(res["macros"]["protein"] || "");
+        setCarbs(res["macros"]["carbs"] || "");
+        setFat(res["macros"]["fat"] || "");
+        setMealsPerDay(res["macros"]["meals_per_day"] || "");
+      } catch (err) {
+        console.error("Failed to get profile", err);
+      }
     };
 
-    const handleSubmitOut = () => {
-		// Animate the button back up when released
-		Animated.spring(scale, {
-			toValue: 1, // Scale back to normal size
-			useNativeDriver: true,
-      	}).start();
-    };
+    fetchProfile();
+  }, []);
 
-	// Gets the current info from the user's profile on page mount
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const res = await get_profile(user);
+  const updateProfile = async () => {
+    try {
+      await set_profile({
+        user,
+        diseases: selectedDiseases.join(", "),
+        allergies,
+        nutritional_goals: nutritionalGoals,
+        dietary_preferences: dietaryPreferences,
+        macros: {
+          calories,
+          protein,
+          carbs,
+          fat,
+          meals_per_day: mealsPerDay,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to update profile", err);
+    }
+  };
 
-                setSelectedDiseases(res["diseases"] ? res["diseases"].split(',') : []);
-                setAllergies(res["allergies"]);
-                setNutritionalGoals(res["nutritional_goals"]);
-                setDietaryPreferences(res["dietary_preferences"]);
+  useEffect(() => {
+    if (!searchQuery) {
+      setFilteredDiseases(
+        Object.keys(diseaseData).filter(
+          (disease) => !selectedDiseases.includes(disease)
+        )
+      );
+    } else {
+      const matches = Object.keys(diseaseData).filter(
+        (disease) =>
+          disease.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !selectedDiseases.includes(disease)
+      );
+      setFilteredDiseases(matches);
+    }
+  }, [searchQuery, selectedDiseases]);
 
-				setCalories(res["macros"]["calories"] || "");
-                setProtein(res["macros"]["protein"] || "");
-                setCarbs(res["macros"]["carbs"] || "");
-                setFat(res["macros"]["fat"] || "");
-                setMealsPerDay(res["macros"]["meals_per_day"] || "");
+  const removeDisease = (disease: string) => {
+    setSelectedDiseases((prev) => prev.filter((d) => d !== disease));
+  };
 
-            } catch (err) {
-                console.error("Failed to get profile", err);
-            }
-        };
-      
-        fetchProfile();
-    }, []);
-      
-	// Sends the request to update user's profile
-    const updateProfile = async () => {
-        try {
-            const res = await set_profile({
-                "user": user,
-                "diseases": selectedDiseases.join(', '),
-                "allergies": allergies,
-                "nutritional_goals": nutritionalGoals,
-                "dietary_preferences": dietaryPreferences,
-				"macros": {
-                    "calories": calories,
-                    "protein": protein,
-                    "carbs": carbs,
-                    "fat": fat,
-                    "meals_per_day": mealsPerDay,
-                }
-            });
-        } catch (err) {
-            console.error("Failed to update profile", err);
-        }
-    };
+  const addDisease = (disease: string) => {
+    setSelectedDiseases((prev) => [...prev, disease]);
+    setSearchQuery("");
+  };
 
-	// For filtering out the diseases with the search bar
-    useEffect(() => {
-        if (!searchQuery) {
-            setFilteredDiseases(Object.keys(diseaseData).filter(
-                disease => !selectedDiseases.includes(disease)
-            ));
-        } else {
-            const matches = Object.keys(diseaseData).filter(
-                disease => 
-                    disease.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    !selectedDiseases.includes(disease)
-            );
-            setFilteredDiseases(matches);
-        }
-    }, [searchQuery, selectedDiseases]);
+  const handleFinish = (generation: string) => {
+    let json = cleanAndParseJSON(generation);
 
-    const removeDisease = (disease: string) => {
-        setSelectedDiseases(prev => prev.filter(d => d !== disease));
-    };
+    setCalories(json.calories?.toString() ?? "N/A");
+    setProtein(json.macros?.protein_g?.toString() ?? "N/A");
+    setCarbs(json.macros?.carbs_g?.toString() ?? "N/A");
+    setFat(json.macros?.fat_g?.toString() ?? "N/A");
+    setMealsPerDay(json.meals_per_day?.toString() ?? "N/A");
+  };
 
-    const addDisease = (disease: string) => {
-        setSelectedDiseases(prev => [...prev, disease]);
-        setSearchQuery("");
-    };
+  const logError = (errMsg: string) => {
+    console.error("❌ Macro generation error:", errMsg);
+  };
 
-	const handleFinish = (generation: string) => {
-		let json = cleanAndParseJSON(generation);
+  const generateMacros = () => {
+    generate_macros(
+      {
+        user,
+        age,
+        sex,
+        height,
+        weight,
+        activityLevel,
+        targetWeight,
+        otherInfo,
+      },
+      handleFinish,
+      logError
+    );
+  };
 
-		setCalories(json.calories?.toString() ?? "N/A")
-		setProtein(json.macros?.protein_g?.toString() ?? "N/A")
-		setCarbs(json.macros?.carbs_g?.toString() ?? "N/A")
-		setFat(json.macros?.fat_g?.toString() ?? "N/A")
-		setMealsPerDay(json.meals_per_day?.toString() ?? "N/A")
-	};
+  const toggleProfileForm = () => {
+    if (showProfileForm) {
+      Animated.timing(profileAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowProfileForm(false));
+    } else {
+      setShowProfileForm(true);
+      Animated.timing(profileAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
-	const logError = (errMsg: string) => {
-        console.error("❌ Macro generation error:", errMsg);
-    };
+  const toggleMacrosForm = () => {
+    if (showMacrosForm) {
+      Animated.timing(macrosAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowMacrosForm(false));
+    } else {
+      setShowMacrosForm(true);
+      Animated.timing(macrosAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
-	const generateMacros = () => {
-        generate_macros(
-            {
-                user,
-                age,
-                sex,
-                height,
-                weight,
-                activityLevel,
-                targetWeight,
-                otherInfo,
-            },
-            handleFinish,
-            logError,
-        );
-    };
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}
+        style={{ backgroundColor: "#FFF5E3" }}
+      >
+        <View style={profileStyles.container}>
+          <Text style={profileStyles.daHeader}>Dietary Restrictions</Text>
 
-    return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}
-          style={{ backgroundColor: "#FFF5E3" }}
-        >
-          <View style={profileStyles.container}>
-            <Text style={profileStyles.daHeader}>Dietary Restrictions</Text>
+          <Pressable
+            onPress={toggleProfileForm}
+            style={profileStyles.titleContainer}
+          >
+            <Text style={profileStyles.title}>
+              {showProfileForm ? "Hide Profile" : "Edit Profile"}
+            </Text>
+			{showProfileForm ? (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.up" color="#C0BBB2" />
+                  ) : (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.down" color="#C0BBB2" />
+                  )}
+          </Pressable>
 
-            <Pressable
-              onPress={() => setShowProfileForm(!showProfileForm)}
-              style={profileStyles.titleContainer}
-            >
-              <Text style={profileStyles.title}>
-                {showProfileForm ? "Hide Profile" : "Edit Profile"}
-              </Text>
-            </Pressable>
-
+          <Animated.View
+            pointerEvents={showProfileForm ? "auto" : "none"}
+            style={{
+              opacity: profileAnim,
+              transform: [
+                {
+                  scale: profileAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.95, 1],
+                  }),
+                },
+              ],
+            }}
+          >
             {showProfileForm && (
               <>
                 <Text style={profileStyles.header}>Diseases/Conditions</Text>
@@ -296,16 +347,36 @@ export default function ProfilePage() {
                 </TouchableOpacity>
               </>
             )}
+          </Animated.View>
 
-            <Pressable
-              onPress={() => setShowMacrosForm(!showMacrosForm)}
-              style={profileStyles.titleContainer}
-            >
-              <Text style={profileStyles.title}>
-                {showMacrosForm ? "Hide Macros" : "Edit Macros"}
-              </Text>
-            </Pressable>
+          <Pressable
+            onPress={toggleMacrosForm}
+            style={profileStyles.titleContainer}
+          >
+            <Text style={profileStyles.title}>
+              {showMacrosForm ? "Hide Macros" : "Edit Macros"}
+            </Text>
+			{showMacrosForm ? (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.up" color="#C0BBB2" />
+                  ) : (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.down" color="#C0BBB2" />
+                  )}
+          </Pressable>
 
+          <Animated.View
+            pointerEvents={showMacrosForm ? "auto" : "none"}
+            style={{
+              opacity: macrosAnim,
+              transform: [
+                {
+                  scale: macrosAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.95, 1],
+                  }),
+                },
+              ],
+            }}
+          >
             {showMacrosForm && (
               <>
                 <TextInput
@@ -442,16 +513,15 @@ export default function ProfilePage() {
                 </View>
               </>
             )}
+          </Animated.View>
 
-            <View style={authStyles.container}>
-              <Text style={profileStyles.logout} onPress={logout}>
-                Log Out
-              </Text>
-            </View>
+          <View style={authStyles.container}>
+            <Text style={profileStyles.logout} onPress={logout}>
+              Log Out
+            </Text>
           </View>
-        </ScrollView>
-      </TouchableWithoutFeedback>
-    );
+        </View>
+      </ScrollView>
+    </TouchableWithoutFeedback>
+  );
 }
-
-    
