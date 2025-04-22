@@ -220,6 +220,11 @@ export default function ProfilePage() {
             <Text style={profileStyles.title}>
               {showProfileForm ? "Hide Profile" : "Edit Profile"}
             </Text>
+			{showProfileForm ? (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.up" color="#C0BBB2" />
+                  ) : (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.down" color="#C0BBB2" />
+                  )}
           </Pressable>
 
           <Animated.View
@@ -351,6 +356,11 @@ export default function ProfilePage() {
             <Text style={profileStyles.title}>
               {showMacrosForm ? "Hide Macros" : "Edit Macros"}
             </Text>
+			{showMacrosForm ? (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.up" color="#C0BBB2" />
+                  ) : (
+                    <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.down" color="#C0BBB2" />
+                  )}
           </Pressable>
 
           <Animated.View

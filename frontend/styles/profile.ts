@@ -25,14 +25,21 @@ export const profileStyles = StyleSheet.create({
     color: "#1E2C3D",
   },
 
+   titleIcon: {
+	alignSelf: "center",
+   },
+
+
+
   titleContainer: {
     fontSize: 24,
     marginBottom: 24,
-    marginTop: 24,
+    marginTop: 50,
     fontWeight: "bold",
-    textAlign: "center",
+    justifyContent: "space-around",
     backgroundColor: "#FFFBF4",
     borderRadius: 40,
+    flexDirection: "row", // Ensures the icon and text are side by side
 
     // iOS shadow
     shadowColor: "#000",
@@ -44,7 +51,7 @@ export const profileStyles = StyleSheet.create({
   },
 
   logout: {
-	marginTop: 60,
+    marginTop: 60,
     color: "#FF0000",
     alignSelf: "center",
     fontSize: 15,
