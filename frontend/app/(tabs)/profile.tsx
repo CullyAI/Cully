@@ -178,7 +178,10 @@ export default function ProfilePage() {
 
     return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-		<ScrollView contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}>
+		<ScrollView
+          contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}
+          style={{ backgroundColor: "#FFF5E3" }}
+        >
 		<View style={profileStyles.container}>
 
 			<Pressable 
