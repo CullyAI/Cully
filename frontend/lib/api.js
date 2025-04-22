@@ -54,6 +54,19 @@ export const set_profile = async(user) => {
 }
 
 
+export const get_recipes = async (user_id) => {
+    const res = await fetch(`${API_URL}/get_recipes`, {
+      method: "POST",
+      body: JSON.stringify({ user_id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  
+    return await res.json();
+  };
+
+
 export const set_recipe = async(recipe) => {
     const res = await fetch(`${API_URL}/set_recipe`, {
         method: "POST",

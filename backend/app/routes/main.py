@@ -74,18 +74,12 @@ def get_profile():
     user = User.query.filter_by(user_id=user_id).first()
     
     if user:
-        diseases = user.diseases
-        allergies = user.allergies
-        nutritional_goals = user.nutritional_goals
-        dietary_preferences = user.dietary_preferences
-        macros = user.macros
-        
         response = make_response(jsonify({
-            "diseases": diseases,
-            "allergies": allergies,
-            "nutritional_goals": nutritional_goals,
-            "dietary_preferences": dietary_preferences,
-            "macros": macros,
+            "diseases": user.diseases,
+            "allergies": user.allergies,
+            "nutritional_goals": user.nutritional_goals,
+            "dietary_preferences": user.dietary_preferences,
+            "macros": user.macros,
         }))
         
         return response, 200
@@ -123,6 +117,37 @@ def set_profile():
     db.session.commit()
     
     return jsonify({"success": True}), 200
+
+
+@app.route("/get_recipe", methods=["POST"])
+def get_recipe():
+    data = request.get_json()
+    user_id = data["id"]
+    
+    recipes = Recipe.query.filter_by(user_id=user_id).all()
+    
+    if recipes:
+        serialized = []
+        for recipe in recipes:
+            serialized.append({
+                "recipe_id": recipe.recipe_id,
+                "title": recipe.title,
+                "description": recipe.description,
+                "preparation_time": recipe.preparation_time,
+                "cooking_time": recipe.cooking_time,
+                "difficulty_level": recipe.difficulty_level,
+                "calories": recipe.calories,
+                "protein": recipe.protein,
+                "carbs": recipe.carbs,
+                "fat": recipe.fat,
+                "steps": recipe.steps,
+                "created_at": recipe.created_at.isoformat(),
+                "updated_at": recipe.updated_at.isoformat(),
+            })
+
+        return make_response(jsonify(serialized)), 200
+    else:
+        return jsonify({"error": "Not logged in"}), 401
 
 
 @app.route("/set_recipe", methods=["POST"])
