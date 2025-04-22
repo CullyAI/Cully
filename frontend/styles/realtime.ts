@@ -1,3 +1,4 @@
+// styles/realtime.ts
 import { StyleSheet } from "react-native";
 
 export const CullyLogo = require("../assets/images/cully_logo.png");
@@ -26,7 +27,11 @@ export const realtimeStyles = StyleSheet.create({
     borderColor: "#fff",
   },
   cameraContainer: {
-    ...StyleSheet.absoluteFillObject, // full screen
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     zIndex: 1,
   },
   camera: {
@@ -37,15 +42,20 @@ export const realtimeStyles = StyleSheet.create({
   buttonGroup: {
     position: "absolute",
     bottom: 100,
-    width: "100%",
-    alignItems: "center",
+    alignSelf: "center",
     zIndex: 2,
+    //backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 10,
+    borderRadius: 10,
   },
   toggleButton: {
     position: "absolute",
-    bottom: 30,
-    alignSelf: "center",
-    zIndex: 3,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 8,
+    borderRadius: 100,
+    bottom: 115,
+    right: 20,
+    zIndex: 2,
   },
   buttonContainer: {
     marginVertical: 20,
@@ -63,7 +73,6 @@ export const realtimeStyles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 10,
     alignItems: "center",
-    backgroundColor: "#ff6666",
   },
   playingBorder: {
     borderWidth: 4,
