@@ -1,3 +1,4 @@
+// styles/realtime.ts
 import { StyleSheet } from "react-native";
 
 export const CullyLogo = require("../assets/images/cully_logo.png");
@@ -5,9 +6,8 @@ export const CullyLogo = require("../assets/images/cully_logo.png");
 export const realtimeStyles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#E9F3FF",
+    position: "relative",
   },
   logoContainer: {
     position: "absolute",
@@ -19,54 +19,67 @@ export const realtimeStyles = StyleSheet.create({
     backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
+    alignSelf: "center",
   },
   logoImage: {
     width: "100%",
     height: "100%",
-    borderColor: "#fff"
+    borderColor: "#fff",
   },
   cameraContainer: {
     position: "absolute",
-    bottom: 250,
-    width: 350,
-    height: 525,
-    borderRadius: 50,
-    overflow: "hidden",
-    backgroundColor: "#000",
-    justifyContent: "center",
-    alignItems: "center",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
   },
   camera: {
     flex: 1,
     width: "100%",
+    height: "100%",
   },
   buttonGroup: {
     position: "absolute",
     bottom: 100,
-    width: "100%",
-    alignItems: "center",
+    alignSelf: "center",
+    zIndex: 2,
+    //backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 10,
+    borderRadius: 10,
   },
   toggleButton: {
     position: "absolute",
-    bottom: 30,
-    alignSelf: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 8,
+    borderRadius: 100,
+    bottom: 120,
+    right: 20,
+    zIndex: 2,
   },
   buttonContainer: {
     marginVertical: 20,
     width: "80%",
     borderRadius: 10,
-    overflow: "hidden", // Ensures the button respects the border radius
+    overflow: "hidden",
   },
   text: {
     fontSize: 18,
     color: "#333",
     marginTop: 10,
   },
+  cameraButton: {},
   recordButton: {
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 100,
     marginVertical: 10,
     alignItems: "center",
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   playingBorder: {
     borderWidth: 4,
