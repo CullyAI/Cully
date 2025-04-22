@@ -201,7 +201,7 @@ export default function ProfilePage() {
                         onPress={() => removeDisease(disease)}
                         style={profileStyles.chipButton}
                       >
-                        <X size={16} color="#666" />
+                        <IconSymbol size={15} name="xmark" color="#C0BBB2" />
                       </Pressable>
                     </View>
                   ))}
@@ -217,12 +217,12 @@ export default function ProfilePage() {
                     value={searchQuery}
                     onChangeText={setSearchQuery}
                     onFocus={() => setShowDropdown(true)}
-                    placeholderTextColor={"#E8E0D3"}
+                    placeholderTextColor={"#C0BBB2"}
                   />
                   {showDropdown ? (
-                    <ChevronUp size={20} color="#666" />
+                    <IconSymbol size={15} name="chevron.up" color="#C0BBB2" />
                   ) : (
-                    <ChevronDown size={20} color="#666" />
+                    <IconSymbol size={15} name="chevron.down" color="#C0BBB2" />
                   )}
                 </Pressable>
 
@@ -254,7 +254,7 @@ export default function ProfilePage() {
                   value={allergies}
                   onChangeText={setAllergies}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
 
                 <Text style={profileStyles.header}>Nutritional Goals</Text>
@@ -264,7 +264,7 @@ export default function ProfilePage() {
                   value={nutritionalGoals}
                   onChangeText={setNutritionalGoals}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
 
                 <Text style={profileStyles.header}>Dietary Preferences</Text>
@@ -274,7 +274,7 @@ export default function ProfilePage() {
                   value={dietaryPreferences}
                   onChangeText={setDietaryPreferences}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
 
                 <TouchableOpacity
@@ -314,7 +314,7 @@ export default function ProfilePage() {
                   value={age}
                   onChangeText={setAge}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
                 <TextInput
                   style={profileStyles.input}
@@ -322,7 +322,7 @@ export default function ProfilePage() {
                   value={sex}
                   onChangeText={setSex}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
                 <TextInput
                   style={profileStyles.input}
@@ -330,7 +330,7 @@ export default function ProfilePage() {
                   value={height}
                   onChangeText={setHeight}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
                 <TextInput
                   style={profileStyles.input}
@@ -338,7 +338,7 @@ export default function ProfilePage() {
                   value={weight}
                   onChangeText={setWeight}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
                 <TextInput
                   style={profileStyles.input}
@@ -346,7 +346,7 @@ export default function ProfilePage() {
                   value={activityLevel}
                   onChangeText={setActivityLevel}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
                 <TextInput
                   style={profileStyles.input}
@@ -354,7 +354,7 @@ export default function ProfilePage() {
                   value={targetWeight}
                   onChangeText={setTargetWeight}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
                 <TextInput
                   style={profileStyles.input}
@@ -362,25 +362,27 @@ export default function ProfilePage() {
                   value={otherInfo}
                   onChangeText={setOtherInfo}
                   autoCapitalize="none"
-                  placeholderTextColor={"#E8E0D3"}
+                  placeholderTextColor={"#C0BBB2"}
                 />
 
-				<TouchableOpacity
-					style={profileStyles.button}
-					onPressIn={handleSubmitIn}
-					onPressOut={handleSubmitOut}
-					onPress={generateMacros}
-					activeOpacity={0.7}
-					>
-					<Animated.View
-						style={[
-							profileStyles.buttonContent,
-							{ transform: [{ scale }] },
-						]}
-					>
-						<Text style={profileStyles.buttonText}>Generate Macros</Text>
-						<IconSymbol size={20} name="checkmark" color="#FFFBF4" />
-					</Animated.View>
+                <TouchableOpacity
+                  style={profileStyles.button}
+                  onPressIn={handleSubmitIn}
+                  onPressOut={handleSubmitOut}
+                  onPress={generateMacros}
+                  activeOpacity={0.7}
+                >
+                  <Animated.View
+                    style={[
+                      profileStyles.buttonContent,
+                      { transform: [{ scale }] },
+                    ]}
+                  >
+                    <Text style={profileStyles.buttonText}>
+                      Generate Macros
+                    </Text>
+                    <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+                  </Animated.View>
                 </TouchableOpacity>
 
                 <View style={macroStyles.responseBox}>
@@ -422,8 +424,8 @@ export default function ProfilePage() {
 
                   <TouchableOpacity
                     style={profileStyles.buttonMacros}
-					onPressIn={handleSubmitIn}
-					onPressOut={handleSubmitOut}
+                    onPressIn={handleSubmitIn}
+                    onPressOut={handleSubmitOut}
                     onPress={updateProfile}
                     activeOpacity={0.7}
                   >
@@ -442,7 +444,9 @@ export default function ProfilePage() {
             )}
 
             <View style={authStyles.container}>
-              <Text style={profileStyles.logout} onPress={logout}>Log Out</Text>
+              <Text style={profileStyles.logout} onPress={logout}>
+                Log Out
+              </Text>
             </View>
           </View>
         </ScrollView>

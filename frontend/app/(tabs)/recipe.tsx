@@ -17,6 +17,7 @@ import { set_recipe } from "@/lib/api";
 import { useAuth } from '@/context/authcontext';
 import { chatStyles } from '@/styles/recipe'
 import { cleanAndParseJSON } from "@/utils/basic_functions";
+import { IconSymbol } from "@/components/ui/IconSymbol"; 
 
 type Message = {
 	role: "user" | "assistant" | "system";

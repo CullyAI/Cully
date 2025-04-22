@@ -52,7 +52,7 @@ export const profileStyles = StyleSheet.create({
   header: {
     fontSize: 16,
     marginTop: 20,
-    marginBottom: 16,
+    marginBottom: 8,
     fontWeight: "bold",
     textAlign: "left",
 
