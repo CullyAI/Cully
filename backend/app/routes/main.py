@@ -116,13 +116,16 @@ def set_profile():
 
     db.session.commit()
     
+    
     return jsonify({"success": True}), 200
 
 
-@app.route("/get_recipe", methods=["POST"])
-def get_recipe():
+@app.route("/get_recipes", methods=["POST"])
+def get_recipes():
     data = request.get_json()
-    user_id = data["id"]
+    
+    user_info = data.get("user", {})
+    user_id = user_info.get("id")
     
     recipes = Recipe.query.filter_by(user_id=user_id).all()
     
@@ -144,8 +147,10 @@ def get_recipe():
                 "created_at": recipe.created_at.isoformat(),
                 "updated_at": recipe.updated_at.isoformat(),
             })
+            
+        print("RECIPES:", serialized)
 
-        return make_response(jsonify(serialized)), 200
+        return jsonify(serialized), 200
     else:
         return jsonify({"error": "Not logged in"}), 401
 
@@ -165,6 +170,7 @@ def set_recipe():
             user_id=user_id,
             title=data.get("title"),
             description=data.get("description", ""),
+            steps=data.get("steps", ""),
             preparation_time=data.get("preparation_time"),
             cooking_time=data.get("cooking_time"),
             difficulty_level=data.get("difficulty_level"),

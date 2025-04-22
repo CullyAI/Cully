@@ -1,4 +1,4 @@
-const API_URL = "https://cully-4gu8.onrender.com";
+const API_URL = "http://10.0.0.242:8888";
 
 export const signup = async(user) => {
     const res = await fetch(`${API_URL}/signup`, {
@@ -54,10 +54,10 @@ export const set_profile = async(user) => {
 }
 
 
-export const get_recipes = async (user_id) => {
+export const get_recipes = async (user) => {
     const res = await fetch(`${API_URL}/get_recipes`, {
       method: "POST",
-      body: JSON.stringify({ user_id }),
+      body: JSON.stringify({ user }),
       headers: {
         "Content-Type": "application/json",
       },
