@@ -159,6 +159,7 @@ export default function RealtimeScreen() {
 		if (cameraOn) {
 			base64Image = await takePicture();
 		}
+		
 
 		setIsRecording(false);
 		setIsThinking(true);
