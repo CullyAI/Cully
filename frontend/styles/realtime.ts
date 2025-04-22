@@ -5,9 +5,8 @@ export const CullyLogo = require("../assets/images/cully_logo.png");
 export const realtimeStyles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#E9F3FF",
+    position: "relative",
   },
   logoContainer: {
     position: "absolute",
@@ -19,43 +18,40 @@ export const realtimeStyles = StyleSheet.create({
     backgroundColor: "#000",
     justifyContent: "center",
     alignItems: "center",
+    alignSelf: "center",
   },
   logoImage: {
     width: "100%",
     height: "100%",
-    borderColor: "#fff"
+    borderColor: "#fff",
   },
   cameraContainer: {
-    position: "absolute",
-    bottom: 250,
-    width: 350,
-    height: 525,
-    borderRadius: 50,
-    overflow: "hidden",
-    backgroundColor: "#000",
-    justifyContent: "center",
-    alignItems: "center",
+    ...StyleSheet.absoluteFillObject, // full screen
+    zIndex: 1,
   },
   camera: {
     flex: 1,
     width: "100%",
+    height: "100%",
   },
   buttonGroup: {
     position: "absolute",
     bottom: 100,
     width: "100%",
     alignItems: "center",
+    zIndex: 2,
   },
   toggleButton: {
     position: "absolute",
     bottom: 30,
     alignSelf: "center",
+    zIndex: 3,
   },
   buttonContainer: {
     marginVertical: 20,
     width: "80%",
     borderRadius: 10,
-    overflow: "hidden", // Ensures the button respects the border radius
+    overflow: "hidden",
   },
   text: {
     fontSize: 18,
@@ -67,6 +63,7 @@ export const realtimeStyles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 10,
     alignItems: "center",
+    backgroundColor: "#ff6666",
   },
   playingBorder: {
     borderWidth: 4,
