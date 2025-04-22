@@ -171,25 +171,37 @@ export default function ProfilePage() {
   };
 
   const toggleProfileForm = () => {
-    setShowProfileForm((prev) => {
+    if (showProfileForm) {
       Animated.timing(profileAnim, {
-        toValue: prev ? 0 : 1,
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowProfileForm(false));
+    } else {
+      setShowProfileForm(true);
+      Animated.timing(profileAnim, {
+        toValue: 1,
         duration: 300,
         useNativeDriver: true,
       }).start();
-      return !prev;
-    });
+    }
   };
 
   const toggleMacrosForm = () => {
-    setShowMacrosForm((prev) => {
+    if (showMacrosForm) {
       Animated.timing(macrosAnim, {
-        toValue: prev ? 0 : 1,
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setShowMacrosForm(false));
+    } else {
+      setShowMacrosForm(true);
+      Animated.timing(macrosAnim, {
+        toValue: 1,
         duration: 300,
         useNativeDriver: true,
       }).start();
-      return !prev;
-    });
+    }
   };
 
   return (
@@ -211,6 +223,7 @@ export default function ProfilePage() {
           </Pressable>
 
           <Animated.View
+            pointerEvents={showProfileForm ? "auto" : "none"}
             style={{
               opacity: profileAnim,
               transform: [
@@ -341,6 +354,7 @@ export default function ProfilePage() {
           </Pressable>
 
           <Animated.View
+            pointerEvents={showMacrosForm ? "auto" : "none"}
             style={{
               opacity: macrosAnim,
               transform: [
