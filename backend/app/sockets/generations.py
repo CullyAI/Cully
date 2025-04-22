@@ -136,6 +136,8 @@ def handle_multimodal(data):
         emit("send_multimodal_error", {"message": "Not logged in"})
         return
     
+    recipe = data["recipe"]
+    
     user_id = user["id"]
     generation_id = uuid.uuid4()
     user_gen_id[user_id] = generation_id
@@ -166,11 +168,13 @@ def handle_multimodal(data):
     task.join()
     transcription = result_box["value"]
                     
-    user_info = user_info_prompt(user_row=user_row)
+    user_info = user_info_prompt(user_row=user_row, recipe=recipe)
     history = list(user_history[user_id])
     token_count = 0
     cur_chunk = ""
     response = ""
+    
+    log.info("UserInfo", detail=user_info)
     
     stream = llm_generate(
         model=gpt4omini,
@@ -255,6 +259,8 @@ def handle_audio(data):
         emit("send_audio_error", {"message": "Not logged in"})
         return
     
+    recipe = data["recipe"]
+    
     user_id = user["id"]
     generation_id = uuid.uuid4()
     user_gen_id[user_id] = generation_id
@@ -263,7 +269,7 @@ def handle_audio(data):
     user_row = User.query.get(user["id"])
     input_audio = data["audio"]
                     
-    user_info = user_info_prompt(user_row=user_row)
+    user_info = user_info_prompt(user_row=user_row, recipe=recipe)
     history = list(user_history[user_id])
     token_count = 0
     cur_chunk = ""

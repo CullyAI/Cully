@@ -41,9 +41,10 @@ recipe_detail_instructions = (
     "{\n"
     "  \"title\": str,\n"
     "  \"description\": str,\n"
+    "  \"steps\": str (separated by newlines),\n"
     "  \"preparation_time\": int,\n"
     "  \"cooking_time\": int,\n"
-    "  \"difficulty_level\": str,\n"
+    "  \"difficulty_level\": int (1.0-5.0),\n"
     "  \"calories\": float,\n"
     "  \"protein\": float,\n"
     "  \"carbs\": float,\n"
@@ -66,7 +67,7 @@ pauses = ["!", ".", "?", ":", "\n", "\n\n"]
 ### Building Prompts ###
 ########################
 
-def user_info_prompt(user_row):
+def user_info_prompt(user_row, recipe={}):
     user_diseases = [d.strip() for d in user_row.diseases.split(",") if d.strip()]
     restrictions = [diseases[d] for d in user_diseases if d in diseases]
     disease_restrictions = ""
@@ -105,13 +106,19 @@ def user_info_prompt(user_row):
             f"- Fat: {macros.get('fat', 'N/A')}g\n"
             f"- Meals per day: {macros.get('meals_per_day', 'N/A')}\n"
         )
+        
+    recipe_string = (
+        f"The user is working on the following recipe: {recipe.get("title")}\n"
+        f"These are the steps: {recipe.get("steps")}\n"
+    )
 
     user_info = (
         disease_string +
         allergies_string +
         preferences_string +
         goals_string +
-        macro_string
+        macro_string +
+        recipe_string
     )
     
     return user_info
