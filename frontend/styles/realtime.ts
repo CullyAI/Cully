@@ -68,6 +68,7 @@ export const realtimeStyles = StyleSheet.create({
     color: "#333",
     marginTop: 10,
   },
+  cameraButton: {},
   recordButton: {
     padding: 16,
     borderRadius: 100,

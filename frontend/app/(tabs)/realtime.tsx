@@ -281,7 +281,11 @@ export default function RealtimeScreen() {
               { backgroundColor: pressed ? "#D2B378" : "#FFF5E3" },
             ]}
           >
-            <IconSymbol size={35} name="camera" color="#1E2C3D" />
+            <IconSymbol
+              size={35}
+              name={cameraOn ? "camera.fill" : "camera"}
+              color="#1E2C3D"
+            />
           </Pressable>
         </View>
       </View>
