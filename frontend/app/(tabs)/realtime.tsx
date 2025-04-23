@@ -366,7 +366,13 @@ export default function RealtimeScreen() {
 						</CameraView>
 					</View>
 					) : recipeSelected ? (
-						<View style={realtimeStyles.recipeContainer} pointerEvents="box-none">
+						<View style={[
+							realtimeStyles.recipeContainer,
+							isPlaying
+								? realtimeStyles.playingBorder
+								: realtimeStyles.notPlayingBorder,
+							isThinking && realtimeStyles.thinkingBorder,
+							]} pointerEvents="box-none">
 							<Pressable
 								onPress={removeRecipe}
 								style={realtimeStyles.closeButton}
