@@ -447,7 +447,7 @@ export default function ProfilePage() {
                 />
 
                 <TouchableOpacity
-                  style={profileStyles.button}
+                  style={profileStyles.buttongenMacros}
                   onPressIn={handleSubmitIn}
                   onPressOut={handleSubmitOut}
                   onPress={generateMacros}

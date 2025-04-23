@@ -25,11 +25,9 @@ export const profileStyles = StyleSheet.create({
     color: "#1E2C3D",
   },
 
-   titleIcon: {
-	alignSelf: "center",
-   },
-
-
+  titleIcon: {
+    alignSelf: "center",
+  },
 
   titleContainer: {
     fontSize: 24,
@@ -142,7 +140,30 @@ export const profileStyles = StyleSheet.create({
     borderRadius: 50,
     alignItems: "center",
     marginTop: 16,
+	marginBottom: 50,
     width: "50%",
+    //minWidth: "",
+    alignSelf: "center", // Center horizontally within the parent
+    justifyContent: "space-evenly",
+    flexDirection: "row", // Ensures the icon and text are side by side
+    padding: 16, // Adds padding around the entire button
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+
+  buttongenMacros: {
+    backgroundColor: "#1E477D",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 50,
+    alignItems: "center",
+    marginTop: 16,
+	marginBottom: 40,
+    width: "65%",
     //minWidth: "",
     alignSelf: "center", // Center horizontally within the parent
     justifyContent: "space-evenly",
@@ -184,6 +205,11 @@ export const profileStyles = StyleSheet.create({
     marginRight: 10,
   },
   buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between", // Adds space between icon and text
+  },
+  genbuttonContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between", // Adds space between icon and text
