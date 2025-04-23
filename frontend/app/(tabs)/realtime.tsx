@@ -169,28 +169,35 @@ export default function RealtimeScreen() {
 
 	const startRecording = async () => {
 		try {
-		if (soundRef.current) {
-			await soundRef.current.stopAsync();
-			await soundRef.current.unloadAsync();
-			soundRef.current = null;
-			send_interruption(user);
-		}
-
-		hideNav(); // ✅ Hide nav bar
-		setIsPlaying(false);
-		setIsRecording(true);
-		setIsThinking(false);
-		setAudioQueue([]);
-
-		await Audio.setAudioModeAsync({
-			allowsRecordingIOS: true,
-			playsInSilentModeIOS: true,
-		});
-
-		const { recording } = await Audio.Recording.createAsync(MICRO_AUDIO);
-		setRecording(recording);
+			if (recording) {
+				console.log("Stopping and unloading existing recording...");
+				await recording.stopAndUnloadAsync();
+				setRecording(null);
+			}
+	
+			if (soundRef.current) {
+				await soundRef.current.stopAsync();
+				await soundRef.current.unloadAsync();
+				soundRef.current = null;
+				send_interruption(user);
+			}
+	
+			hideNav(); // ✅ Hide nav bar
+			setIsPlaying(false);
+			setIsRecording(true);
+			setIsThinking(false);
+			setAudioQueue([]);
+	
+			await Audio.setAudioModeAsync({
+				allowsRecordingIOS: true,
+				playsInSilentModeIOS: true,
+			});
+	
+			// Assign the result to a temporary variable
+			const recordingResult = await Audio.Recording.createAsync(MICRO_AUDIO);
+			setRecording(recordingResult.recording); // Use the recording from the result
 		} catch (err) {
-		console.error("Failed to start recording", err);
+			console.error("Failed to start recording", err);
 		}
 	};
 
