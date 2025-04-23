@@ -1,5 +1,5 @@
 import { get_profile, set_profile } from "@/lib/api.js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   View,
   TextInput,
@@ -30,6 +30,8 @@ export default function ProfilePage() {
   const [macrosAnim] = useState(new Animated.Value(0));
   const [scale] = useState(new Animated.Value(1));
 
+  const scrollRef = useRef<ScrollView>(null);
+
   const [dietaryPreferences, setDietaryPreferences] = useState("");
   const [allergies, setAllergies] = useState("");
   const [nutritionalGoals, setNutritionalGoals] = useState("");
@@ -46,7 +48,6 @@ export default function ProfilePage() {
   const [targetWeight, setTargetWeight] = useState("");
   const [otherInfo, setOtherInfo] = useState("");
 
-  const [response, setResponse] = useState("");
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
@@ -73,7 +74,6 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         const res = await get_profile(user);
-
         setSelectedDiseases(res["diseases"] ? res["diseases"].split(",") : []);
         setAllergies(res["allergies"]);
         setNutritionalGoals(res["nutritional_goals"]);
@@ -93,6 +93,50 @@ export default function ProfilePage() {
 
     fetchProfile();
   }, []);
+
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
+  const toggleProfileForm = () => {
+    if (showProfileForm) {
+      Animated.timing(profileAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowProfileForm(false);
+        scrollToTop();
+      });
+    } else {
+      setShowProfileForm(true);
+      Animated.timing(profileAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
+
+  const toggleMacrosForm = () => {
+    if (showMacrosForm) {
+      Animated.timing(macrosAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowMacrosForm(false);
+        scrollToTop();
+      });
+    } else {
+      setShowMacrosForm(true);
+      Animated.timing(macrosAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
   const updateProfile = async () => {
     try {
@@ -115,6 +159,15 @@ export default function ProfilePage() {
     }
   };
 
+  const removeDisease = (disease: string) => {
+    setSelectedDiseases((prev) => prev.filter((d) => d !== disease));
+  };
+
+  const addDisease = (disease: string) => {
+    setSelectedDiseases((prev) => [...prev, disease]);
+    setSearchQuery("");
+  };
+
   useEffect(() => {
     if (!searchQuery) {
       setFilteredDiseases(
@@ -132,18 +185,8 @@ export default function ProfilePage() {
     }
   }, [searchQuery, selectedDiseases]);
 
-  const removeDisease = (disease: string) => {
-    setSelectedDiseases((prev) => prev.filter((d) => d !== disease));
-  };
-
-  const addDisease = (disease: string) => {
-    setSelectedDiseases((prev) => [...prev, disease]);
-    setSearchQuery("");
-  };
-
   const handleFinish = (generation: string) => {
     let json = cleanAndParseJSON(generation);
-
     setCalories(json.calories?.toString() ?? "N/A");
     setProtein(json.macros?.protein_g?.toString() ?? "N/A");
     setCarbs(json.macros?.carbs_g?.toString() ?? "N/A");
@@ -172,46 +215,14 @@ export default function ProfilePage() {
     );
   };
 
-  const toggleProfileForm = () => {
-    if (showProfileForm) {
-      Animated.timing(profileAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => setShowProfileForm(false));
-    } else {
-      setShowProfileForm(true);
-      Animated.timing(profileAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
-  };
-
-  const toggleMacrosForm = () => {
-    if (showMacrosForm) {
-      Animated.timing(macrosAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => setShowMacrosForm(false));
-    } else {
-      setShowMacrosForm(true);
-      Animated.timing(macrosAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
-  };
-
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}
         style={{ backgroundColor: "#FFF5E3" }}
       >
+
         <View style={profileStyles.container}>
           <Text style={profileStyles.daHeader}>Dietary Restrictions</Text>
 
@@ -439,7 +450,7 @@ export default function ProfilePage() {
                 />
 
                 <TouchableOpacity
-                  style={profileStyles.button}
+                  style={profileStyles.buttongenMacros}
                   onPressIn={handleSubmitIn}
                   onPressOut={handleSubmitOut}
                   onPress={generateMacros}
