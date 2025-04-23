@@ -18,7 +18,6 @@ import { authStyles } from "@/styles/auth";
 import { IconSymbol } from "@/components/ui/IconSymbol"; 
 import { useAuth } from '@/context/authcontext';
 import { diseaseData } from '@/assets/info/diseases';
-import { X, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { generate_macros } from "@/lib/socket";
 import { cleanAndParseJSON } from "@/utils/basic_functions";
 import { logout } from "@/lib/supabase"
