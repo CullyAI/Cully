@@ -21,7 +21,6 @@ import { diseaseData } from "@/assets/info/diseases";
 import { generate_macros } from "@/lib/socket";
 import { cleanAndParseJSON } from "@/utils/basic_functions";
 import { logout } from "@/lib/supabase";
-import { handleSubmitIn, handleSubmitOut } from "@/utils/basic_functions";
 
 export default function ProfilePage() {
   const [showProfileForm, setShowProfileForm] = useState(false);
@@ -56,6 +55,20 @@ export default function ProfilePage() {
 
   const { user } = useAuth();
 
+  const handleSubmitIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleSubmitOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -66,11 +79,13 @@ export default function ProfilePage() {
         setNutritionalGoals(res["nutritional_goals"]);
         setDietaryPreferences(res["dietary_preferences"]);
 
-        setCalories(res["macros"]["calories"] || "");
-        setProtein(res["macros"]["protein"] || "");
-        setCarbs(res["macros"]["carbs"] || "");
-        setFat(res["macros"]["fat"] || "");
-        setMealsPerDay(res["macros"]["meals_per_day"] || "");
+		if (res["macros"]) {
+			setCalories(res["macros"]["calories"] || "");
+			setProtein(res["macros"]["protein"] || "");
+			setCarbs(res["macros"]["carbs"] || "");
+			setFat(res["macros"]["fat"] || "");
+			setMealsPerDay(res["macros"]["meals_per_day"] || "");
+		}
       } catch (err) {
         console.error("Failed to get profile", err);
       }

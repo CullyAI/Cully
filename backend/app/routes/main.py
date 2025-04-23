@@ -124,11 +124,11 @@ def get_recipes():
     data = request.get_json()
     
     user_info = data.get("user", {})
-    user_id = user_info.get("id")
     
-    recipes = Recipe.query.filter_by(user_id=user_id).all()
+    if user_info:
+        user_id = user_info.get("id")
+        recipes = Recipe.query.filter_by(user_id=user_id).all()
     
-    if recipes:
         serialized = []
         for recipe in recipes:
             serialized.append({
@@ -149,7 +149,7 @@ def get_recipes():
 
         return jsonify(serialized), 200
     else:
-        return jsonify({"error": "Not logged in"}), 401
+        return jsonify([{"error": "Not logged in"}]), 401
 
 
 @app.route("/set_recipe", methods=["POST"])

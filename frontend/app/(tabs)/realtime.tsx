@@ -10,7 +10,7 @@ import { useNav } from "../navcontext"; // <-- ✅ add this
 import { FontAwesome6 } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { MICRO_AUDIO } from "@/constants/audio_settings";
-import { IconSymbol } from "@/components/ui/IconSymbol"; 
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 type Recipe = {
 	title: string,
@@ -52,24 +52,37 @@ export default function RealtimeScreen() {
 		console.error("❌ Realtime generation error:", errMsg);
 	};
 
-	// Get recipes //
-	useEffect(() => {
-		const fetchRecipes = async () => {
-			try {
-				const res: Recipe[] = await get_recipes(user);
-				const formattedRecipes = res.map((recipe) => ({
-					title: recipe.title,
-					steps: recipe.steps,
-				}));
-	
-				setSavedRecipes(formattedRecipes);
-			} catch (err) {
-				console.error("Failed to get recipes", err);
+	const fetchRecipes = async () => {
+		try {
+			const res: Recipe[] = (await get_recipes(user)) || [];
+
+			console.log(res)
+
+			if (res.length === 0) {
+				setSavedRecipes([]);
+				return;
 			}
-		};
-	
+			
+			// Filter recipes to ensure unique titles
+			const uniqueRecipes = res.filter(
+				(recipe, index, self) =>
+					index === self.findIndex((r) => r.title === recipe.title)
+			);
+
+			const formattedRecipes = uniqueRecipes.map((recipe) => ({
+				title: recipe.title,
+				steps: recipe.steps,
+			}));
+
+			setSavedRecipes(formattedRecipes);
+		} catch (err) {
+			console.error("Failed to get recipes", err);
+		}
+	};
+
+	useEffect(() => {
 		fetchRecipes();
-	}, [user]);
+	}, []);
 
 	// Microphone and camera permissions //
 	useEffect(() => {
@@ -287,22 +300,30 @@ export default function RealtimeScreen() {
 		{!cameraOn && (
 			<View style={realtimeStyles.recipeBar}>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+				<Pressable
+					onPress={fetchRecipes} // ← reuse the fetch logic
+					style={realtimeStyles.refreshButton}
+				>
+					<Text style={realtimeStyles.refreshButtonText}>↻</Text>
+				</Pressable>
+
 				{savedRecipes.map((recipe, index) => (
 					<Pressable
-						key={index}
-						onPress={() => handleSelection(recipe)}
-						style={selectedRecipe === recipe
-							? realtimeStyles.selectedRecipeChip 
-							: realtimeStyles.recipeChip}
+					key={index}
+					onPress={() => handleSelection(recipe)}
+					style={
+						selectedRecipe === recipe
+						? realtimeStyles.selectedRecipeChip
+						: realtimeStyles.recipeChip
+					}
 					>
-						<Text style={realtimeStyles.recipeChipText}>
-							{recipe.title}
-						</Text>
+					<Text style={realtimeStyles.recipeChipText}>{recipe.title}</Text>
 					</Pressable>
 				))}
 				</ScrollView>
 			</View>
-		)}
+			)}
+
 					
 		<Pressable
 

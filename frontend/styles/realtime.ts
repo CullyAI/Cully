@@ -166,4 +166,16 @@ export const realtimeStyles = StyleSheet.create({
 		borderRadius: 20, // Optional: Make it circular
 		zIndex: 2, // Ensure it appears above other elements
 	},
+	refreshButton: {
+		justifyContent: "center",
+		alignItems: "center",
+		paddingHorizontal: 10,
+		marginRight: 8,
+		backgroundColor: "#eee",
+		borderRadius: 20,
+	  },
+	  refreshButtonText: {
+		fontSize: 18,
+	  },
+	  
 });
