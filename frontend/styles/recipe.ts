@@ -71,6 +71,37 @@ export const chatStyles = StyleSheet.create({
     maxHeight: 100,
     fontSize: 16,
   },
+  saveButton: {
+    backgroundColor: "#1E477D",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 50,
+    alignItems: "center",
+    marginTop: 16,
+    width: "50%",
+    //minWidth: "",
+    alignSelf: "center", // Center horizontally within the parent
+    justifyContent: "space-evenly",
+    flexDirection: "row", // Ensures the icon and text are side by side
+    padding: 16, // Adds padding around the entire button
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  saveButtonText: {
+    color: "#FFFBF4",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginRight: 10,
+  },
+  saveButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between", // Adds space between icon and text
+  },
   sendButton: {
     backgroundColor: "#1E477D",
     width: 40,

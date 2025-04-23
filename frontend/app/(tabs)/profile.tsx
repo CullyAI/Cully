@@ -78,11 +78,14 @@ export default function ProfilePage() {
         setAllergies(res["allergies"]);
         setNutritionalGoals(res["nutritional_goals"]);
         setDietaryPreferences(res["dietary_preferences"]);
-        setCalories(res["macros"]["calories"] || "");
-        setProtein(res["macros"]["protein"] || "");
-        setCarbs(res["macros"]["carbs"] || "");
-        setFat(res["macros"]["fat"] || "");
-        setMealsPerDay(res["macros"]["meals_per_day"] || "");
+
+		if (res["macros"]) {
+			setCalories(res["macros"]["calories"] || "");
+			setProtein(res["macros"]["protein"] || "");
+			setCarbs(res["macros"]["carbs"] || "");
+			setFat(res["macros"]["fat"] || "");
+			setMealsPerDay(res["macros"]["meals_per_day"] || "");
+		}
       } catch (err) {
         console.error("Failed to get profile", err);
       }

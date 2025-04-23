@@ -5,6 +5,7 @@ import {
 	Text,
 	ScrollView,
 	KeyboardAvoidingView,
+	TouchableOpacity,
 	Platform,
 	Pressable,
 	Animated
@@ -28,8 +29,10 @@ export default function ChatScreen() {
 	const [input, setInput] = useState("");
 	const [history, setHistory] = useState<Message[]>([]);
 	const [isWaitingForFirstToken, setIsWaitingForFirstToken] = useState(false);
+	const [isGenerating, setIsGenerating] = useState(false);
 	const scrollRef = useRef<ScrollView>(null);
 	const dotAnimation = useRef(new Animated.Value(0)).current;
+	const [scale] = useState(new Animated.Value(1));
 	const { user } = useAuth();
 
 	useEffect(() => {
@@ -54,6 +57,21 @@ export default function ChatScreen() {
 	}, [isWaitingForFirstToken]);
 
 
+	const handleSubmitIn = () => {
+		Animated.spring(scale, {
+			toValue: 0.95,
+			useNativeDriver: true,
+		}).start();
+	};
+
+	const handleSubmitOut = () => {
+		Animated.spring(scale, {
+			toValue: 1,
+			useNativeDriver: true,
+		}).start();
+	};
+
+
 	const updateMessages = (chunk: string) => {
 		setIsWaitingForFirstToken(false);
 
@@ -74,6 +92,7 @@ export default function ChatScreen() {
 	};
 
 	const goToBottom = () => {
+		setIsGenerating(false);
 		setTimeout(() => {
 			scrollRef.current?.scrollToEnd({ animated: true });
 		}, 50);
@@ -84,13 +103,14 @@ export default function ChatScreen() {
 	};
 
 	const handleInput = () => {
-		if (!input.trim()) return;
+		if (!input.trim() || isGenerating) return;
 	
 		const userMessage: Message = { role: "user", content: input };
 
 		setInput("");
 		setHistory((prev) => [...prev, userMessage]);
 		setIsWaitingForFirstToken(true);
+		setIsGenerating(true);
 	
 		generate_recipe(
 			{
@@ -106,7 +126,6 @@ export default function ChatScreen() {
 
 
 	const addRecipe = (raw: string) => {
-		console.log(raw);
 		if (raw.trim() === "False") return;
 
 		let json = cleanAndParseJSON(raw);
@@ -177,16 +196,24 @@ export default function ChatScreen() {
             >
               <Markdown>{msg.content}</Markdown>
 
-              {msg.role == "assistant" && (
-                <Pressable
-                  style={[
-                    chatStyles.sendButton,
-                    !input.trim() && chatStyles.sendButtonDisabled,
-                  ]}
-                  onPress={() => handleSave(msg.content)}
-                >
-                  <Send size={20} color={input.trim() ? "#fff" : "#A0AEC0"} />
-                </Pressable>
+              {msg.role == "assistant" && !isGenerating && (
+                <TouchableOpacity
+					style={chatStyles.saveButton}
+					onPressIn={handleSubmitIn}
+					onPressOut={handleSubmitOut}
+					onPress={() => handleSave(msg.content)}
+					activeOpacity={0.7}
+				>
+					<Animated.View
+					style={[
+						chatStyles.saveButtonContent,
+						{ transform: [{ scale }] },
+					]}
+					>
+					<Text style={chatStyles.saveButtonText}>Save Recipe</Text>
+					<IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+					</Animated.View>
+				</TouchableOpacity>
               )}
             </View>
           ))}
@@ -207,7 +234,7 @@ export default function ChatScreen() {
           <Pressable
             style={[
               chatStyles.sendButton,
-              !input.trim() && chatStyles.sendButtonDisabled,
+              (!input.trim() || isGenerating) && chatStyles.sendButtonDisabled,
             ]}
             onPress={handleInput}
             disabled={!input.trim()}

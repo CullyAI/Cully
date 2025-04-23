@@ -10,7 +10,7 @@ import { useNav } from "../navcontext"; // <-- ✅ add this
 import { FontAwesome6 } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { MICRO_AUDIO } from "@/constants/audio_settings";
-import { IconSymbol } from "@/components/ui/IconSymbol"; 
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
 type Recipe = {
 	title: string,
@@ -52,24 +52,37 @@ export default function RealtimeScreen() {
 		console.error("❌ Realtime generation error:", errMsg);
 	};
 
-	// Get recipes //
-	useEffect(() => {
-		const fetchRecipes = async () => {
-			try {
-				const res: Recipe[] = await get_recipes(user);
-				const formattedRecipes = res.map((recipe) => ({
-					title: recipe.title,
-					steps: recipe.steps,
-				}));
-	
-				setSavedRecipes(formattedRecipes);
-			} catch (err) {
-				console.error("Failed to get recipes", err);
+	const fetchRecipes = async () => {
+		try {
+			const res: Recipe[] = (await get_recipes(user));
+
+			console.log(res)
+
+			if (res.length === 0) {
+				setSavedRecipes([]);
+				return;
 			}
-		};
-	
+			
+			// Filter recipes to ensure unique titles
+			const uniqueRecipes = res.filter(
+				(recipe, index, self) =>
+					index === self.findIndex((r) => r.title === recipe.title)
+			);
+
+			const formattedRecipes = uniqueRecipes.map((recipe) => ({
+				title: recipe.title,
+				steps: recipe.steps,
+			}));
+
+			setSavedRecipes(formattedRecipes);
+		} catch (err) {
+			console.error("Failed to get recipes", err);
+		}
+	};
+
+	useEffect(() => {
 		fetchRecipes();
-	}, [user]);
+	}, []);
 
 	// Microphone and camera permissions //
 	useEffect(() => {
@@ -156,28 +169,35 @@ export default function RealtimeScreen() {
 
 	const startRecording = async () => {
 		try {
-		if (soundRef.current) {
-			await soundRef.current.stopAsync();
-			await soundRef.current.unloadAsync();
-			soundRef.current = null;
-			send_interruption(user);
-		}
-
-		hideNav(); // ✅ Hide nav bar
-		setIsPlaying(false);
-		setIsRecording(true);
-		setIsThinking(false);
-		setAudioQueue([]);
-
-		await Audio.setAudioModeAsync({
-			allowsRecordingIOS: true,
-			playsInSilentModeIOS: true,
-		});
-
-		const { recording } = await Audio.Recording.createAsync(MICRO_AUDIO);
-		setRecording(recording);
+			if (recording) {
+				console.log("Stopping and unloading existing recording...");
+				await recording.stopAndUnloadAsync();
+				setRecording(null);
+			}
+	
+			if (soundRef.current) {
+				await soundRef.current.stopAsync();
+				await soundRef.current.unloadAsync();
+				soundRef.current = null;
+				send_interruption(user);
+			}
+	
+			hideNav(); // ✅ Hide nav bar
+			setIsPlaying(false);
+			setIsRecording(true);
+			setIsThinking(false);
+			setAudioQueue([]);
+	
+			await Audio.setAudioModeAsync({
+				allowsRecordingIOS: true,
+				playsInSilentModeIOS: true,
+			});
+	
+			// Assign the result to a temporary variable
+			const recordingResult = await Audio.Recording.createAsync(MICRO_AUDIO);
+			setRecording(recordingResult.recording); // Use the recording from the result
 		} catch (err) {
-		console.error("Failed to start recording", err);
+			console.error("Failed to start recording", err);
 		}
 	};
 
@@ -267,9 +287,19 @@ export default function RealtimeScreen() {
 	};
 
 	const handleSelection = (recipe: Recipe) => {
-		setSelectedRecipe(recipe);
-		setRecipeSelected(true);
-		console.log(recipe);
+		if (recipe === selectedRecipe) removeRecipe();
+		else {
+			setSelectedRecipe(recipe);
+			setRecipeSelected(true);
+		}
+	}
+
+	const removeRecipe = () => {
+		setRecipeSelected(false);
+		setSelectedRecipe({
+			title: "No Recipe Selected",
+			steps: "Select a recipe above to view steps",
+		});
 	}
 
 	return (
@@ -277,20 +307,30 @@ export default function RealtimeScreen() {
 		{!cameraOn && (
 			<View style={realtimeStyles.recipeBar}>
 				<ScrollView horizontal showsHorizontalScrollIndicator={false}>
+				<Pressable
+					onPress={fetchRecipes} // ← reuse the fetch logic
+					style={realtimeStyles.refreshButton}
+				>
+					<Text style={realtimeStyles.refreshButtonText}>↻</Text>
+				</Pressable>
+
 				{savedRecipes.map((recipe, index) => (
 					<Pressable
-						key={index}
-						onPress={() => handleSelection(recipe)}
-						style={realtimeStyles.recipeChip}
+					key={index}
+					onPress={() => handleSelection(recipe)}
+					style={
+						selectedRecipe === recipe
+						? realtimeStyles.selectedRecipeChip
+						: realtimeStyles.recipeChip
+					}
 					>
-						<Text style={realtimeStyles.recipeChipText}>
-							{recipe.title}
-						</Text>
+					<Text style={realtimeStyles.recipeChipText}>{recipe.title}</Text>
 					</Pressable>
 				))}
 				</ScrollView>
 			</View>
-		)}
+			)}
+
 					
 		<Pressable
 
@@ -326,7 +366,19 @@ export default function RealtimeScreen() {
 						</CameraView>
 					</View>
 					) : recipeSelected ? (
-						<View style={realtimeStyles.recipeContainer} pointerEvents="box-none">
+						<View style={[
+							realtimeStyles.recipeContainer,
+							isPlaying
+								? realtimeStyles.playingBorder
+								: realtimeStyles.notPlayingBorder,
+							isThinking && realtimeStyles.thinkingBorder,
+							]} pointerEvents="box-none">
+							<Pressable
+								onPress={removeRecipe}
+								style={realtimeStyles.closeButton}
+								>
+								<IconSymbol size={15} name="xmark" color="#C0BBB2" />
+							</Pressable>
 							<ScrollView>
 								<Text style={realtimeStyles.recipeTitle}>
 									{selectedRecipe.title}
@@ -368,9 +420,9 @@ export default function RealtimeScreen() {
 					]}
 				>
 					<IconSymbol
-					size={35}
-					name={cameraOn ? "camera.fill" : "camera"}
-					color="#1E2C3D"
+						size={35}
+						name={cameraOn ? "camera.fill" : "camera"}
+						color="#1E2C3D"
 					/>
 				</Pressable>
 				</View>
