@@ -15,7 +15,7 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://feedlruynztprotufcks.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "your-key"
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlZWRscnV5bnp0cHJvdHVmY2tzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MTc5OTk4MywiZXhwIjoyMDU3Mzc1OTgzfQ.ki91ZfOoo_Vc7RIg8XvCxo1SgtBiz9khFV14tayHNQQ"
       }
     },
     "internal": {
