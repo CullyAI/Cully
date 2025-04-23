@@ -12,7 +12,11 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://feedlruynztprotufcks.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "your-key"
+      }
     },
     "internal": {
       "distribution": "internal",
