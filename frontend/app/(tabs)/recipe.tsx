@@ -210,8 +210,7 @@ export default function ChatScreen() {
 						{ transform: [{ scale }] },
 					]}
 					>
-					<Text style={chatStyles.saveButtonText}>Save Recipe</Text>
-					<IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+					<IconSymbol size={20} name="bookmark" color="#FFFBF4" />
 					</Animated.View>
 				</TouchableOpacity>
               )}
