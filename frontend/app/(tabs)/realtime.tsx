@@ -267,9 +267,20 @@ export default function RealtimeScreen() {
 	};
 
 	const handleSelection = (recipe: Recipe) => {
-		setSelectedRecipe(recipe);
-		setRecipeSelected(true);
-		console.log(recipe);
+		if (recipe === selectedRecipe) removeRecipe();
+		else {
+			setSelectedRecipe(recipe);
+			setRecipeSelected(true);
+			console.log(recipe);
+		}
+	}
+
+	const removeRecipe = () => {
+		setRecipeSelected(false);
+		setSelectedRecipe({
+			title: "No Recipe Selected",
+			steps: "Select a recipe above to view steps",
+		});
 	}
 
 	return (
@@ -281,7 +292,9 @@ export default function RealtimeScreen() {
 					<Pressable
 						key={index}
 						onPress={() => handleSelection(recipe)}
-						style={realtimeStyles.recipeChip}
+						style={selectedRecipe === recipe
+							? realtimeStyles.selectedRecipeChip 
+							: realtimeStyles.recipeChip}
 					>
 						<Text style={realtimeStyles.recipeChipText}>
 							{recipe.title}
@@ -327,6 +340,12 @@ export default function RealtimeScreen() {
 					</View>
 					) : recipeSelected ? (
 						<View style={realtimeStyles.recipeContainer} pointerEvents="box-none">
+							<Pressable
+								onPress={removeRecipe}
+								style={realtimeStyles.closeButton}
+								>
+								<IconSymbol size={15} name="xmark" color="#C0BBB2" />
+							</Pressable>
 							<ScrollView>
 								<Text style={realtimeStyles.recipeTitle}>
 									{selectedRecipe.title}
@@ -368,9 +387,9 @@ export default function RealtimeScreen() {
 					]}
 				>
 					<IconSymbol
-					size={35}
-					name={cameraOn ? "camera.fill" : "camera"}
-					color="#1E2C3D"
+						size={35}
+						name={cameraOn ? "camera.fill" : "camera"}
+						color="#1E2C3D"
 					/>
 				</Pressable>
 				</View>

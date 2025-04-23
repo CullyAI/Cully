@@ -26,7 +26,13 @@ export const realtimeStyles = StyleSheet.create({
 		paddingVertical: 6,
 		marginHorizontal: 5,
 	},
-	
+	selectedRecipeChip: {
+		backgroundColor: "#000000",
+		borderRadius: 20,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		marginHorizontal: 5,
+	},
 	recipeChipText: {
 		fontWeight: "600",
 		color: "#1E2C3D",
@@ -147,9 +153,17 @@ export const realtimeStyles = StyleSheet.create({
 		borderColor: "white",
 		borderStyle: "solid",
 	},
-
 	recordButtonText: {
 		color: "white",
 		fontWeight: "bold",
+	},
+	closeButton: {
+		position: "absolute", // Position it absolutely within the parent
+		top: 10, // Adjust the distance from the top
+		right: 10, // Adjust the distance from the right
+		padding: 8, // Add some padding for better touch area
+		backgroundColor: "#FFF5E3", // Optional: Add a background color to match the box
+		borderRadius: 20, // Optional: Make it circular
+		zIndex: 2, // Ensure it appears above other elements
 	},
 });
