@@ -54,7 +54,7 @@ export default function RealtimeScreen() {
 
 	const fetchRecipes = async () => {
 		try {
-			const res: Recipe[] = (await get_recipes(user)) || [];
+			const res: Recipe[] = (await get_recipes(user));
 
 			console.log(res)
 
