@@ -55,7 +55,6 @@ export default function SignupScreen() {
       }
 
       const res = await signup({ user_id: data.user?.id, username, email, password });
-      console.log("SIGN UP RESPONSE:", res)
 
       if (res.error) {
         setMessage(`❌ ${res.error}`);
