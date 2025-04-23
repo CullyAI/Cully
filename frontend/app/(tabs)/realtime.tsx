@@ -271,7 +271,6 @@ export default function RealtimeScreen() {
 		else {
 			setSelectedRecipe(recipe);
 			setRecipeSelected(true);
-			console.log(recipe);
 		}
 	}
 

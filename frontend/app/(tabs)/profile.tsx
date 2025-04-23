@@ -21,6 +21,7 @@ import { diseaseData } from "@/assets/info/diseases";
 import { generate_macros } from "@/lib/socket";
 import { cleanAndParseJSON } from "@/utils/basic_functions";
 import { logout } from "@/lib/supabase";
+import { handleSubmitIn, handleSubmitOut } from "@/utils/basic_functions";
 
 export default function ProfilePage() {
   const [showProfileForm, setShowProfileForm] = useState(false);
@@ -54,20 +55,6 @@ export default function ProfilePage() {
   const [mealsPerDay, setMealsPerDay] = useState("");
 
   const { user } = useAuth();
-
-  const handleSubmitIn = () => {
-    Animated.spring(scale, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handleSubmitOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      useNativeDriver: true,
-    }).start();
-  };
 
   useEffect(() => {
     const fetchProfile = async () => {
