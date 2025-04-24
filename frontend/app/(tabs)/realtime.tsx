@@ -2,11 +2,11 @@ import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import { useEffect, useState, useRef } from "react";
 import { realtimeStyles, CullyLogo, GradientBG } from "@/styles/realtime";
-import { View, Text, Pressable, Image, ScrollView } from "react-native";
+import { View, Text, Pressable, Image, ScrollView, Animated, Easing} from "react-native";
 import { send_multimodal, send_audio, send_interruption } from "@/lib/socket";
 import { get_recipes } from "@/lib/api";
 import { useAuth } from "@/context/authcontext";
-import { useNav } from "../navcontext"; // <-- ✅ add this
+import { useNav } from "../navcontext";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { MICRO_AUDIO } from "@/constants/audio_settings";
@@ -31,7 +31,7 @@ export default function RealtimeScreen() {
 	const [hasMicPermission, setHasMicPermission] = useState(false);
 	const [micPermission, requestMicPermission] = Audio.usePermissions();
 	const { user } = useAuth();
-	const { hideNav, showNav } = useNav(); // <-- ✅ use nav context
+	const { hideNav, showNav, hideTopBar, showTopBar, topBarValue } = useNav();
 
 	const [audioQueue, setAudioQueue] = useState<string[]>([]);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -43,6 +43,8 @@ export default function RealtimeScreen() {
 		title: "No Recipe Selected",
 		steps: "Select a recipe above to view steps",
 	});
+	const logoScale = useRef(new Animated.Value(1)).current;
+
 
 	const addToQueue = (audio: string) => {
 		setAudioQueue((prev) => [...prev, audio]);
@@ -81,6 +83,29 @@ export default function RealtimeScreen() {
 	useEffect(() => {
 		fetchRecipes();
 	}, []);
+
+	useEffect(() => {
+		const animateScale = (toValue: number) => {
+			Animated.timing(logoScale, {
+			toValue,
+			duration: 700, // Customize duration here
+			//easing: toValue > 1 ? Easing.bounce : Easing.out(Easing.exp),
+			useNativeDriver: true,
+			}).start();
+		};
+
+		if (isRecording) {
+			animateScale(1.1); // Bigger pop on recording
+		} else if (isThinking) {
+			animateScale(1.01); // Smooth shrink back to normal
+		} else if (isPlaying) {
+			animateScale(1.05)
+		} else {
+			animateScale(1)
+		}
+	}, [isRecording, isThinking, isPlaying]);
+
+
 
 	// Microphone and camera permissions //
 	useEffect(() => {
@@ -124,6 +149,7 @@ export default function RealtimeScreen() {
 
 	if (!hasCamPermission || !hasMicPermission) {
 		return (
+
 		<View style={realtimeStyles.container}>
 			<Text style={realtimeStyles.text}>
 				Camera permission is required to use this feature.
@@ -181,6 +207,8 @@ export default function RealtimeScreen() {
 			}
 	
 			hideNav(); // ✅ Hide nav bar
+			hideTopBar();
+
 			setIsPlaying(false);
 			setIsRecording(true);
 			setIsThinking(false);
@@ -200,7 +228,9 @@ export default function RealtimeScreen() {
 	};
 
 	const stopRecording = async () => {
+		
 		try {
+		setIsRecording(false);
 		if (!recording) return;
 
 		await recording.stopAndUnloadAsync();
@@ -213,7 +243,7 @@ export default function RealtimeScreen() {
 		}
 		
 
-		setIsRecording(false);
+		//setIsRecording(false);
 		setIsThinking(true);
 
 		if (audio_uri) {
@@ -249,11 +279,13 @@ export default function RealtimeScreen() {
 		console.error("Error during recording stop:", error);
 		} finally {
 		showNav(); // ✅ Always show nav bar again
+		showTopBar();
 		}
 	};
 
 	const playAudio = async ({ audio }: { audio: string }) => {
 		setIsThinking(false);
+		setIsRecording(false);
 		try {
 		const path = `${FileSystem.documentDirectory}response_${Date.now()}.mp3`;
 		await FileSystem.writeAsStringAsync(path, audio, {
@@ -303,10 +335,17 @@ export default function RealtimeScreen() {
 	return (
     <>
       {!cameraOn && (
-        <View style={realtimeStyles.recipeBar}>
+        <Animated.View
+          style={[
+            realtimeStyles.recipeBar,
+            {
+              transform: [{ translateY: topBarValue }],
+            },
+          ]}
+        >
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <Pressable
-              onPress={fetchRecipes} // ← reuse the fetch logic
+              onPress={fetchRecipes}
               style={realtimeStyles.refreshButton}
             >
               <Text style={realtimeStyles.refreshButtonText}>↻</Text>
@@ -322,13 +361,19 @@ export default function RealtimeScreen() {
                     : realtimeStyles.recipeChip
                 }
               >
-                <Text style={realtimeStyles.recipeChipText}>
+                <Text
+                  style={
+                    selectedRecipe === recipe
+                      ? realtimeStyles.selectedRecipeChipText
+                      : realtimeStyles.recipeChipText
+                  }
+                >
                   {recipe.title}
                 </Text>
               </Pressable>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
       )}
 
       <Pressable
@@ -350,6 +395,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
+                isRecording && realtimeStyles.recordingBorder,
               ]}
             >
               <CameraView
@@ -376,6 +422,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
+                isRecording && realtimeStyles.recordingBorder,
               ]}
               pointerEvents="box-none"
             >
@@ -395,13 +442,17 @@ export default function RealtimeScreen() {
               </ScrollView>
             </View>
           ) : (
-            <View
+            <Animated.View
               style={[
                 realtimeStyles.logoContainer,
+                {
+                  transform: [{ scale: logoScale }],
+                },
                 isPlaying
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
+                isRecording && realtimeStyles.recordingBorder,
               ]}
             >
               <Image
@@ -409,7 +460,7 @@ export default function RealtimeScreen() {
                 style={realtimeStyles.logoImage}
                 resizeMode="cover"
               />
-            </View>
+            </Animated.View>
           )}
 
           <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">

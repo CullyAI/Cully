@@ -1,33 +1,74 @@
-import React, { createContext, useContext, useRef, useEffect } from "react";
+import React, { createContext, useContext, useRef } from "react";
 import { Animated } from "react-native";
 
 const NavContext = createContext({
   showNav: () => {},
   hideNav: () => {},
-  animatedValue: new Animated.Value(0),
+  showTopBar: () => {},
+  hideTopBar: () => {},
+  bottomNavValue: new Animated.Value(0),
+  topBarValue: new Animated.Value(0),
 });
 
 export const NavProvider = ({ children }: { children: React.ReactNode }) => {
-  const animatedValue = useRef(new Animated.Value(0)).current;
+  const bottomNavValue = useRef(new Animated.Value(0)).current;
+  const topBarValue = useRef(new Animated.Value(0)).current;
 
   const showNav = () => {
-    Animated.timing(animatedValue, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
+    Animated.sequence([
+      Animated.delay(50),
+      Animated.timing(bottomNavValue, {
+        toValue: 0,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const hideNav = () => {
-    Animated.timing(animatedValue, {
-      toValue: 100, // Adjust based on nav height
+    Animated.sequence([
+    Animated.delay(5),
+    Animated.timing(bottomNavValue, {
+      toValue: 100, // adjust based on tab height
       duration: 300,
       useNativeDriver: true,
-    }).start();
+    })
+  ]).start();
+  };
+
+  const showTopBar = () => {
+    Animated.sequence([
+  Animated.delay(50),
+    Animated.timing(topBarValue, {
+      toValue: 0,
+      duration: 900,
+      useNativeDriver: true,
+    })
+    ]).start();
+  };
+
+  const hideTopBar = () => {
+    Animated.sequence([
+  Animated.delay(5),
+    Animated.timing(topBarValue, {
+      toValue: -100, // move up off-screen
+      duration: 300,
+      useNativeDriver: true,
+    })
+  ]).start();
   };
 
   return (
-    <NavContext.Provider value={{ showNav, hideNav, animatedValue }}>
+    <NavContext.Provider
+      value={{
+        showNav,
+        hideNav,
+        showTopBar,
+        hideTopBar,
+        bottomNavValue,
+        topBarValue,
+      }}
+    >
       {children}
     </NavContext.Provider>
   );
