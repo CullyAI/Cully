@@ -13,7 +13,7 @@ export default function TabLayout() {
 const colorScheme = useColorScheme();
 const { isLoggedIn, loading } = useAuth();
 
-const { animatedValue } = useNav(); // ✅ grab the animated value
+const { bottomNavValue } = useNav(); // ✅ grab the animated value
 
 if (loading) return null;
 if (!isLoggedIn) return <Redirect href="/(auth)/login" />;
@@ -31,7 +31,7 @@ return (
 			backgroundColor: Colors[colorScheme ?? "light"].background,
 			transform: [
 				{
-					translateY: animatedValue, // ✅ animate the Y position
+					translateY: bottomNavValue, // ✅ animate the Y position
 				},
 			],
 			},

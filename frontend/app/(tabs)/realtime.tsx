@@ -2,11 +2,11 @@ import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import { useEffect, useState, useRef } from "react";
 import { realtimeStyles, CullyLogo, GradientBG } from "@/styles/realtime";
-import { View, Text, Pressable, Image, ScrollView } from "react-native";
+import { View, Text, Pressable, Image, ScrollView, Animated} from "react-native";
 import { send_multimodal, send_audio, send_interruption } from "@/lib/socket";
 import { get_recipes } from "@/lib/api";
 import { useAuth } from "@/context/authcontext";
-import { useNav } from "../navcontext"; // <-- ✅ add this
+import { useNav } from "../navcontext";
 import { FontAwesome6 } from "@expo/vector-icons";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import { MICRO_AUDIO } from "@/constants/audio_settings";
@@ -31,7 +31,7 @@ export default function RealtimeScreen() {
 	const [hasMicPermission, setHasMicPermission] = useState(false);
 	const [micPermission, requestMicPermission] = Audio.usePermissions();
 	const { user } = useAuth();
-	const { hideNav, showNav } = useNav(); // <-- ✅ use nav context
+	const { hideNav, showNav, hideTopBar, showTopBar, topBarValue } = useNav();
 
 	const [audioQueue, setAudioQueue] = useState<string[]>([]);
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -181,6 +181,8 @@ export default function RealtimeScreen() {
 			}
 	
 			hideNav(); // ✅ Hide nav bar
+			hideTopBar();
+
 			setIsPlaying(false);
 			setIsRecording(true);
 			setIsThinking(false);
@@ -249,6 +251,7 @@ export default function RealtimeScreen() {
 		console.error("Error during recording stop:", error);
 		} finally {
 		showNav(); // ✅ Always show nav bar again
+		showTopBar();
 		}
 	};
 
@@ -303,10 +306,17 @@ export default function RealtimeScreen() {
 	return (
     <>
       {!cameraOn && (
-        <View style={realtimeStyles.recipeBar}>
+        <Animated.View
+          style={[
+            realtimeStyles.recipeBar,
+            {
+              transform: [{ translateY: topBarValue }],
+            },
+          ]}
+        >
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <Pressable
-              onPress={fetchRecipes} // ← reuse the fetch logic
+              onPress={fetchRecipes}
               style={realtimeStyles.refreshButton}
             >
               <Text style={realtimeStyles.refreshButtonText}>↻</Text>
@@ -328,7 +338,7 @@ export default function RealtimeScreen() {
               </Pressable>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
       )}
 
       <Pressable
