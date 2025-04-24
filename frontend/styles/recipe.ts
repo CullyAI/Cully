@@ -30,7 +30,7 @@ export const chatStyles = StyleSheet.create({
   messages: {
     flex: 1,
     //backgroundColor: "#F7FAFC",
-    backgroundColor: "linear-gradient(red, yellow)",
+    //backgroundColor: "linear-gradient(red, yellow)",
   },
   messagesContent: {
     padding: 16,

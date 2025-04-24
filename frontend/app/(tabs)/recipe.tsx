@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+
 import {
 	View,
 	TextInput,
@@ -19,6 +20,7 @@ import { useAuth } from '@/context/authcontext';
 import { chatStyles } from '@/styles/recipe'
 import { cleanAndParseJSON } from "@/utils/basic_functions";
 import { IconSymbol } from "@/components/ui/IconSymbol"; 
+//import { LinearGradient } from "react-native-linear-gradient";
 
 type Message = {
 	role: "user" | "assistant" | "system";
@@ -34,6 +36,8 @@ export default function ChatScreen() {
 	const dotAnimation = useRef(new Animated.Value(0)).current;
 	const [scale] = useState(new Animated.Value(1));
 	const { user } = useAuth();
+	//const GradientBackground = LinearGradient as unknown as React.ComponentType<any>;
+
 
 	useEffect(() => {
 		if (isWaitingForFirstToken) {
@@ -169,79 +173,86 @@ export default function ChatScreen() {
 	};
 
 	return (
-    <SafeAreaView style={chatStyles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={chatStyles.container}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-      >
-        <View style={chatStyles.header}>
-          <Text style={chatStyles.headerText}>Recipe Assistant</Text>
-        </View>
 
-        <ScrollView
-          style={chatStyles.messages}
-          ref={scrollRef}
-          contentContainerStyle={chatStyles.messagesContent}
+      <SafeAreaView style={chatStyles.safeArea}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={chatStyles.container}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
         >
-          {history.map((msg, i) => (
-            <View
-              key={i}
-              style={[
-                chatStyles.messageBubble,
-                msg.role === "user"
-                  ? chatStyles.userBubble
-                  : chatStyles.assistantBubble,
-              ]}
-            >
-              <Markdown>{msg.content}</Markdown>
+          <View style={chatStyles.header}>
+            <Text style={chatStyles.headerText}>Recipe Assistant</Text>
+          </View>
 
-              {msg.role == "assistant" && !isGenerating && (
-                <TouchableOpacity
-					style={chatStyles.saveButton}
-					onPressIn={handleSubmitIn}
-					onPressOut={handleSubmitOut}
-					onPress={() => handleSave(msg.content)}
-					activeOpacity={0.7}
-				>
-					<Animated.View
-					style={[
-						chatStyles.saveButtonContent,
-						{ transform: [{ scale }] },
-					]}
-					>
-					<IconSymbol size={20} name="bookmark" color="#FFFBF4" />
-					</Animated.View>
-				</TouchableOpacity>
-              )}
-            </View>
-          ))}
-          {isWaitingForFirstToken && <LoadingDots />}
-        </ScrollView>
-
-        <View style={chatStyles.inputContainer}>
-          <TextInput
-            style={chatStyles.input}
-            placeholder="Ask for a recipe..."
-            value={input}
-            onChangeText={setInput}
-            multiline
-            maxLength={1000}
-            returnKeyType="send"
-            onSubmitEditing={handleInput}
-          />
-          <Pressable
-            style={[
-              chatStyles.sendButton,
-              (!input.trim() || isGenerating) && chatStyles.sendButtonDisabled,
-            ]}
-            onPress={handleInput}
-            disabled={!input.trim()}
+          <ScrollView
+            style={chatStyles.messages}
+            ref={scrollRef}
+            contentContainerStyle={chatStyles.messagesContent}
           >
-            <IconSymbol size={20} name="arrow.up" color="#FFFBF4" />
-          </Pressable>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+            {history.map((msg, i) => (
+              <View
+                key={i}
+                style={[
+                  chatStyles.messageBubble,
+                  msg.role === "user"
+                    ? chatStyles.userBubble
+                    : chatStyles.assistantBubble,
+                ]}
+              >
+                <Markdown>{msg.content}</Markdown>
+
+                {msg.role == "assistant" && !isGenerating && (
+                  <TouchableOpacity
+                    style={chatStyles.saveButton}
+                    onPressIn={handleSubmitIn}
+                    onPressOut={handleSubmitOut}
+                    onPress={() => handleSave(msg.content)}
+                    activeOpacity={0.7}
+                  >
+                    <Animated.View
+                      style={[
+                        chatStyles.saveButtonContent,
+                        { transform: [{ scale }] },
+                      ]}
+                    >
+                      <IconSymbol size={20} name="bookmark" color="#FFFBF4" />
+                    </Animated.View>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ))}
+            {isWaitingForFirstToken && <LoadingDots />}
+          </ScrollView>
+
+          <View style={chatStyles.inputContainer}>
+            <TextInput
+              style={chatStyles.input}
+              placeholder="Ask for a recipe..."
+              value={input}
+              onChangeText={setInput}
+              multiline
+              maxLength={1000}
+              returnKeyType="send"
+              onSubmitEditing={handleInput}
+            />
+            <Pressable
+              style={[
+                chatStyles.sendButton,
+                (!input.trim() || isGenerating) &&
+                  chatStyles.sendButtonDisabled,
+              ]}
+              onPress={handleInput}
+              disabled={!input.trim()}
+            >
+              <IconSymbol
+                size={20}
+                name="arrow.up"
+                color="#FFFBF4"
+                style={[]}
+              />
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
   );
 }

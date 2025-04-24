@@ -2,8 +2,13 @@
 import { StyleSheet } from "react-native";
 
 export const CullyLogo = require("../assets/images/cully_logo.png");
+export const GradientBG = require("../assets/images/gradient_bg.png");
 
 export const realtimeStyles = StyleSheet.create({
+	gradientbg: {
+		elevation: -1,
+		position: "fixed",
+	},
 	container: {
 		flex: 1,
 		backgroundColor: "#E9F3FF",
