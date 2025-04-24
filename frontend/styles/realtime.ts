@@ -6,7 +6,7 @@ export const GradientBG = require("../assets/images/gradient_bg.png");
 
 export const realtimeStyles = StyleSheet.create({
 	gradientbg: {
-		elevation: -1
+		elevation: -1,
 		zIndex: -1,
 		position: "absolute",
 		height: "100%",
