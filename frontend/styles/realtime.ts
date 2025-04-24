@@ -6,33 +6,23 @@ export const GradientBG = require("../assets/images/gradient_bg.png");
 
 export const realtimeStyles = StyleSheet.create({
 	gradientbg: {
-		elevation: -1
-		zIndex: -1,
-		position: "absolute",
-		height: "100%",
-		width: "100%",
+		elevation: -1,
+		position: "fixed",
 	},
 	container: {
 		flex: 1,
-		//backgroundColor: "#E9F3FF",
+		backgroundColor: "#E9F3FF",
 		position: "relative",
 	},
 	recipeBar: {
 		position: 'absolute',
-		top: 0,
-		paddingTop: 65,
+		top: 50,
 		left: 0,
 		right: 0,
 		paddingHorizontal: 10,
 		paddingVertical: 10,
-		backgroundColor: '#FFFBF4',
+		backgroundColor: '#FFFFFF',
 		zIndex: 10,
-
-		// iOS shadow
-		shadowColor: "#000",
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
 	},
 	recipeChip: {
 		backgroundColor: "#FFF5E3",
