@@ -1,6 +1,7 @@
 import { StyleSheet } from "react-native";
   
 export const chatStyles = StyleSheet.create({
+  //the weird spot above the "realtime assistant" top bar
   safeArea: {
     flex: 1,
     backgroundColor: "#F7FAFC",
@@ -27,7 +28,8 @@ export const chatStyles = StyleSheet.create({
   },
   messages: {
     flex: 1,
-    backgroundColor: "#F7FAFC",
+    //backgroundColor: "#F7FAFC",
+    //backgroundColor: "linear-gradient(red, yellow)",
   },
   messagesContent: {
     padding: 16,
@@ -81,7 +83,7 @@ export const chatStyles = StyleSheet.create({
     width: "50%",
     //minWidth: "",
     alignSelf: "center", // Center horizontally within the parent
-    justifyContent: "space-evenly",
+    //justifyContent: "space-evenly",
     flexDirection: "row", // Ensures the icon and text are side by side
     padding: 16, // Adds padding around the entire button
 

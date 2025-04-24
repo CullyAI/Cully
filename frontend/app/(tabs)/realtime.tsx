@@ -56,8 +56,6 @@ export default function RealtimeScreen() {
 		try {
 			const res: Recipe[] = (await get_recipes(user));
 
-			console.log(res)
-
 			if (res.length === 0) {
 				setSavedRecipes([]);
 				return;
