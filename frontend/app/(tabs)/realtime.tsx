@@ -43,6 +43,8 @@ export default function RealtimeScreen() {
 		title: "No Recipe Selected",
 		steps: "Select a recipe above to view steps",
 	});
+	const logoScale = useRef(new Animated.Value(1)).current;
+
 
 	const addToQueue = (audio: string) => {
 		setAudioQueue((prev) => [...prev, audio]);
@@ -81,6 +83,21 @@ export default function RealtimeScreen() {
 	useEffect(() => {
 		fetchRecipes();
 	}, []);
+
+	useEffect(() => {
+		if (isRecording) {
+		Animated.spring(logoScale, {
+			toValue: 1.1,
+			useNativeDriver: true,
+		}).start();
+		} else if (isThinking) {
+		Animated.spring(logoScale, {
+			toValue: 1,
+			useNativeDriver: true,
+		}).start();
+		}
+	}, [isRecording, isThinking]);
+
 
 	// Microphone and camera permissions //
 	useEffect(() => {
@@ -124,7 +141,7 @@ export default function RealtimeScreen() {
 
 	if (!hasCamPermission || !hasMicPermission) {
 		return (
-			
+
 		<View style={realtimeStyles.container}>
 			<Text style={realtimeStyles.text}>
 				Camera permission is required to use this feature.
@@ -417,9 +434,12 @@ export default function RealtimeScreen() {
               </ScrollView>
             </View>
           ) : (
-            <View
+            <Animated.View
               style={[
                 realtimeStyles.logoContainer,
+                {
+                  transform: [{ scale: logoScale }],
+                },
                 isPlaying
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
@@ -432,7 +452,7 @@ export default function RealtimeScreen() {
                 style={realtimeStyles.logoImage}
                 resizeMode="cover"
               />
-            </View>
+            </Animated.View>
           )}
 
           <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
