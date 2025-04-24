@@ -332,7 +332,11 @@ export default function RealtimeScreen() {
                     : realtimeStyles.recipeChip
                 }
               >
-                <Text style={realtimeStyles.recipeChipText}>
+                <Text style={
+                  selectedRecipe === recipe
+                    ? realtimeStyles.selectedRecipeChipText
+                    : realtimeStyles.recipeChipText
+                }>
                   {recipe.title}
                 </Text>
               </Pressable>

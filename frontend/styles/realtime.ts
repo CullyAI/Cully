@@ -42,15 +42,19 @@ export const realtimeStyles = StyleSheet.create({
 		marginHorizontal: 5,
 	},
 	selectedRecipeChip: {
-		backgroundColor: "#000000",
+		backgroundColor: "#D2B378",
 		borderRadius: 20,
 		paddingHorizontal: 12,
 		paddingVertical: 6,
 		marginHorizontal: 5,
 	},
 	recipeChipText: {
-		fontWeight: "600",
+		fontWeight: "400",
 		color: "#1E2C3D",
+	},
+	selectedRecipeChipText: {
+		fontWeight: "600",
+		color: "#FFFBF4",
 	},
 	recipeContainer: {
 		position: "absolute",
