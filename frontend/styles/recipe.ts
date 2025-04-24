@@ -1,5 +1,4 @@
 import { StyleSheet } from "react-native";
-import { generateGradient } from "typescript-color-gradient";
   
 export const chatStyles = StyleSheet.create({
   //the weird spot above the "realtime assistant" top bar
