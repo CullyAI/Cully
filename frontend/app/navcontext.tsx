@@ -15,35 +15,47 @@ export const NavProvider = ({ children }: { children: React.ReactNode }) => {
   const topBarValue = useRef(new Animated.Value(0)).current;
 
   const showNav = () => {
-    Animated.timing(bottomNavValue, {
-      toValue: 0,
-      duration: 900,
-      useNativeDriver: true,
-    }).start();
+    Animated.sequence([
+      Animated.delay(50),
+      Animated.timing(bottomNavValue, {
+        toValue: 0,
+        duration: 900,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const hideNav = () => {
+    Animated.sequence([
+    Animated.delay(5),
     Animated.timing(bottomNavValue, {
       toValue: 100, // adjust based on tab height
       duration: 300,
       useNativeDriver: true,
-    }).start();
+    })
+  ]).start();
   };
 
   const showTopBar = () => {
+    Animated.sequence([
+  Animated.delay(50),
     Animated.timing(topBarValue, {
       toValue: 0,
       duration: 900,
       useNativeDriver: true,
-    }).start();
+    })
+    ]).start();
   };
 
   const hideTopBar = () => {
+    Animated.sequence([
+  Animated.delay(5),
     Animated.timing(topBarValue, {
       toValue: -100, // move up off-screen
       duration: 300,
       useNativeDriver: true,
-    }).start();
+    })
+  ]).start();
   };
 
   return (
