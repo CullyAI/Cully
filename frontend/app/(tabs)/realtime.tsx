@@ -2,7 +2,7 @@ import * as FileSystem from "expo-file-system";
 import { Audio } from "expo-av";
 import { useEffect, useState, useRef } from "react";
 import { realtimeStyles, CullyLogo, GradientBG } from "@/styles/realtime";
-import { View, Text, Pressable, Image, ScrollView, Animated} from "react-native";
+import { View, Text, Pressable, Image, ScrollView, Animated, Easing} from "react-native";
 import { send_multimodal, send_audio, send_interruption } from "@/lib/socket";
 import { get_recipes } from "@/lib/api";
 import { useAuth } from "@/context/authcontext";
@@ -85,18 +85,26 @@ export default function RealtimeScreen() {
 	}, []);
 
 	useEffect(() => {
+		const animateScale = (toValue: number) => {
+			Animated.timing(logoScale, {
+			toValue,
+			duration: 700, // Customize duration here
+			//easing: toValue > 1 ? Easing.bounce : Easing.out(Easing.exp),
+			useNativeDriver: true,
+			}).start();
+		};
+
 		if (isRecording) {
-		Animated.spring(logoScale, {
-			toValue: 1.1,
-			useNativeDriver: true,
-		}).start();
+			animateScale(1.1); // Bigger pop on recording
 		} else if (isThinking) {
-		Animated.spring(logoScale, {
-			toValue: 1,
-			useNativeDriver: true,
-		}).start();
+			animateScale(1.01); // Smooth shrink back to normal
+		} else if (isPlaying) {
+			animateScale(1.05)
+		} else {
+			animateScale(1)
 		}
-	}, [isRecording, isThinking]);
+	}, [isRecording, isThinking, isPlaying]);
+
 
 
 	// Microphone and camera permissions //
