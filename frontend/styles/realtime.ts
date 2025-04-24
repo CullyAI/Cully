@@ -165,8 +165,8 @@ export const realtimeStyles = StyleSheet.create({
 	},
 	recordingBorder: {
 		borderWidth: 4,
-		borderColor: "white",
-		borderStyle: "solid",
+		borderColor: "orange",
+		//borderStyle: "solid",
 	},
 	recordButtonText: {
 		color: "white",

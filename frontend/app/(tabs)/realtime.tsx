@@ -360,6 +360,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
+                recording && realtimeStyles.recordingBorder,
               ]}
             >
               <CameraView
@@ -386,6 +387,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
+                recording && realtimeStyles.recordingBorder,
               ]}
               pointerEvents="box-none"
             >
@@ -412,6 +414,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
+                recording && realtimeStyles.recordingBorder,
               ]}
             >
               <Image
