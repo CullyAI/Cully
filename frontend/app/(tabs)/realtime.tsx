@@ -202,7 +202,9 @@ export default function RealtimeScreen() {
 	};
 
 	const stopRecording = async () => {
+		
 		try {
+		setIsRecording(false);
 		if (!recording) return;
 
 		await recording.stopAndUnloadAsync();
@@ -215,7 +217,7 @@ export default function RealtimeScreen() {
 		}
 		
 
-		setIsRecording(false);
+		//setIsRecording(false);
 		setIsThinking(true);
 
 		if (audio_uri) {
@@ -257,6 +259,7 @@ export default function RealtimeScreen() {
 
 	const playAudio = async ({ audio }: { audio: string }) => {
 		setIsThinking(false);
+		setIsRecording(false);
 		try {
 		const path = `${FileSystem.documentDirectory}response_${Date.now()}.mp3`;
 		await FileSystem.writeAsStringAsync(path, audio, {
@@ -332,11 +335,13 @@ export default function RealtimeScreen() {
                     : realtimeStyles.recipeChip
                 }
               >
-                <Text style={
-                  selectedRecipe === recipe
-                    ? realtimeStyles.selectedRecipeChipText
-                    : realtimeStyles.recipeChipText
-                }>
+                <Text
+                  style={
+                    selectedRecipe === recipe
+                      ? realtimeStyles.selectedRecipeChipText
+                      : realtimeStyles.recipeChipText
+                  }
+                >
                   {recipe.title}
                 </Text>
               </Pressable>
@@ -364,7 +369,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
-                recording && realtimeStyles.recordingBorder,
+                isRecording && realtimeStyles.recordingBorder,
               ]}
             >
               <CameraView
@@ -391,7 +396,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
-                recording && realtimeStyles.recordingBorder,
+                isRecording && realtimeStyles.recordingBorder,
               ]}
               pointerEvents="box-none"
             >
@@ -418,7 +423,7 @@ export default function RealtimeScreen() {
                   ? realtimeStyles.playingBorder
                   : realtimeStyles.notPlayingBorder,
                 isThinking && realtimeStyles.thinkingBorder,
-                recording && realtimeStyles.recordingBorder,
+                isRecording && realtimeStyles.recordingBorder,
               ]}
             >
               <Image
