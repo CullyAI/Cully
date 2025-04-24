@@ -8,11 +8,16 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Image } from "react-native";
+import { StatusBar } from "react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
+    <>
+          {/* ✅ Add this to control the status bar appearance */}
+          <StatusBar barStyle="dark-content" />
+          
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tabIconSelected,
@@ -58,5 +63,6 @@ export default function TabLayout() {
       />
       <Tabs.Screen name="index" options={{ href: null }} />
     </Tabs>
+    </>
   );
 }

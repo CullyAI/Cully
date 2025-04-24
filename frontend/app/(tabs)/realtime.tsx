@@ -124,6 +124,7 @@ export default function RealtimeScreen() {
 
 	if (!hasCamPermission || !hasMicPermission) {
 		return (
+			
 		<View style={realtimeStyles.container}>
 			<Text style={realtimeStyles.text}>
 				Camera permission is required to use this feature.
