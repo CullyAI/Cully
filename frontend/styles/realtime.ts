@@ -58,29 +58,36 @@ export const realtimeStyles = StyleSheet.create({
   },
   recipeContainer: {
     position: "absolute",
-    bottom: 250,
+    alignSelf: "center",
+    bottom: 300,
+    //bottom: 250,
     left: 20,
     right: 20,
-    maxHeight: 800,
+    maxHeight: 400,
     backgroundColor: "#FFF5E3",
     borderRadius: 16,
-    padding: 16,
+    //padding: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 20,
+    zIndex: 10,
+    overflow: "hidden",
   },
   recipeTitle: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#1E2C3D",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   recipeSteps: {
     fontSize: 14,
     color: "#1E2C3D",
-    lineHeight: 20,
+    lineHeight: 22,
+    paddingLeft: 8,
+    paddingRight: 8,
+    //paddingInline: 50,
   },
 
   logoContainer: {
@@ -135,7 +142,7 @@ export const realtimeStyles = StyleSheet.create({
   tapText: {
     color: "#FFFBF4",
     fontWeight: 600,
-	fontSize: 20,
+    fontSize: 20,
   },
 
   toggleButton: {
@@ -200,6 +207,8 @@ export const realtimeStyles = StyleSheet.create({
     backgroundColor: "#FFF5E3", // Optional: Add a background color to match the box
     borderRadius: 20, // Optional: Make it circular
     zIndex: 2, // Ensure it appears above other elements
+    borderWidth: 0.5,
+    borderColor: "#E8E0D3",
   },
   refreshButton: {
     justifyContent: "center",

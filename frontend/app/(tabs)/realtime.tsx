@@ -396,6 +396,37 @@ export default function RealtimeScreen() {
         </Animated.View>
       )}
 
+      {/* Move scrollable recipe viewer OUTSIDE the full-screen Pressable */}
+      {recipeSelected && !cameraOn && (
+        <View
+          style={[
+            realtimeStyles.recipeContainer,
+            isPlaying
+              ? realtimeStyles.playingBorder
+              : realtimeStyles.notPlayingBorder,
+            isThinking && realtimeStyles.thinkingBorder,
+            isRecording && realtimeStyles.recordingBorder,
+          ]}
+        >
+          <Pressable onPress={removeRecipe} style={realtimeStyles.closeButton}>
+            <IconSymbol size={15} name="xmark" color="#C0BBB2" />
+          </Pressable>
+          <ScrollView
+            scrollEnabled
+            nestedScrollEnabled
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ padding: 10, paddingTop:20, paddingBottom: 20,}}
+          >
+            <Text style={realtimeStyles.recipeTitle}>
+              {selectedRecipe.title}
+            </Text>
+            <Text style={realtimeStyles.recipeSteps}>
+              {selectedRecipe.steps}
+            </Text>
+          </ScrollView>
+        </View>
+      )}
+
       <Pressable
         onPressIn={startRecording}
         onPressOut={stopRecording}
@@ -435,33 +466,9 @@ export default function RealtimeScreen() {
               </CameraView>
             </View>
           ) : recipeSelected ? (
-            <View
-              style={[
-                realtimeStyles.recipeContainer,
-                isPlaying
-                  ? realtimeStyles.playingBorder
-                  : realtimeStyles.notPlayingBorder,
-                isThinking && realtimeStyles.thinkingBorder,
-                isRecording && realtimeStyles.recordingBorder,
-              ]}
-              pointerEvents="box-none"
-            >
-              <Pressable
-                onPress={removeRecipe}
-                style={realtimeStyles.closeButton}
-              >
-                <IconSymbol size={15} name="xmark" color="#C0BBB2" />
-              </Pressable>
-              <ScrollView>
-                <Text style={realtimeStyles.recipeTitle}>
-                  {selectedRecipe.title}
-                </Text>
-                <Text style={realtimeStyles.recipeSteps}>
-                  {selectedRecipe.steps}
-                </Text>
-              </ScrollView>
-            </View>
-          ) : (
+			//make the logo disappear v
+			<View></View>
+		  ) : (
             <Animated.View
               style={[
                 realtimeStyles.logoContainer,
@@ -482,14 +489,16 @@ export default function RealtimeScreen() {
               />
             </Animated.View>
           )}
-		  
-        <Animated.View
-			style={[realtimeStyles.tapTextContainer, { opacity: tapTextOpacity }]}
-			pointerEvents="box-none"
-			>
-			<Text style={realtimeStyles.tapText}>Tap & hold to record</Text>
-		</Animated.View>
 
+          <Animated.View
+            style={[
+              realtimeStyles.tapTextContainer,
+              { opacity: tapTextOpacity },
+            ]}
+            pointerEvents="box-none"
+          >
+            <Text style={realtimeStyles.tapText}>Tap & hold to speak</Text>
+          </Animated.View>
 
           <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
             <Pressable
