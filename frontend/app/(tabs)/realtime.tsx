@@ -44,6 +44,17 @@ export default function RealtimeScreen() {
 		steps: "Select a recipe above to view steps",
 	});
 	const logoScale = useRef(new Animated.Value(1)).current;
+	const tapTextOpacity = useRef(new Animated.Value(1)).current;
+
+	const animateTapText = (toValue: number) => {
+		Animated.timing(tapTextOpacity, {
+		toValue,
+		duration: 400,
+		useNativeDriver: true,
+		}).start();
+	};
+
+
 
 
 	const addToQueue = (audio: string) => {
@@ -104,6 +115,15 @@ export default function RealtimeScreen() {
 			animateScale(1)
 		}
 	}, [isRecording, isThinking, isPlaying]);
+
+	useEffect(() => {
+		if (isRecording) {
+		animateTapText(0); // fade out
+		} else if (!isThinking && !isPlaying) {
+		animateTapText(1); // fade in
+		}
+	}, [isRecording, isThinking, isPlaying]);
+
 
 
 
@@ -463,9 +483,13 @@ export default function RealtimeScreen() {
             </Animated.View>
           )}
 		  
-          <View style={realtimeStyles.tapTextContainer} pointerEvents="box-none">
-            <Text style={realtimeStyles.tapText}>Tap & hold to record</Text>
-          </View>
+        <Animated.View
+			style={[realtimeStyles.tapTextContainer, { opacity: tapTextOpacity }]}
+			pointerEvents="box-none"
+			>
+			<Text style={realtimeStyles.tapText}>Tap & hold to record</Text>
+		</Animated.View>
+
 
           <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
             <Pressable
