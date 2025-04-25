@@ -23,7 +23,7 @@ export const realtimeStyles = StyleSheet.create({
     paddingTop: 65,
     left: 0,
     right: 0,
-    paddingHorizontal: 10,
+    //paddingHorizontal: 10,
     paddingVertical: 10,
     backgroundColor: "#FFFBF4",
     zIndex: 10,
