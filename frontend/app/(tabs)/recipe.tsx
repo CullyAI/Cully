@@ -9,7 +9,8 @@ import {
 	TouchableOpacity,
 	Platform,
 	Pressable,
-	Animated
+	Animated,
+	Image
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Markdown from 'react-native-markdown-display';
@@ -17,7 +18,7 @@ import { Send } from "lucide-react-native";
 import { generate_recipe, generate_recipe_details } from "@/lib/socket";
 import { set_recipe } from "@/lib/api";
 import { useAuth } from '@/context/authcontext';
-import { chatStyles } from '@/styles/recipe'
+import { chatStyles, GradientBG } from '@/styles/recipe'
 import { cleanAndParseJSON } from "@/utils/basic_functions";
 import { IconSymbol } from "@/components/ui/IconSymbol"; 
 //import { LinearGradient } from "react-native-linear-gradient";
@@ -173,86 +174,89 @@ export default function ChatScreen() {
 	};
 
 	return (
+    <View style={chatStyles.safeArea}>
+      <Image
+        source={GradientBG}
+        style={[chatStyles.gradientbg]}
+        resizeMode="cover"
+      ></Image>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={chatStyles.container}
+        keyboardVerticalOffset={Platform.OS === "ios" ? -35 : 0}
+      >
+        <View style={chatStyles.header}>
+          <Text style={chatStyles.headerText}>Recipe Assistant</Text>
+        </View>
 
-      <SafeAreaView style={chatStyles.safeArea}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={chatStyles.container}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        <ScrollView
+          style={chatStyles.messages}
+          ref={scrollRef}
+          contentContainerStyle={chatStyles.messagesContent}
         >
-          <View style={chatStyles.header}>
-            <Text style={chatStyles.headerText}>Recipe Assistant</Text>
-          </View>
-
-          <ScrollView
-            style={chatStyles.messages}
-            ref={scrollRef}
-            contentContainerStyle={chatStyles.messagesContent}
-          >
-            {history.map((msg, i) => (
-              <View
-                key={i}
-                style={[
-                  chatStyles.messageBubble,
-                  msg.role === "user"
-                    ? chatStyles.userBubble
-                    : chatStyles.assistantBubble,
-                ]}
-              >
-                <Markdown>{msg.content}</Markdown>
-
-                {msg.role == "assistant" && !isGenerating && (
-                  <TouchableOpacity
-                    style={chatStyles.saveButton}
-                    onPressIn={handleSubmitIn}
-                    onPressOut={handleSubmitOut}
-                    onPress={() => handleSave(msg.content)}
-                    activeOpacity={0.7}
-                  >
-                    <Animated.View
-                      style={[
-                        chatStyles.saveButtonContent,
-                        { transform: [{ scale }] },
-                      ]}
-                    >
-                      <IconSymbol size={20} name="bookmark" color="#FFFBF4" />
-                    </Animated.View>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))}
-            {isWaitingForFirstToken && <LoadingDots />}
-          </ScrollView>
-
-          <View style={chatStyles.inputContainer}>
-            <TextInput
-              style={chatStyles.input}
-              placeholder="Ask for a recipe..."
-              value={input}
-              onChangeText={setInput}
-              multiline
-              maxLength={1000}
-              returnKeyType="send"
-              onSubmitEditing={handleInput}
-            />
-            <Pressable
+          {history.map((msg, i) => (
+            <View
+              key={i}
               style={[
-                chatStyles.sendButton,
-                (!input.trim() || isGenerating) &&
-                  chatStyles.sendButtonDisabled,
+                chatStyles.messageBubble,
+                msg.role === "user"
+                  ? chatStyles.userBubble
+                  : chatStyles.assistantBubble,
               ]}
-              onPress={handleInput}
-              disabled={!input.trim()}
             >
-              <IconSymbol
-                size={20}
-                name="arrow.up"
-                color="#FFFBF4"
-                style={[]}
-              />
-            </Pressable>
-          </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+              <Markdown>{msg.content}</Markdown>
+
+              {msg.role == "assistant" && !isGenerating && (
+                <TouchableOpacity
+                  style={chatStyles.saveButton}
+                  onPressIn={handleSubmitIn}
+                  onPressOut={handleSubmitOut}
+                  onPress={() => handleSave(msg.content)}
+                  activeOpacity={0.7}
+                >
+                  <Animated.View
+                    style={[
+                      chatStyles.saveButtonContent,
+                      { transform: [{ scale }] },
+                    ]}
+                  >
+                    <IconSymbol size={20} name="bookmark" color="#FFFBF4" />
+                  </Animated.View>
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+          {isWaitingForFirstToken && <LoadingDots />}
+        </ScrollView>
+
+        <View style={chatStyles.inputContainer}>
+          <TextInput
+            style={chatStyles.input}
+            placeholder="Ask for a recipe..."
+            value={input}
+            onChangeText={setInput}
+            multiline
+            maxLength={1000}
+            returnKeyType="send"
+            onSubmitEditing={handleInput}
+            placeholderTextColor={"#C0BBB2"}
+          />
+          <Pressable
+            style={[
+              chatStyles.sendButton,
+              (!input.trim() || isGenerating) && chatStyles.sendButtonDisabled,
+            ]}
+            onPress={handleInput}
+            disabled={!input.trim()}
+          >
+            <IconSymbol
+              size={22}
+              name="arrow.up"
+              color={!input.trim() || isGenerating ? "#C0BBB2" : "#FFFBF4"} // light gray when disabled, light cream when active
+            />
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }

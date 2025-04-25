@@ -1,19 +1,35 @@
 import { StyleSheet } from "react-native";
+export const GradientBG = require("../assets/images/gradient_bg.png");
   
 export const chatStyles = StyleSheet.create({
+  gradientbg: {
+    elevation: -1,
+    zIndex: -1,
+    position: "absolute",
+    height: "100%",
+    width: "100%",
+  },
   //the weird spot above the "realtime assistant" top bar
   safeArea: {
+    //height: 9000,
+    paddingTop: 0,
+    top: 0,
     flex: 1,
-    backgroundColor: "#F7FAFC",
+    //backgroundColor: "#F7FAFC",
   },
   container: {
-    marginBottom: 50,
+    marginBottom: 49,
     flex: 1,
   },
   header: {
+    //position: "absolute",
+    //height: 30,
     padding: 16,
-    backgroundColor: "#fff",
+    paddingTop: 60,
+
+    backgroundColor: "#FFFBF4",
     borderBottomWidth: 1,
+    top: 0,
     borderBottomColor: "#E2E8F0",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -39,7 +55,7 @@ export const chatStyles = StyleSheet.create({
     padding: 12,
     marginVertical: 4,
     maxWidth: "85%",
-    borderRadius: 16,
+    borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -59,19 +75,26 @@ export const chatStyles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     padding: 12,
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
+    paddingBottom: 52,
+    //backgroundColor: "#fff",
+    //borderTopWidth: 1,
+    //borderTopColor: "#E2E8F0",
     alignItems: "flex-end",
   },
   input: {
     flex: 1,
     marginRight: 8,
     padding: 12,
-    backgroundColor: "#F7FAFC",
+    backgroundColor: "#FFFBF4",
     borderRadius: 20,
     maxHeight: 100,
     fontSize: 16,
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   saveButton: {
     backgroundColor: "#1E477D",
@@ -79,7 +102,7 @@ export const chatStyles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 50,
     alignItems: "center",
-    marginTop: 16,
+    marginTop: 46,
     width: "50%",
     //minWidth: "",
     alignSelf: "center", // Center horizontally within the parent
@@ -106,14 +129,20 @@ export const chatStyles = StyleSheet.create({
   },
   sendButton: {
     backgroundColor: "#1E477D",
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   sendButtonDisabled: {
-    backgroundColor: "#EDF2F7",
+    backgroundColor: "#FFFBF4",
   },
   loadingDots: {
     fontSize: 24,
