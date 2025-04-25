@@ -363,7 +363,8 @@ export default function RealtimeScreen() {
             },
           ]}
         >
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}
+		   contentContainerStyle={{ paddingRight: 10, paddingLeft:10}}>
             <Pressable
               onPress={fetchRecipes}
               style={realtimeStyles.refreshButton}
