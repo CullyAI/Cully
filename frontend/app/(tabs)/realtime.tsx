@@ -462,6 +462,10 @@ export default function RealtimeScreen() {
               />
             </Animated.View>
           )}
+		  
+          <View style={realtimeStyles.tapTextContainer} pointerEvents="box-none">
+            <Text style={realtimeStyles.tapText}>Tap & hold to record</Text>
+          </View>
 
           <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">
             <Pressable
