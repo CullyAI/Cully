@@ -61,28 +61,28 @@ export default function MacrosPage() {
 
       useEffect(() => {
         const fetchProfile = async () => {
-          try {
-            const res = await get_profile(user);
-            // Set all the profile fields
-            setAge(res["age"] || "");
-            setSex(res["sex"] || "");
-            setHeight(res["height"] || "");
-            setWeight(res["weight"] || "");
-            setActivityLevel(res["activity_level"] || "");
-            setTargetWeight(res["target_weight"] || "");
-            setOtherInfo(res["other_info"] || "");
-    
-            // Set macros
-            if (res["macros"]) {
-              setCalories(res["macros"]["calories"] || "");
-              setProtein(res["macros"]["protein"] || "");
-              setCarbs(res["macros"]["carbs"] || "");
-              setFat(res["macros"]["fat"] || "");
-              setMealsPerDay(res["macros"]["meals_per_day"] || "");
+            try {
+                const res = await get_profile(user);
+                // Set all the profile fields
+                setAge(res["age"] || "");
+                setSex(res["sex"] || "");
+                setHeight(res["height"] || "");
+                setWeight(res["weight"] || "");
+                setActivityLevel(res["activity_level"] || "");
+                setTargetWeight(res["target_weight"] || "");
+                setOtherInfo(res["other_info"] || "");
+        
+                // Set macros
+                if (res["macros"]) {
+                setCalories(res["macros"]["calories"] || "");
+                setProtein(res["macros"]["protein"] || "");
+                setCarbs(res["macros"]["carbs"] || "");
+                setFat(res["macros"]["fat"] || "");
+                setMealsPerDay(res["macros"]["meals_per_day"] || "");
+                }
+            } catch (err) {
+                console.error("Failed to get profile", err);
             }
-          } catch (err) {
-            console.error("Failed to get profile", err);
-          }
         };
     
         fetchProfile();
@@ -143,6 +143,25 @@ export default function MacrosPage() {
             contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}
             style={{ backgroundColor: "#FFF5E3" }}
         >
+            <Text style={profileStyles.daHeader}>Edit Macros or</Text>
+            <TouchableOpacity
+                    style={profileStyles.buttonMacros}
+                    onPressIn={handleSubmitIn}
+                    onPressOut={handleSubmitOut}
+                    onPress={generateMacros}
+                    activeOpacity={0.7}
+                >
+                <Animated.View
+                    style={[
+                    profileStyles.buttonContent,
+                    { transform: [{ scale }] },
+                    ]}
+                >
+                    <Text style={profileStyles.buttonText}>Generate Macros</Text>
+                    <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+                </Animated.View>
+            </TouchableOpacity>
+
             <View style={macroStyles.responseBox}>
                 <Text style={macroStyles.header}>Target Calories</Text>
                 <TextInput
