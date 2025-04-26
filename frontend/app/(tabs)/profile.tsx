@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import {
   View,
   TextInput,
-  Button,
   Text,
   FlatList,
   Pressable,
@@ -18,8 +17,6 @@ import { authStyles } from "@/styles/auth";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useAuth } from "@/context/authcontext";
 import { diseaseData } from "@/assets/info/diseases";
-import { generate_macros } from "@/lib/socket";
-import { cleanAndParseJSON } from "@/utils/basic_functions";
 import { logout } from "@/lib/supabase";
 
 export default function ProfilePage() {
@@ -79,13 +76,13 @@ export default function ProfilePage() {
         setNutritionalGoals(res["nutritional_goals"]);
         setDietaryPreferences(res["dietary_preferences"]);
 
-        setAge(res["age"] || "");
-        setSex(res["sex"] || "");
-        setHeight(res["height"] || "");
-        setWeight(res["weight"] || "");
-        setActivityLevel(res["activity_level"] || "");
-        setTargetWeight(res["target_weight"] || "");
-        setOtherInfo(res["other_info"] || "");
+        setAge(res["age"]);
+        setSex(res["sex"]);
+        setHeight(res["height"]);
+        setWeight(res["weight"]);
+        setActivityLevel(res["activity_level"]);
+        setTargetWeight(res["target_weight"]);
+        setOtherInfo(res["other_info"]);
 
         if (res["macros"]) {
           setCalories(res["macros"]["calories"] || "");
@@ -94,6 +91,8 @@ export default function ProfilePage() {
           setFat(res["macros"]["fat"] || "");
           setMealsPerDay(res["macros"]["meals_per_day"] || "");
         }
+
+        console.log(res);
       } catch (err) {
         console.error("Failed to get profile", err);
       }
@@ -457,9 +456,26 @@ export default function ProfilePage() {
           </Animated.View>
 
           <View style={authStyles.container}>
-            <Text style={profileStyles.logout} onPress={logout}>
-              Log Out
-            </Text>
+          <TouchableOpacity
+                  style={[
+                    profileStyles.button,
+                    { backgroundColor: "#A03535" },
+                  ]}
+                  onPressIn={handleSubmitIn}
+                  onPressOut={handleSubmitOut}
+                  onPress={logout}
+                  activeOpacity={0.7}
+                >
+                  <Animated.View
+                    style={[
+                      profileStyles.buttonContent,
+                      { transform: [{ scale }] },
+                    ]}
+                  >
+                    <Text style={profileStyles.buttonText}>Log Out</Text>
+                    <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
+                  </Animated.View>
+                </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
