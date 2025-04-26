@@ -44,8 +44,8 @@ export const chatStyles = StyleSheet.create({
   },
   messages: {
     flex: 1,
-    //backgroundColor: "#F7FAFC",
-    //backgroundColor: "linear-gradient(red, yellow)",
+    // backgroundColor: "#F7FAFC",
+    // backgroundColor: "linear-gradient(red, yellow)",
   },
   messagesContent: {
     padding: 16,
@@ -76,7 +76,7 @@ export const chatStyles = StyleSheet.create({
     flexDirection: "row",
     padding: 12,
     paddingBottom: 52,
-    //backgroundColor: "#fff",
+    backgroundColor: "#FFF5E3",
     //borderTopWidth: 1,
     //borderTopColor: "#E2E8F0",
     alignItems: "flex-end",
