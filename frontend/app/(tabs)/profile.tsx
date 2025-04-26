@@ -91,8 +91,6 @@ export default function ProfilePage() {
           setFat(res["macros"]["fat"] || "");
           setMealsPerDay(res["macros"]["meals_per_day"] || "");
         }
-
-        console.log(res);
       } catch (err) {
         console.error("Failed to get profile", err);
       }
