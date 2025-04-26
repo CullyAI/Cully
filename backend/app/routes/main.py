@@ -79,6 +79,13 @@ def get_profile():
             "allergies": user.allergies,
             "nutritional_goals": user.nutritional_goals,
             "dietary_preferences": user.dietary_preferences,
+            "age": user.age,
+            "sex": user.sex,
+            "height": user.height,
+            "weight": user.weight,
+            "activity_level": user.activity_level,
+            "target_weight": user.target_weight,
+            "other_info": user.other_info,
             "macros": user.macros,
         }))
         
@@ -107,6 +114,13 @@ def set_profile():
         "allergies": data.get("allergies"),
         "nutritional_goals": data.get("nutritional_goals"),
         "dietary_preferences": data.get("dietary_preferences"),
+        "age": user.age,
+        "sex": user.sex,
+        "height": user.height,
+        "weight": user.weight,
+        "activity_level": user.activity_level,
+        "target_weight": user.target_weight,
+        "other_info": user.other_info,
         "macros": data.get("macros"),
     }
 

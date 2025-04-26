@@ -79,13 +79,21 @@ export default function ProfilePage() {
         setNutritionalGoals(res["nutritional_goals"]);
         setDietaryPreferences(res["dietary_preferences"]);
 
-		if (res["macros"]) {
-			setCalories(res["macros"]["calories"] || "");
-			setProtein(res["macros"]["protein"] || "");
-			setCarbs(res["macros"]["carbs"] || "");
-			setFat(res["macros"]["fat"] || "");
-			setMealsPerDay(res["macros"]["meals_per_day"] || "");
-		}
+        setAge(res["age"] || "");
+        setSex(res["sex"] || "");
+        setHeight(res["height"] || "");
+        setWeight(res["weight"] || "");
+        setActivityLevel(res["activity_level"] || "");
+        setTargetWeight(res["target_weight"] || "");
+        setOtherInfo(res["other_info"] || "");
+
+        if (res["macros"]) {
+          setCalories(res["macros"]["calories"] || "");
+          setProtein(res["macros"]["protein"] || "");
+          setCarbs(res["macros"]["carbs"] || "");
+          setFat(res["macros"]["fat"] || "");
+          setMealsPerDay(res["macros"]["meals_per_day"] || "");
+        }
       } catch (err) {
         console.error("Failed to get profile", err);
       }
@@ -143,9 +151,16 @@ export default function ProfilePage() {
       await set_profile({
         user,
         diseases: selectedDiseases.join(", "),
-        allergies,
+        allergies: allergies,
         nutritional_goals: nutritionalGoals,
         dietary_preferences: dietaryPreferences,
+        age: age,
+        sex: sex,
+        height: height,
+        weight: weight,
+        activity_level: activityLevel,
+        target_weight: targetWeight,
+        other_info: otherInfo,
         macros: {
           calories,
           protein,
@@ -185,35 +200,6 @@ export default function ProfilePage() {
     }
   }, [searchQuery, selectedDiseases]);
 
-  const handleFinish = (generation: string) => {
-    let json = cleanAndParseJSON(generation);
-    setCalories(json.calories?.toString() ?? "N/A");
-    setProtein(json.macros?.protein_g?.toString() ?? "N/A");
-    setCarbs(json.macros?.carbs_g?.toString() ?? "N/A");
-    setFat(json.macros?.fat_g?.toString() ?? "N/A");
-    setMealsPerDay(json.meals_per_day?.toString() ?? "N/A");
-  };
-
-  const logError = (errMsg: string) => {
-    console.error("❌ Macro generation error:", errMsg);
-  };
-
-  const generateMacros = () => {
-    generate_macros(
-      {
-        user,
-        age,
-        sex,
-        height,
-        weight,
-        activityLevel,
-        targetWeight,
-        otherInfo,
-      },
-      handleFinish,
-      logError
-    );
-  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -224,14 +210,14 @@ export default function ProfilePage() {
       >
 
         <View style={profileStyles.container}>
-          <Text style={profileStyles.daHeader}>Dietary Restrictions</Text>
+          <Text style={profileStyles.daHeader}>Profile</Text>
 
           <Pressable
             onPress={toggleProfileForm}
             style={profileStyles.titleContainer}
           >
             <Text style={profileStyles.title}>
-              {showProfileForm ? "Hide Profile" : "Edit Profile"}
+              {showProfileForm ? "Hide Nutrition Info" : "Edit Nutrition Info"}
             </Text>
 			{showProfileForm ? (
                     <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.up" color="#C0BBB2" />
@@ -354,7 +340,7 @@ export default function ProfilePage() {
                       { transform: [{ scale }] },
                     ]}
                   >
-                    <Text style={profileStyles.buttonText}>Save Profile</Text>
+                    <Text style={profileStyles.buttonText}>Save</Text>
                     <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
                   </Animated.View>
                 </TouchableOpacity>
@@ -367,7 +353,7 @@ export default function ProfilePage() {
             style={profileStyles.titleContainer}
           >
             <Text style={profileStyles.title}>
-              {showMacrosForm ? "Hide Macros" : "Edit Macros"}
+              {showMacrosForm ? "Hide Body Metrics" : "Edit Body Metrics"}
             </Text>
 			{showMacrosForm ? (
                     <IconSymbol style={profileStyles.titleIcon} size={40} name="chevron.up" color="#C0BBB2" />
@@ -450,10 +436,10 @@ export default function ProfilePage() {
                 />
 
                 <TouchableOpacity
-                  style={profileStyles.buttongenMacros}
+                  style={profileStyles.button}
                   onPressIn={handleSubmitIn}
                   onPressOut={handleSubmitOut}
-                  onPress={generateMacros}
+                  onPress={updateProfile}
                   activeOpacity={0.7}
                 >
                   <Animated.View
@@ -462,68 +448,10 @@ export default function ProfilePage() {
                       { transform: [{ scale }] },
                     ]}
                   >
-                    <Text style={profileStyles.buttonText}>
-                      Generate Macros
-                    </Text>
+                    <Text style={profileStyles.buttonText}>Save</Text>
                     <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
                   </Animated.View>
                 </TouchableOpacity>
-
-                <View style={macroStyles.responseBox}>
-                  <Text style={macroStyles.header}>Target Calories</Text>
-                  <TextInput
-                    style={macroStyles.output}
-                    placeholder={"Your target calories will appear here."}
-                    value={calories}
-                    onChangeText={setCalories}
-                  />
-                  <Text style={macroStyles.header}>Target Protein</Text>
-                  <TextInput
-                    style={macroStyles.output}
-                    placeholder={"Your target protein will appear here."}
-                    value={protein}
-                    onChangeText={setProtein}
-                  />
-                  <Text style={macroStyles.header}>Target Carbs</Text>
-                  <TextInput
-                    style={macroStyles.output}
-                    placeholder={"Your target carbs will appear here."}
-                    value={carbs}
-                    onChangeText={setCarbs}
-                  />
-                  <Text style={macroStyles.header}>Target Fat</Text>
-                  <TextInput
-                    style={macroStyles.output}
-                    placeholder={"Your target fat will appear here."}
-                    value={fat}
-                    onChangeText={setFat}
-                  />
-                  <Text style={macroStyles.header}>Target Meals Per Day</Text>
-                  <TextInput
-                    style={macroStyles.output}
-                    placeholder={"Your target meals per day will appear here."}
-                    value={mealsPerDay}
-                    onChangeText={setMealsPerDay}
-                  />
-
-                  <TouchableOpacity
-                    style={profileStyles.buttonMacros}
-                    onPressIn={handleSubmitIn}
-                    onPressOut={handleSubmitOut}
-                    onPress={updateProfile}
-                    activeOpacity={0.7}
-                  >
-                    <Animated.View
-                      style={[
-                        profileStyles.buttonContent,
-                        { transform: [{ scale }] },
-                      ]}
-                    >
-                      <Text style={profileStyles.buttonText}>Save Macros</Text>
-                      <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
-                    </Animated.View>
-                  </TouchableOpacity>
-                </View>
               </>
             )}
           </Animated.View>
