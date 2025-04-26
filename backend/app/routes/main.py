@@ -177,28 +177,85 @@ def set_recipe():
         return jsonify({"error": "Invalid user object"}), 400
 
     try:
-        recipe = Recipe(
-            user_id=user_id,
-            title=data.get("title"),
-            description=data.get("description", ""),
-            steps=data.get("steps", ""),
-            preparation_time=data.get("preparation_time"),
-            cooking_time=data.get("cooking_time"),
-            difficulty_level=data.get("difficulty_level"),
-            calories=data.get("calories"),
-            protein=data.get("protein"),
-            carbs=data.get("carbs", 0),  # optional fallback
-            fat=data.get("fat")
-        )
+        # Check if a recipe with the same title already exists for the user
+        existing_recipe = Recipe.query.filter_by(user_id=user_id, title=data.get("title")).first()
 
-        db.session.add(recipe)
-        db.session.commit()
+        if existing_recipe:
+            # Update the existing recipe
+            existing_recipe.description = data.get("description", "")
+            existing_recipe.steps = data.get("steps", "")
+            existing_recipe.preparation_time = data.get("preparation_time")
+            existing_recipe.cooking_time = data.get("cooking_time")
+            existing_recipe.difficulty_level = data.get("difficulty_level")
+            existing_recipe.calories = data.get("calories")
+            existing_recipe.protein = data.get("protein")
+            existing_recipe.carbs = data.get("carbs", 0)  # optional fallback
+            existing_recipe.fat = data.get("fat")
+            db.session.commit()
 
-        return jsonify({"success": True, "recipe_id": recipe.recipe_id}), 200
+            return jsonify({
+                "success": True, 
+                "message": "Recipe updated successfully", 
+                "recipe_id": existing_recipe.recipe_id
+            }), 200
+            
+        else:
+            # Create a new recipe if no existing recipe is found
+            recipe = Recipe(
+                user_id=user_id,
+                title=data.get("title"),
+                description=data.get("description", ""),
+                steps=data.get("steps", ""),
+                preparation_time=data.get("preparation_time"),
+                cooking_time=data.get("cooking_time"),
+                difficulty_level=data.get("difficulty_level"),
+                calories=data.get("calories"),
+                protein=data.get("protein"),
+                carbs=data.get("carbs", 0),  # optional fallback
+                fat=data.get("fat")
+            )
+
+            db.session.add(recipe)
+            db.session.commit()
+
+            return jsonify({
+                "success": True, 
+                "message": "Recipe created successfully", 
+                "recipe_id": recipe.recipe_id
+            }), 200
 
     except Exception as e:
         print("❌ Error saving recipe:", e)
         return jsonify({"error": "Failed to save recipe"}), 500
+    
+    
+@app.route("/delete_recipe", methods=["POST"])
+def delete_recipe():
+    data = request.get_json()
+    
+    user_info = data.get("user", {})
+    user_id = user_info.get("id")
+    recipe_id = data.get("recipe_id")
+
+    if not user_id:
+        return jsonify({"error": "Invalid user object"}), 400
+
+    if not recipe_id:
+        return jsonify({"error": "Recipe ID is required"}), 400
+
+    try:
+        recipe = Recipe.query.filter_by(user_id=user_id, recipe_id=recipe_id).first()
+
+        if not recipe:
+            return jsonify({"error": "Recipe not found"}), 404
+
+        db.session.delete(recipe)
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "Recipe deleted successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Failed to delete recipe"}), 500
 
         
     
