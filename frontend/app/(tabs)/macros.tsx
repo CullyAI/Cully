@@ -145,12 +145,12 @@ export default function MacrosPage() {
         >
             <Text style={profileStyles.daHeader}>Edit Macros or</Text>
             <TouchableOpacity
-                    style={profileStyles.buttonMacros}
-                    onPressIn={handleSubmitIn}
-                    onPressOut={handleSubmitOut}
-                    onPress={generateMacros}
-                    activeOpacity={0.7}
-                >
+                style={profileStyles.buttonMacros}
+                onPressIn={handleSubmitIn}
+                onPressOut={handleSubmitOut}
+                onPress={generateMacros}
+                activeOpacity={0.7}
+            >
                 <Animated.View
                     style={[
                     profileStyles.buttonContent,
