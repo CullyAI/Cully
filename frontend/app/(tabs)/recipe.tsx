@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Markdown from 'react-native-markdown-display';
 import { Send } from "lucide-react-native";
 import { generate_recipe, generate_recipe_details } from "@/lib/socket";
-import { set_recipe } from "@/lib/api";
+import { set_recipe, delete_recipe } from "@/lib/api";
 import { useAuth } from '@/context/authcontext';
 import { chatStyles, GradientBG } from '@/styles/recipe'
 import { cleanAndParseJSON } from "@/utils/basic_functions";
@@ -33,6 +33,12 @@ export default function ChatScreen() {
 	const [history, setHistory] = useState<Message[]>([]);
 	const [isWaitingForFirstToken, setIsWaitingForFirstToken] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [messageMetadata, setMessageMetadata] = useState<Record<number, {
+		recipeId?: string;
+		isSaving?: boolean;
+		isSaved?: boolean;
+		doneGenerating?: boolean;
+	}>>({});
 	const scrollRef = useRef<ScrollView>(null);
 	const dotAnimation = useRef(new Animated.Value(0)).current;
 	const [scale] = useState(new Animated.Value(1));
@@ -96,21 +102,32 @@ export default function ChatScreen() {
 		});
 	};
 
-	const goToBottom = () => {
+	const goToBottom = (index: number) => {
 		setIsGenerating(false);
 		setTimeout(() => {
 			scrollRef.current?.scrollToEnd({ animated: true });
 		}, 50);
+
+		setMessageMetadata(prev => ({
+			...prev,
+			[index]: {
+				isSaved: false,
+				doneGenerating: true,
+			}
+		}));
 	};
 
 	const logError = (errMsg: string) => {
 		console.error("❌ Recipe generation error:", errMsg);
 	};
 
+
 	const handleInput = () => {
 		if (!input.trim() || isGenerating) return;
 	
 		const userMessage: Message = { role: "user", content: input };
+		const newHistory = [...history, userMessage];
+    	const nextIndex = newHistory.length;
 
 		setInput("");
 		setHistory((prev) => [...prev, userMessage]);
@@ -120,22 +137,28 @@ export default function ChatScreen() {
 		generate_recipe(
 			{
 				user,
-				history: [...history, userMessage],
+				history: newHistory,
 				input: input
 			},
 			updateMessages,
-			goToBottom,
+			() => goToBottom(nextIndex),
 			logError,
 		);
 	};
 
 
-	const addRecipe = (raw: string) => {
+	function isRecipe(text: string) {
+		const recipeKeywords = ["1.", ":"];
+		return recipeKeywords.some(keyword => text.toLowerCase().includes(keyword));
+	  }
+
+
+	const addRecipe = async (raw: string, index: number) => {
 		if (raw.trim() === "False") return;
 
 		let json = cleanAndParseJSON(raw);
 
-		set_recipe({
+		const res = await set_recipe({
 			"user": user,
 			"title": json["title"],
 			"description": json["description"],
@@ -146,17 +169,49 @@ export default function ChatScreen() {
 			"calories": json["calories"],
 			"protein": json["protein"],
 			"fat": json["fat"],
-		})
+		});
+
+		const recipe_id = res["recipe_id"];
+
+		setMessageMetadata(prev => ({
+			...prev,
+			[index]: {
+				...(prev[index] || {}),
+				isSaving: false,
+				isSaved: true,
+				recipeId: recipe_id,
+			}
+		}));
 	}
 
-	const handleSave = (recipe: string) => {
+	const handleDelete = async (recipe_id: string, index: number) => {
+		const res = await delete_recipe({
+			"user": user,
+			"recipe_id": recipe_id,
+		})
+
+		setMessageMetadata(prev => ({
+			...prev,
+			[index]: {
+				...(prev[index] || {}),
+				isSaved: false,
+				recipeId: recipe_id,
+			}
+		}));
+	}	
+
+	const handleSave = (recipe: string, index: number) => {
+		setMessageMetadata(prev => ({
+			...prev,
+			[index]: {
+				...(prev[index] || {}),
+				isSaving: true,
+			}
+		}));
+
 		generate_recipe_details(
-			{
-				user,
-				history,
-				recipe,
-			},
-			addRecipe,
+			{ user, history, recipe },
+			(raw: string) => addRecipe(raw, index),
 		)
 	}
 
@@ -206,24 +261,48 @@ export default function ChatScreen() {
             >
               <Markdown>{msg.content}</Markdown>
 
-              {msg.role == "assistant" && !isGenerating && (
-                <TouchableOpacity
-                  style={chatStyles.saveButton}
-                  onPressIn={handleSubmitIn}
-                  onPressOut={handleSubmitOut}
-                  onPress={() => handleSave(msg.content)}
-                  activeOpacity={0.7}
-                >
-                  <Animated.View
-                    style={[
-                      chatStyles.saveButtonContent,
-                      { transform: [{ scale }] },
-                    ]}
-                  >
-                    <IconSymbol size={20} name="bookmark" color="#FFFBF4" />
-                  </Animated.View>
-                </TouchableOpacity>
-              )}
+              {msg.role === "assistant" 
+				&& messageMetadata[i]?.doneGenerating
+				&& isRecipe(msg.content) && (
+					messageMetadata[i]?.isSaving ? (
+					<TouchableOpacity
+						style={chatStyles.saveButton}
+						onPressIn={handleSubmitIn}
+						onPressOut={handleSubmitOut}
+						onPress={async () => await handleDelete(messageMetadata[i]?.recipeId!, i)}
+						activeOpacity={0.7}
+					>
+						<Animated.View style={[chatStyles.saveButtonContent, { transform: [{ scale }] }]}>
+						<IconSymbol size={20} name="bookmark" color="red" />
+						</Animated.View>
+					</TouchableOpacity>
+					) : !messageMetadata[i]?.isSaved ? (
+					<TouchableOpacity
+						style={chatStyles.saveButton}
+						onPressIn={handleSubmitIn}
+						onPressOut={handleSubmitOut}
+						onPress={() => handleSave(msg.content, i)}
+						activeOpacity={0.7}
+					>
+						<Animated.View style={[chatStyles.saveButtonContent, { transform: [{ scale }] }]}>
+						<IconSymbol size={20} name="bookmark" color="#FFFBF4" />
+						</Animated.View>
+					</TouchableOpacity>
+					) : (
+					<TouchableOpacity
+						style={chatStyles.saveButton}
+						onPressIn={handleSubmitIn}
+						onPressOut={handleSubmitOut}
+						onPress={async () => await handleDelete(messageMetadata[i]?.recipeId!, i)}
+						activeOpacity={0.7}
+					>
+						<Animated.View style={[chatStyles.saveButtonContent, { transform: [{ scale }] }]}>
+						<IconSymbol size={20} name="bookmark" color="#000" />
+						</Animated.View>
+					</TouchableOpacity>
+					)
+				)}
+
             </View>
           ))}
           {isWaitingForFirstToken && <LoadingDots />}
