@@ -79,3 +79,17 @@ export const set_recipe = async(recipe) => {
     
     return await res.json();
 }
+
+
+export const delete_recipe = async(recipe) => {
+    const res = await fetch(`${API_URL}/delete_recipe`, {
+        method: "POST",
+        body: JSON.stringify(recipe),
+        credentials: "include",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    
+    return await res.json();
+}
