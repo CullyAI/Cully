@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { realtimeStyles, CullyLogo, GradientBG } from "@/styles/realtime";
 import { View, Text, Pressable, Image, ScrollView, Animated, Easing} from "react-native";
 import { send_multimodal, send_audio, send_interruption } from "@/lib/socket";
-import { get_recipes } from "@/lib/api";
+import { get_recipes, delete_recipe } from "@/lib/api";
 import { useAuth } from "@/context/authcontext";
 import { useNav } from "../navcontext";
 import { FontAwesome6 } from "@expo/vector-icons";
@@ -13,6 +13,7 @@ import { MICRO_AUDIO } from "@/constants/audio_settings";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 
 type Recipe = {
+	recipe_id: string,
 	title: string,
 	steps: string,
 };
@@ -36,10 +37,10 @@ export default function RealtimeScreen() {
 	const [audioQueue, setAudioQueue] = useState<string[]>([]);
 	const [isPlaying, setIsPlaying] = useState(false);
 
-	const [showRecipeBar, setShowRecipeBar] = useState(false);
 	const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([]);
 	const [recipeSelected, setRecipeSelected] = useState(false);
 	const [selectedRecipe, setSelectedRecipe] = useState<Recipe>({
+		recipe_id: "",
 		title: "No Recipe Selected",
 		steps: "Select a recipe above to view steps",
 	});
@@ -53,8 +54,6 @@ export default function RealtimeScreen() {
 		useNativeDriver: true,
 		}).start();
 	};
-
-
 
 
 	const addToQueue = (audio: string) => {
@@ -81,6 +80,7 @@ export default function RealtimeScreen() {
 			);
 
 			const formattedRecipes = uniqueRecipes.map((recipe) => ({
+				recipe_id: recipe.recipe_id,
 				title: recipe.title,
 				steps: recipe.steps,
 			}));
@@ -347,9 +347,21 @@ export default function RealtimeScreen() {
 	const removeRecipe = () => {
 		setRecipeSelected(false);
 		setSelectedRecipe({
+			recipe_id: "",
 			title: "No Recipe Selected",
 			steps: "Select a recipe above to view steps",
 		});
+	}
+
+	const deleteRecipe = async (recipe_id: string) => {
+		removeRecipe();
+
+		const res = await delete_recipe({
+			"user": user,
+			"recipe_id": recipe_id,
+		});
+
+		fetchRecipes();
 	}
 
 	return (
@@ -411,6 +423,10 @@ export default function RealtimeScreen() {
         >
           <Pressable onPress={removeRecipe} style={realtimeStyles.closeButton}>
             <IconSymbol size={15} name="xmark" color="#C0BBB2" />
+          </Pressable>
+		  <Pressable onPress={() => deleteRecipe(selectedRecipe.recipe_id)} 
+		  	style={realtimeStyles.deleteButton}>
+            <IconSymbol size={15} name="trash" color="#A03535" />
           </Pressable>
           <ScrollView
             scrollEnabled
