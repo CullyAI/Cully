@@ -210,6 +210,17 @@ export const realtimeStyles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#E8E0D3",
   },
+  deleteButton: {
+    position: "absolute", // Position it absolutely within the parent
+    bottom: 10, // Adjust the distance from the top
+    right: 10, // Adjust the distance from the right
+    padding: 8, // Add some padding for better touch area
+    backgroundColor: "#FFF5E3", // Optional: Add a background color to match the box
+    borderRadius: 20, // Optional: Make it circular
+    zIndex: 2, // Ensure it appears above other elements
+    borderWidth: 0.5,
+    borderColor: "#A03535",
+  },
   refreshButton: {
     justifyContent: "center",
     alignItems: "center",
