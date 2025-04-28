@@ -2,11 +2,11 @@ import { useState } from "react";
 import {
   View,
   TextInput,
-  Button,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Animated,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/context/authcontext";
@@ -76,6 +76,7 @@ export default function LoginScreen() {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={authStyles.container}>
       <Text style={authStyles.title}>Log In</Text>
 
@@ -111,9 +112,9 @@ export default function LoginScreen() {
           <IconSymbol size={20} name="arrow.right.circle" color="#FFFBF4" />
         </Animated.View>
       </TouchableOpacity>
-
       {message ? <Text style={authStyles.message}>{message}</Text> : null}
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 

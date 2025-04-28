@@ -188,7 +188,7 @@ export default function ChatScreen() {
 		const res = await delete_recipe({
 			"user": user,
 			"recipe_id": recipe_id,
-		})
+		});
 
 		setMessageMetadata(prev => ({
 			...prev,
@@ -273,7 +273,7 @@ export default function ChatScreen() {
 						activeOpacity={0.7}
 					>
 						<Animated.View style={[chatStyles.saveButtonContent, { transform: [{ scale }] }]}>
-						<IconSymbol size={20} name="bookmark" color="red" />
+							<IconSymbol size={20} name="ellipsis" color="#FFFBF4" />
 						</Animated.View>
 					</TouchableOpacity>
 					) : !messageMetadata[i]?.isSaved ? (
@@ -285,7 +285,7 @@ export default function ChatScreen() {
 						activeOpacity={0.7}
 					>
 						<Animated.View style={[chatStyles.saveButtonContent, { transform: [{ scale }] }]}>
-						<IconSymbol size={20} name="bookmark" color="#FFFBF4" />
+							<IconSymbol size={20} name="bookmark" color="#FFFBF4" />
 						</Animated.View>
 					</TouchableOpacity>
 					) : (
@@ -297,7 +297,7 @@ export default function ChatScreen() {
 						activeOpacity={0.7}
 					>
 						<Animated.View style={[chatStyles.saveButtonContent, { transform: [{ scale }] }]}>
-						<IconSymbol size={20} name="bookmark" color="#000" />
+						<IconSymbol size={20} name="bookmark.fill" color="#FFFBF4" />
 						</Animated.View>
 					</TouchableOpacity>
 					)
