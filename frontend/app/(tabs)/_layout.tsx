@@ -58,7 +58,7 @@ export default function TabLayout() {
           options={{
             title: "RecipeBot",
             tabBarIcon: ({ color }: { color: string }) => (
-              <IconSymbol size={28} name="pencil.and.outline" color={color} />
+              <IconSymbol size={28} name="book.circle" color={color} />
             ),
           }}
         />
@@ -68,6 +68,15 @@ export default function TabLayout() {
             title: "VoiceBot",
             tabBarIcon: ({ color }: { color: string }) => (
               <IconSymbol size={28} name="waveform.circle" color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="macros"
+          options={{
+            title: "Macros",
+            tabBarIcon: ({ color }: { color: string }) => (
+              <IconSymbol size={28} name="chart.pie" color={color} />
             ),
           }}
         />

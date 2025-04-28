@@ -514,7 +514,7 @@ export default function RealtimeScreen() {
             ]}
             pointerEvents="box-none"
           >
-            <Text style={realtimeStyles.tapText}>Tap & hold to speak</Text>
+            <Text style={realtimeStyles.tapText}>Tap & Hold to Speak</Text>
           </Animated.View>
 
           <View style={realtimeStyles.buttonGroup} pointerEvents="box-none">

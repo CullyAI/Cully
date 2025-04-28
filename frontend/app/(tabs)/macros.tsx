@@ -14,7 +14,6 @@ import {
   ScrollView,
 } from "react-native";
 import { profileStyles, macroStyles } from "@/styles/profile";
-import { authStyles } from "@/styles/auth";
 import { IconSymbol } from "@/components/ui/IconSymbol";
 import { useAuth } from "@/context/authcontext";
 import { diseaseData } from "@/assets/info/diseases";
@@ -143,7 +142,15 @@ export default function MacrosPage() {
             contentContainerStyle={{ paddingBottom: 150, paddingTop: 50 }}
             style={{ backgroundColor: "#FFF5E3" }}
         >
-            <Text style={profileStyles.daHeader}>Edit Macros or</Text>
+        <View style={profileStyles.container}>
+
+            <Text style={[
+                profileStyles.daHeader, { 
+                textAlign: "center",
+                
+            }]}>
+                    Edit Macros{"\n"}OR
+            </Text>
             <TouchableOpacity
                 style={profileStyles.buttonMacros}
                 onPressIn={handleSubmitIn}
@@ -162,41 +169,50 @@ export default function MacrosPage() {
                 </Animated.View>
             </TouchableOpacity>
 
-            <View style={macroStyles.responseBox}>
-                <Text style={macroStyles.header}>Target Calories</Text>
-                <TextInput
-                style={macroStyles.output}
-                placeholder={"Your target calories will appear here."}
-                value={calories}
-                onChangeText={setCalories}
+                <Text style={profileStyles.header}>Calories</Text>
+                    <TextInput
+                    style={[profileStyles.input, {marginBottom: 4}]}
+                    placeholder="Set your target calories here..."
+                    value={calories}
+                    onChangeText={setCalories}
+                    autoCapitalize="none"
+                    placeholderTextColor={"#C0BBB2"}
                 />
-                <Text style={macroStyles.header}>Target Protein</Text>
-                <TextInput
-                style={macroStyles.output}
-                placeholder={"Your target protein will appear here."}
-                value={protein}
-                onChangeText={setProtein}
+                <Text style={profileStyles.header}>Protein</Text>
+                    <TextInput
+                    style={[profileStyles.input, {marginBottom: 4}]}
+                    placeholder="Set your target protein here..."
+                    value={protein}
+                    onChangeText={setProtein}
+                    autoCapitalize="none"
+                    placeholderTextColor={"#C0BBB2"}
                 />
-                <Text style={macroStyles.header}>Target Carbs</Text>
-                <TextInput
-                style={macroStyles.output}
-                placeholder={"Your target carbs will appear here."}
-                value={carbs}
-                onChangeText={setCarbs}
+                <Text style={profileStyles.header}>Carbs</Text>
+                    <TextInput
+                    style={[profileStyles.input, {marginBottom: 4}]}
+                    placeholder="Set your target carbs here..."
+                    value={carbs}
+                    onChangeText={setCarbs}
+                    autoCapitalize="none"
+                    placeholderTextColor={"#C0BBB2"}
                 />
-                <Text style={macroStyles.header}>Target Fat</Text>
-                <TextInput
-                style={macroStyles.output}
-                placeholder={"Your target fat will appear here."}
-                value={fat}
-                onChangeText={setFat}
+                <Text style={profileStyles.header}>Fat</Text>
+                    <TextInput
+                    style={[profileStyles.input, {marginBottom: 4}]}
+                    placeholder="Set your target fat here..."
+                    value={fat}
+                    onChangeText={setFat}
+                    autoCapitalize="none"
+                    placeholderTextColor={"#C0BBB2"}
                 />
-                <Text style={macroStyles.header}>Target Meals Per Day</Text>
-                <TextInput
-                style={macroStyles.output}
-                placeholder={"Your target meals per day will appear here."}
-                value={mealsPerDay}
-                onChangeText={setMealsPerDay}
+                <Text style={profileStyles.header}>Target Meals Per Day</Text>
+                    <TextInput
+                    style={[profileStyles.input, {marginBottom: 4}]}
+                    placeholder="Set your target meals per day here..."
+                    value={mealsPerDay}
+                    onChangeText={setMealsPerDay}
+                    autoCapitalize="none"
+                    placeholderTextColor={"#C0BBB2"}
                 />
 
                 <TouchableOpacity
@@ -216,7 +232,8 @@ export default function MacrosPage() {
                         <IconSymbol size={20} name="checkmark" color="#FFFBF4" />
                     </Animated.View>
                 </TouchableOpacity>
-            </View>
+
+        </View>
         </ScrollView>
         </TouchableWithoutFeedback>
       );

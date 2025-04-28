@@ -2,11 +2,11 @@ import { useState } from "react";
 import {
   View,
   TextInput,
-  Button,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Animated,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { supabase } from "@/lib/supabase"
 import { router } from "expo-router"
@@ -73,6 +73,7 @@ export default function SignupScreen() {
   };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={authStyles.container}>
       <Text style={authStyles.title}>Sign Up</Text>
 
@@ -119,5 +120,6 @@ export default function SignupScreen() {
 
       {message ? <Text style={authStyles.message}>{message}</Text> : null}
     </View>
+    </TouchableWithoutFeedback>
   );
 }
