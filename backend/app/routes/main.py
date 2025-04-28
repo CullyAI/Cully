@@ -5,7 +5,6 @@ from flask import (
     session,
     make_response
 )
-from flask_cors import cross_origin
 from werkzeug.security import (
     generate_password_hash, 
     check_password_hash
@@ -23,10 +22,16 @@ with app.app_context():
     except Exception as e:
         print(f"❌ Failed to connect to database: {e}")
 
+
 # Flask Routes
 @app.route("/")
 def index():
     return "🚀 Flask API connected to Supabase!"
+
+
+@app.route('/confirm_email')
+def confirm_email():
+    return "<h2>Email confirmed!</h2><p>You can now return to the Cully app and log in.</p>"
 
 
 @app.route("/signup", methods=["POST"])
@@ -252,10 +257,14 @@ def delete_recipe():
         db.session.delete(recipe)
         db.session.commit()
 
-        return jsonify({"success": True, "message": "Recipe deleted successfully"}), 200
+        return jsonify({
+            "success": True, 
+            "message": "Recipe deleted successfully"
+        }), 200
 
     except Exception as e:
         return jsonify({"error": "Failed to delete recipe"}), 500
+
 
         
     
