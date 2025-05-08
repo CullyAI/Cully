@@ -97,7 +97,7 @@ export const realtimeStyles = StyleSheet.create({
     height: 350,
     borderRadius: 175,
     overflow: "hidden",
-    backgroundColor: "#efc68b",
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",
